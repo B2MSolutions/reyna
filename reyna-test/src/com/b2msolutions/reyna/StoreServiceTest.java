@@ -1,6 +1,7 @@
 package com.b2msolutions.reyna;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,4 +16,9 @@ public class StoreServiceTest {
         StoreService ss = new StoreService();
         assertNotNull(ss);
     }	
+	
+	@Test
+	public void shouldFail() {
+		assertTrue(false);
+	}
 }
