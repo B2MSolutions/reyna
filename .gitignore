@@ -7,10 +7,20 @@
 
 # Java class files
 *.class
+.classpath
+.settings/
 
 # generated files
+build.xml
 bin/
 gen/
-
-# Local configuration file (sdk path, etc)
+tmp/
+libs/
 local.properties
+junit/
+reports/
+
+# eclipse meta
+.metadata
+lint.xml
+.checkstyle
