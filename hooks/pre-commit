@@ -1,4 +1,5 @@
 #!/bin/bash
 set -e
 
-../reyna-test/ant "reyna-test (1)"
+cd ~/src/reyna/reyna-test
+ant "reyna-test (1)"

@@ -1,2 +1,2 @@
 #!/bin/bash
-ln -s pre-commit ../.git/hooks/pre-commit
+ln -s ~/src/reyna/hooks/pre-commit ../.git/hooks/pre-commit
