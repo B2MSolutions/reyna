@@ -6,6 +6,10 @@ import android.util.Log;
 
 public class StoreService extends IntentService {
 
+	public static final String MESSAGE = "com.b2msolutions.reyna.REYNA_MESSAGE";
+	
+	protected IStore store;
+
 	public StoreService() {
 		super(StoreService.class.getName());
 	}
@@ -13,5 +17,22 @@ public class StoreService extends IntentService {
 	@Override
 	protected void onHandleIntent(Intent intent) {
 		Log.i(this.getApplicationContext().getString(R.string.library_name), "StoreService:onHandleIntent");
+		
+		if(intent == null) {
+			return;
+		}
+		
+		Message message = (Message)intent.getSerializableExtra(MESSAGE);
+		if(message != null) {
+			this.getStore().store(message);
+		}
 	}
+	
+	private IStore getStore() {
+		if(this.store == null) {
+			this.store = new Repository(this);
+		}
+		
+		return this.store;
+	}	
 }

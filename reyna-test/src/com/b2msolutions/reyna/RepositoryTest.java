@@ -5,8 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Hashtable;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,19 +40,19 @@ public class RepositoryTest {
 	
 	@Test
 	public void storeShouldNotThrow() {
-		this.repository.store("http://www.zzz.com/q/e", "{ \"some\" : \"json\" }", null);
+		Message message = new Message("url", "body", null);
+		this.repository.store(message);
 	}
 	
 	@Test
 	public void storeWithoutHeadersShouldSave() {
-		String url = "url";
-		String body = "body";
-		this.repository.store(url, body, null);
+		Message message = new Message("url", "body", null);
+		this.repository.store(message);
 		SQLiteDatabase db = this.repository.getReadableDatabase();
 		Cursor messageCursor = db.query("Message", new String[] {"url", "body"}, null, null, null, null, null);
 		assertTrue(messageCursor.moveToFirst());
-		assertEquals(url, messageCursor.getString(0));
-		assertEquals(body, messageCursor.getString(1));
+		assertEquals(message.getUrl(), messageCursor.getString(0));
+		assertEquals(message.getBody(), messageCursor.getString(1));
 		assertTrue(messageCursor.isFirst());
 		assertTrue(messageCursor.isLast());
 		
@@ -63,20 +61,22 @@ public class RepositoryTest {
 	}
 	
 	@Test
-	public void storeWithHeadersShouldSave() {
-		String url = "url";
-		String body = "body";
-				
-		Hashtable<String, String> headers = new Hashtable<String, String>();
-		headers.put("h1", "v1");
-		headers.put("h2", "v2");
-		
-		this.repository.store(url, body, headers);
-		SQLiteDatabase db = this.repository.getReadableDatabase();
+	public void storeWithHeadersShouldSave() {		
+		Message message = getMessageWithHeaders();
+		this.repository.store(message);
+		assertMessage(this.repository, message);		
+	}
+
+	public static Message getMessageWithHeaders() {
+		return new Message("url", "body", new Header[] { new Header("h1", "v1"), new Header("h2", "v2") });		
+	}
+	
+	public static void assertMessage(Repository repository, Message message) {
+		SQLiteDatabase db = repository.getReadableDatabase();
 		Cursor messageCursor = db.query("Message", new String[] {"id", "url", "body"}, null, null, null, null, null);
 		assertTrue(messageCursor.moveToFirst());
-		assertEquals(url, messageCursor.getString(1));
-		assertEquals(body, messageCursor.getString(2));
+		assertEquals(message.getUrl(), messageCursor.getString(1));
+		assertEquals(message.getBody(), messageCursor.getString(2));
 		assertTrue(messageCursor.isFirst());
 		assertTrue(messageCursor.isLast());
 		
@@ -91,6 +91,6 @@ public class RepositoryTest {
 		assertEquals(messageCursor.getLong(0), headerCursor.getLong(0));
 		assertEquals("h2", headerCursor.getString(1));
 		assertEquals("v2", headerCursor.getString(2));
-		assertTrue(headerCursor.isLast());		
+		assertTrue(headerCursor.isLast());
 	}
 }

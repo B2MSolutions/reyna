@@ -1,8 +1,5 @@
 package com.b2msolutions.reyna;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -28,37 +25,29 @@ public class Repository extends SQLiteOpenHelper implements IStore {
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 	}
 
-	public void store(String url, String body, Hashtable<String, String> headers) {
+	public void store(Message message) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		db.beginTransaction();
 		try {
 			ContentValues values = new ContentValues();
-			values.put("url", url);
-			values.put("body", body);
+			values.put("url", message.getUrl());
+			values.put("body", message.getBody());
 			
 			long messageid = db.insert("Message", null, values);
-			this.addHeaders(headers, db, messageid);
+			this.addHeaders(db, messageid, message.getHeaders());
 			db.setTransactionSuccessful();
 		} finally {
 			db.endTransaction();
 		}
 	}
 
-	private void addHeaders(Hashtable<String, String> headers,
-			SQLiteDatabase db, long messageid) {
+	private void addHeaders(SQLiteDatabase db, long messageid, Header[] headers) {
 
-		if (headers == null)
-			return;
-
-		Enumeration<String> e = headers.keys();
-
-		while (e.hasMoreElements()) {
-			String key = e.nextElement();
-
+		for(Header header : headers) {
 			ContentValues headerValues = new ContentValues();
 			headerValues.put("messageid", messageid);
-			headerValues.put("key", key);
-			headerValues.put("value", headers.get(key));
+			headerValues.put("key", header.getKey());
+			headerValues.put("value", header.getValue());
 
 			db.insert("Header", null, headerValues);
 		}
