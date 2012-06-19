@@ -3,3 +3,5 @@ set -e
 
 cd ~/src/reyna/reyna-test
 ant "reyna-test (1)"
+
+lint -Werror .
