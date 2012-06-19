@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+echo 'building reyna'
 cd ~/src/reyna/reyna
 rm build.xml
 
@@ -8,8 +9,10 @@ android update project -p .
 ant clean
 ant release
 
-cd ~/src/reyna/reyna-test
-ant "reyna-test (1)"
-
+echo 'running lint'
 cd ~/src/reyna
 lint -Werror .
+
+echo 'running tests'
+cd ~/src/reyna/reyna-test
+ant "reyna-test (1)"
