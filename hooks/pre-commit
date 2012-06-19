@@ -1,7 +1,15 @@
 #!/bin/bash
 set -e
 
+cd ~/src/reyna/reyna
+rm build.xml
+
+android update project -p .
+ant clean
+ant release
+
 cd ~/src/reyna/reyna-test
 ant "reyna-test (1)"
 
+cd ~/src/reyna
 lint -Werror .
