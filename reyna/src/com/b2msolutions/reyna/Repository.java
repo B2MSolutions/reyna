@@ -16,10 +16,11 @@ public class Repository extends SQLiteOpenHelper {
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		db.execSQL("CREATE TABLE Message (ID INTEGER PRIMARY KEY AUTOINCREMENT,URL TEXT, BODY TEXT);");            
+		db.execSQL("CREATE TABLE Message (id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT, body TEXT);");            
+		db.execSQL("CREATE TABLE Header (id INTEGER PRIMARY KEY AUTOINCREMENT, messageid INTEGER, value TEXT, FOREIGN KEY(messageid) REFERENCES message(id));");
 	}
 
 	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {		
 	}
 }
