@@ -1,0 +1,4 @@
+#!/bin/bash
+set -e
+
+../reyna-test/ant "reyna-test (1)"
