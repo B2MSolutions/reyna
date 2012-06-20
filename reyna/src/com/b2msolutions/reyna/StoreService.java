@@ -1,15 +1,12 @@
 package com.b2msolutions.reyna;
 
-import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
 
-public class StoreService extends IntentService {
+public class StoreService extends RepositoryService {
 
-	public static final String MESSAGE = "com.b2msolutions.reyna.REYNA_MESSAGE";
+	public static final String MESSAGE = "com.b2msolutions.reyna.MESSAGE";
 	
-	protected IRepository store;
-
 	public StoreService() {
 		super(StoreService.class.getName());
 	}
@@ -27,12 +24,4 @@ public class StoreService extends IntentService {
 			this.getStore().insert(message);
 		}
 	}
-	
-	private IRepository getStore() {
-		if(this.store == null) {
-			this.store = new Repository(this);
-		}
-		
-		return this.store;
-	}	
 }
