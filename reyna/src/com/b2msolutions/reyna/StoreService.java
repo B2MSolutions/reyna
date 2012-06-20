@@ -8,7 +8,7 @@ public class StoreService extends IntentService {
 
 	public static final String MESSAGE = "com.b2msolutions.reyna.REYNA_MESSAGE";
 	
-	protected IStore store;
+	protected IRepository store;
 
 	public StoreService() {
 		super(StoreService.class.getName());
@@ -24,11 +24,11 @@ public class StoreService extends IntentService {
 		
 		Message message = (Message)intent.getSerializableExtra(MESSAGE);
 		if(message != null) {
-			this.getStore().store(message);
+			this.getStore().insert(message);
 		}
 	}
 	
-	private IStore getStore() {
+	private IRepository getStore() {
 		if(this.store == null) {
 			this.store = new Repository(this);
 		}

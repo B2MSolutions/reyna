@@ -2,6 +2,7 @@ package com.b2msolutions.reyna;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -31,6 +32,7 @@ public class SerializationTest {
 		assertNotNull(outputObj);
 		Message message2 = (Message)outputObj;
 		
+		assertNull(message2.getId());
 		assertEquals("url", message2.getUrl());
 		assertEquals("body", message2.getBody());
 		assertEquals(2, message2.getHeaders().length);

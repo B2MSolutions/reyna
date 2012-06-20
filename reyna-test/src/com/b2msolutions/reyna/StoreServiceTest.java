@@ -7,7 +7,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 
