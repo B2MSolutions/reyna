@@ -1,6 +1,9 @@
-package com.b2msolutions.reyna;
+package com.b2msolutions.reyna.services;
 
 import android.app.IntentService;
+
+import com.b2msolutions.reyna.R;
+import com.b2msolutions.reyna.Repository;
 
 public abstract class RepositoryService extends IntentService {
 	

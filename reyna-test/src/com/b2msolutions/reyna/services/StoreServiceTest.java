@@ -1,4 +1,4 @@
-package com.b2msolutions.reyna;
+package com.b2msolutions.reyna.services;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -15,6 +15,10 @@ import org.mockito.MockitoAnnotations;
 
 import android.content.Intent;
 
+import com.b2msolutions.reyna.Message;
+import com.b2msolutions.reyna.Repository;
+import com.b2msolutions.reyna.RepositoryTest;
+import com.b2msolutions.reyna.services.StoreService;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)

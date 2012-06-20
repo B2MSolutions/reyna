@@ -1,7 +1,10 @@
-package com.b2msolutions.reyna;
+package com.b2msolutions.reyna.services;
 
 import android.content.Intent;
 import android.util.Log;
+
+import com.b2msolutions.reyna.Message;
+import com.b2msolutions.reyna.R;
 
 public class StoreService extends RepositoryService {
 
