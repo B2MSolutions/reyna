@@ -101,6 +101,7 @@
             <test name="com.b2msolutions.reyna.DispatcherTest" todir="${junit.output.dir}"/>
             <test name="com.b2msolutions.reyna.RepositoryTest" todir="${junit.output.dir}"/>
             <test name="com.b2msolutions.reyna.SerializationTest" todir="${junit.output.dir}"/>
+            <test name="com.b2msolutions.reyna.receivers.ForwardServiceReceiverTest" todir="${junit.output.dir}"/>
             <test name="com.b2msolutions.reyna.services.ForwardServiceTest" todir="${junit.output.dir}"/>
             <test name="com.b2msolutions.reyna.services.StoreServiceTest" todir="${junit.output.dir}"/>
             <classpath refid="reyna-test.classpath"/>
@@ -161,8 +162,17 @@
             <test name="com.b2msolutions.reyna.DispatcherTest" todir="${junit.output.dir}"/>
             <test name="com.b2msolutions.reyna.RepositoryTest" todir="${junit.output.dir}"/>
             <test name="com.b2msolutions.reyna.SerializationTest" todir="${junit.output.dir}"/>
+            <test name="com.b2msolutions.reyna.receivers.ForwardServiceReceiverTest" todir="${junit.output.dir}"/>
             <test name="com.b2msolutions.reyna.services.ForwardServiceTest" todir="${junit.output.dir}"/>
             <test name="com.b2msolutions.reyna.services.StoreServiceTest" todir="${junit.output.dir}"/>
+            <classpath refid="reyna-test.classpath"/>
+        </junit>
+    </target>
+    <target name="ForwardServiceReceiverTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit dir="${workspace_loc:reyna}" fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="com.b2msolutions.reyna.receivers.ForwardServiceReceiverTest" todir="${junit.output.dir}"/>
             <classpath refid="reyna-test.classpath"/>
         </junit>
     </target>

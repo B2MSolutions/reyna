@@ -19,7 +19,9 @@ import com.b2msolutions.reyna.Message;
 import com.b2msolutions.reyna.Repository;
 import com.b2msolutions.reyna.RepositoryTest;
 import com.b2msolutions.reyna.services.StoreService;
+import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
+import com.xtremelabs.robolectric.shadows.ShadowService;
 
 @RunWith(RobolectricTestRunner.class)
 public class StoreServiceTest {
@@ -52,7 +54,7 @@ public class StoreServiceTest {
 	}
 	
 	@Test
-	public void onHandleIntentWithMessageShouldStore() throws URISyntaxException {
+	public void onHandleIntentWithMessageShouldStoreAndStartForwardService() throws URISyntaxException {
 		Message message = RepositoryTest.getMessageWithHeaders();
 		Intent intent = new Intent();
 		intent.putExtra(StoreService.MESSAGE, message);
@@ -69,5 +71,10 @@ public class StoreServiceTest {
 		assertEquals("v1", message.getHeaders()[0].getValue());
 		assertEquals("h2", message.getHeaders()[1].getKey());
 		assertEquals("v2", message.getHeaders()[1].getValue());
+		
+		ShadowService shadowService = Robolectric.shadowOf(this.storeService);
+		Intent service = shadowService.getNextStartedService();
+		assertNotNull(service);
+		assertEquals(ForwardService.class.getName(), service.getComponent().getClassName());
 	}
 }
