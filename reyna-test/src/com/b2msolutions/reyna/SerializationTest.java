@@ -9,6 +9,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,8 +21,8 @@ import com.xtremelabs.robolectric.RobolectricTestRunner;
 public class SerializationTest {
 	
 	@Test
-	public void whenSerializingMessagesShouldDeSerializeCorrectly() throws IOException, ClassNotFoundException {
-		Message message = new Message("url", "body", new Header[] { new Header("h1", "v1"), new Header("h2", "v2") });
+	public void whenSerializingMessagesShouldDeSerializeCorrectly() throws IOException, ClassNotFoundException, URISyntaxException {
+		Message message = new Message(new URI("http://google.com"), "body", new Header[] { new Header("h1", "v1"), new Header("h2", "v2") });
 		ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
 		ObjectOutputStream oos = new ObjectOutputStream(baos); 
 		oos.writeObject(message); 
@@ -33,7 +35,7 @@ public class SerializationTest {
 		Message message2 = (Message)outputObj;
 		
 		assertNull(message2.getId());
-		assertEquals("url", message2.getUrl());
+		assertEquals("http://google.com", message2.getUrl());
 		assertEquals("body", message2.getBody());
 		assertEquals(2, message2.getHeaders().length);
 		assertEquals("h1", message2.getHeaders()[0].getKey());

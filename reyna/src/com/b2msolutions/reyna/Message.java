@@ -1,6 +1,8 @@
 package com.b2msolutions.reyna;
 
 import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class Message implements Serializable {
 	private static final long serialVersionUID = 6230786319646630263L;
@@ -13,13 +15,13 @@ public class Message implements Serializable {
 	
 	private Header[] headers;
 	
-	public Message(String url, String body, Header[] headers) {
-		this(null, url, body, headers);
+	public Message(URI uri, String body, Header[] headers) {
+		this(null, uri, body, headers);
 	}
 
-	public Message(Long id, String url, String body, Header[] headers) {
+	public Message(Long id, URI uri, String body, Header[] headers) {
 		this.id = id;
-		this.url = url;
+		this.url = uri.toString();
 		this.body = body;
 		this.headers = headers;
 		if(this.headers == null) {
@@ -33,6 +35,14 @@ public class Message implements Serializable {
 	
 	public String getUrl() {
 		return this.url;
+	}
+
+	public URI getURI() {
+		try {
+			return new URI(this.url);
+		} catch (URISyntaxException e) {
+			return null;
+		}
 	}
 
 	public String getBody() {

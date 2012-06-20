@@ -6,6 +6,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,14 +48,14 @@ public class RepositoryTest {
 	}
 
 	@Test
-	public void insertShouldNotThrow() {
-		Message message = new Message("url", "body", null);
+	public void insertShouldNotThrow() throws URISyntaxException {
+		Message message = new Message(new URI("http://www.google.com"), "body", null);
 		this.repository.insert(message);
 	}
 	
 	@Test
-	public void insertWithoutHeadersShouldSave() {
-		Message message = new Message("url", "body", null);
+	public void insertWithoutHeadersShouldSave() throws URISyntaxException {
+		Message message = new Message(new URI("http://www.google.com"), "body", null);
 		this.repository.insert(message);
 		SQLiteDatabase db = this.repository.getReadableDatabase();
 		Cursor messageCursor = db.query("Message", new String[] {"url", "body"}, null, null, null, null, null);
@@ -67,12 +70,12 @@ public class RepositoryTest {
 	}
 	
 	@Test
-	public void getNextWithNoMessagesShouldReturnNull() {
+	public void getNextWithNoMessagesShouldReturnNull() throws URISyntaxException {
 		assertNull(this.repository.getNext());
 	}
 
 	@Test
-	public void getNextWithMessageShouldReturnIt() {
+	public void getNextWithMessageShouldReturnIt() throws URISyntaxException {
 		Message message = getMessageWithHeaders();
 		this.repository.insert(message);
 		
@@ -94,17 +97,17 @@ public class RepositoryTest {
 	}
 
 	@Test
-	public void deleteWithMessageThatHasNullIdShouldNotThrow() {
+	public void deleteWithMessageThatHasNullIdShouldNotThrow() throws URISyntaxException {
 		this.repository.delete(getMessageWithHeadersAndNonNullId());
 	}
 	
 	@Test
-	public void deleteWithMissingMessageShouldNotThrow() {
+	public void deleteWithMissingMessageShouldNotThrow() throws URISyntaxException {
 		this.repository.delete(getMessageWithHeaders());
 	}
 	
 	@Test
-	public void deleteWithMessageShouldDelete() {
+	public void deleteWithMessageShouldDelete() throws URISyntaxException {
 		Message message = getMessageWithHeaders();
 		this.repository.insert(message);
 		
@@ -115,18 +118,18 @@ public class RepositoryTest {
 	}
 		
 	@Test
-	public void insertWithHeadersShouldSave() {		
+	public void insertWithHeadersShouldSave() throws URISyntaxException {		
 		Message message = getMessageWithHeaders();
 		this.repository.insert(message);
 		assertMessage(this.repository, message);		
 	}
 
-	public static Message getMessageWithHeaders() {
-		return new Message("url", "body", new Header[] { new Header("h1", "v1"), new Header("h2", "v2") });		
+	public static Message getMessageWithHeaders() throws URISyntaxException {
+		return new Message(new URI("http://www.google.com"), "body", new Header[] { new Header("h1", "v1"), new Header("h2", "v2") });		
 	}
 	
-	public static Message getMessageWithHeadersAndNonNullId() {
-		return new Message(new Long(1), "url", "body", new Header[] { new Header("h1", "v1"), new Header("h2", "v2") });		
+	public static Message getMessageWithHeadersAndNonNullId() throws URISyntaxException {
+		return new Message(new Long(1), new URI("http://www.google.com"), "body", new Header[] { new Header("h1", "v1"), new Header("h2", "v2") });		
 	}
 	
 	public static void assertMessage(Repository repository, Message message) {
@@ -135,6 +138,7 @@ public class RepositoryTest {
 		assertTrue(messageCursor.moveToFirst());
 		assertEquals(message.getUrl(), messageCursor.getString(1));
 		assertEquals(message.getBody(), messageCursor.getString(2));
+		
 		assertTrue(messageCursor.isFirst());
 		assertTrue(messageCursor.isLast());
 		

@@ -1,29 +1,38 @@
 package com.b2msolutions.reyna;
 
+import com.b2msolutions.reyna.Dispatcher.Result;
+
 import android.content.Intent;
 import android.util.Log;
 
-public class ForwardService extends RepositoryService {
-
+public class ForwardService extends RepositoryService {	
+	
+	protected Dispatcher dispatcher;
+	
 	public ForwardService() {
 		super(ForwardService.class.getName());
+		this.dispatcher = new Dispatcher();
 	}
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
-		Log.i(this.getApplicationContext().getString(R.string.library_name), "ForwardService: onHandleIntent");
+		Log.i(this.getLibraryName(), "ForwardService: onHandleIntent");
 		
-		Message message = getStore().getNext();
-		while(message != null) {
-			Log.i(this.getApplicationContext().getString(R.string.library_name), "ForwardService: processing message " + message.getId());
-			if(!sendMessage(message)) break;
-			
-			getStore().delete(message);
-			message = getStore().getNext();
+		try {					
+			Message message = this.repository.getNext();
+			while(message != null) {
+				Log.i(this.getApplicationContext().getString(R.string.library_name), "ForwardService: processing message " + message.getId());
+				Result result = dispatcher.sendMessage(message);
+								
+				if(result == Result.TEMPORARY_ERROR) {
+					return;
+				}
+
+				this.repository.delete(message);
+				message = this.repository.getNext();
+			}
+		} catch(Exception e) {
+			Log.e(this.getLibraryName(), e.getMessage());
 		}
-	}
-	
-	protected boolean sendMessage(Message message) {
-		return true;
-	}
+	}	
 }

@@ -1,5 +1,7 @@
 package com.b2msolutions.reyna;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import android.content.ContentValues;
@@ -8,7 +10,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class Repository extends SQLiteOpenHelper implements IRepository {
+public class Repository extends SQLiteOpenHelper {
 
 	public static final String DATABASE_NAME = "reyna.db";
 
@@ -47,7 +49,7 @@ public class Repository extends SQLiteOpenHelper implements IRepository {
 		}
 	}
 	
-	public Message getNext() {
+	public Message getNext() throws URISyntaxException {
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor messageCursor = db.query("Message", new String[] { "id", "url", "body"}, null, null, null, null, "id", "1");
 		if(!messageCursor.moveToFirst()) return null;
@@ -65,7 +67,8 @@ public class Repository extends SQLiteOpenHelper implements IRepository {
 		
 		Header[] headersForMessage = new Header[headers.size()];
 		headers.toArray(headersForMessage);
-		return new Message(messageid, url, body, (Header[])headersForMessage);
+		
+		return new Message(messageid, new URI(url), body, (Header[])headersForMessage);
 	}
 
 	public void delete(Message message) {

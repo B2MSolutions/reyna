@@ -4,17 +4,14 @@ import android.app.IntentService;
 
 public abstract class RepositoryService extends IntentService {
 	
-	protected IRepository store;
+	protected Repository repository;
 
 	public RepositoryService(String name) {
 		super(name);
-	}
-	
-	protected IRepository getStore() {
-		if(this.store == null) {
-			this.store = new Repository(this);
-		}	
-		
-		return this.store;
+		this.repository = new Repository(this);
 	}	
+	
+	protected String getLibraryName() {
+		return this.getApplicationContext().getString(R.string.library_name);
+	}
 }

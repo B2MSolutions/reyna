@@ -8,6 +8,7 @@
     <property environment="env"/>
     <property name="Junit4" value="../../../../../usr/share/java/junit4.jar"/>
     <property name="android.sdk.8" value="../../../../../usr/local/src/android-sdk-linux/platforms/android-8/android.jar"/>
+    <property name="Mockito" value="../../../../../usr/local/src/mockito/mockito-all-1.9.0.jar"/>
     <property name="Robolectric" value="../../../../../usr/local/src/roboelectric/robolectric-sqlite-1.0.0-20120326.004046-1-jar-with-dependencies.jar"/>
     <property name="ECLIPSE_HOME" value="../../../../../usr/local/src/eclipse"/>
     <property name="workspace_loc:reyna" value="../reyna"/>
@@ -30,6 +31,7 @@
         <pathelement location="bin"/>
         <path refid="reyna.classpath"/>
         <pathelement location="${android.sdk.8}"/>
+        <pathelement location="${Mockito}"/>
         <pathelement location="${Robolectric}"/>
     </path>
     <target name="init">
@@ -76,11 +78,38 @@
         <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
         <antcall target="build"/>
     </target>
-    <target name="src">
+    <target name="RepositoryTest.onCreateShouldNotThrow">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="com.b2msolutions.reyna.RepositoryTest" todir="${junit.output.dir}"/>
+            <classpath refid="reyna-test.classpath"/>
+        </junit>
+    </target>
+    <target name="RepositoryTest">
         <mkdir dir="${junit.output.dir}"/>
         <junit dir="${workspace_loc:reyna}" fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="com.b2msolutions.reyna.RepositoryTest" todir="${junit.output.dir}"/>
+            <classpath refid="reyna-test.classpath"/>
+        </junit>
+    </target>
+    <target name="src">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit dir="${workspace_loc:reyna}" fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="com.b2msolutions.reyna.DispatcherTest" todir="${junit.output.dir}"/>
+            <test name="com.b2msolutions.reyna.ForwardServiceTest" todir="${junit.output.dir}"/>
+            <test name="com.b2msolutions.reyna.RepositoryTest" todir="${junit.output.dir}"/>
+            <test name="com.b2msolutions.reyna.SerializationTest" todir="${junit.output.dir}"/>
+            <test name="com.b2msolutions.reyna.StoreServiceTest" todir="${junit.output.dir}"/>
+            <classpath refid="reyna-test.classpath"/>
+        </junit>
+    </target>
+    <target name="StoreServiceTest.shouldNotFail">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit dir="${workspace_loc:reyna}" fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
             <test name="com.b2msolutions.reyna.StoreServiceTest" todir="${junit.output.dir}"/>
             <classpath refid="reyna-test.classpath"/>
         </junit>
@@ -101,36 +130,39 @@
             <classpath refid="reyna-test.classpath"/>
         </junit>
     </target>
+    <target name="ForwardServiceTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit dir="${workspace_loc:reyna}" fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="com.b2msolutions.reyna.ForwardServiceTest" todir="${junit.output.dir}"/>
+            <classpath refid="reyna-test.classpath"/>
+        </junit>
+    </target>
+    <target name="SerializationTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit dir="${workspace_loc:reyna}" fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="com.b2msolutions.reyna.SerializationTest" todir="${junit.output.dir}"/>
+            <classpath refid="reyna-test.classpath"/>
+        </junit>
+    </target>
+    <target name="DispatcherTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit dir="${workspace_loc:reyna}" fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="com.b2msolutions.reyna.DispatcherTest" todir="${junit.output.dir}"/>
+            <classpath refid="reyna-test.classpath"/>
+        </junit>
+    </target>
     <target name="reyna-test (1)">
         <mkdir dir="${junit.output.dir}"/>
         <junit dir="${workspace_loc:reyna}" fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
+            <test name="com.b2msolutions.reyna.DispatcherTest" todir="${junit.output.dir}"/>
+            <test name="com.b2msolutions.reyna.ForwardServiceTest" todir="${junit.output.dir}"/>
             <test name="com.b2msolutions.reyna.RepositoryTest" todir="${junit.output.dir}"/>
+            <test name="com.b2msolutions.reyna.SerializationTest" todir="${junit.output.dir}"/>
             <test name="com.b2msolutions.reyna.StoreServiceTest" todir="${junit.output.dir}"/>
-            <classpath refid="reyna-test.classpath"/>
-        </junit>
-    </target>
-    <target name="RepositoryTest">
-        <mkdir dir="${junit.output.dir}"/>
-        <junit dir="${workspace_loc:reyna}" fork="yes" printsummary="withOutAndErr">
-            <formatter type="xml"/>
-            <test name="com.b2msolutions.reyna.RepositoryTest" todir="${junit.output.dir}"/>
-            <classpath refid="reyna-test.classpath"/>
-        </junit>
-    </target>
-    <target name="StoreServiceTest.shouldNotFail">
-        <mkdir dir="${junit.output.dir}"/>
-        <junit dir="${workspace_loc:reyna}" fork="yes" printsummary="withOutAndErr">
-            <formatter type="xml"/>
-            <test name="com.b2msolutions.reyna.StoreServiceTest" todir="${junit.output.dir}"/>
-            <classpath refid="reyna-test.classpath"/>
-        </junit>
-    </target>
-    <target name="RepositoryTest.onCreateShouldNotThrow">
-        <mkdir dir="${junit.output.dir}"/>
-        <junit fork="yes" printsummary="withOutAndErr">
-            <formatter type="xml"/>
-            <test name="com.b2msolutions.reyna.RepositoryTest" todir="${junit.output.dir}"/>
             <classpath refid="reyna-test.classpath"/>
         </junit>
     </target>
