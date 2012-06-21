@@ -22,7 +22,7 @@ public class SerializationTest {
 	
 	@Test
 	public void whenSerializingMessagesShouldDeSerializeCorrectly() throws IOException, ClassNotFoundException, URISyntaxException {
-		Message message = new Message(new URI("http://google.com"), "body", new Header[] { new Header("h1", "v1"), new Header("h2", "v2") });
+		Message message = new Message(new URI("https://google.com"), "body", new Header[] { new Header("h1", "v1"), new Header("h2", "v2") });
 		ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
 		ObjectOutputStream oos = new ObjectOutputStream(baos); 
 		oos.writeObject(message); 
@@ -35,7 +35,7 @@ public class SerializationTest {
 		Message message2 = (Message)outputObj;
 		
 		assertNull(message2.getId());
-		assertEquals("http://google.com", message2.getUrl());
+		assertEquals("https://google.com", message2.getUrl());
 		assertEquals("body", message2.getBody());
 		assertEquals(2, message2.getHeaders().length);
 		assertEquals("h1", message2.getHeaders()[0].getKey());

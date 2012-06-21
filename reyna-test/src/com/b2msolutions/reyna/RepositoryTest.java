@@ -49,13 +49,13 @@ public class RepositoryTest {
 
 	@Test
 	public void insertShouldNotThrow() throws URISyntaxException {
-		Message message = new Message(new URI("http://www.google.com"), "body", null);
+		Message message = new Message(new URI("https://www.google.com"), "body", null);
 		this.repository.insert(message);
 	}
 	
 	@Test
 	public void insertWithoutHeadersShouldSave() throws URISyntaxException {
-		Message message = new Message(new URI("http://www.google.com"), "body", null);
+		Message message = new Message(new URI("https://www.google.com"), "body", null);
 		this.repository.insert(message);
 		SQLiteDatabase db = this.repository.getReadableDatabase();
 		Cursor messageCursor = db.query("Message", new String[] {"url", "body"}, null, null, null, null, null);
@@ -127,11 +127,11 @@ public class RepositoryTest {
 	}
 
 	public static Message getMessageWithHeaders() throws URISyntaxException {
-		return new Message(new URI("http://www.google.com"), "body", new Header[] { new Header("h1", "v1"), new Header("h2", "v2") });		
+		return new Message(new URI("https://www.google.com"), "body", new Header[] { new Header("h1", "v1"), new Header("h2", "v2") });		
 	}
 	
 	public static Message getMessageWithHeadersAndNonNullId() throws URISyntaxException {
-		return new Message(new Long(1), new URI("http://www.google.com"), "body", new Header[] { new Header("h1", "v1"), new Header("h2", "v2") });		
+		return new Message(new Long(1), new URI("https://www.google.com"), "body", new Header[] { new Header("h1", "v1"), new Header("h2", "v2") });		
 	}
 	
 	public static void assertMessage(Repository repository, Message message) {

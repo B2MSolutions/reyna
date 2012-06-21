@@ -1,9 +1,7 @@
 package com.b2msolutions.reyna;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -47,12 +45,12 @@ public class DispatcherTest {
 		assertEquals(Result.OK, new Dispatcher().sendMessage(message, httpPost, httpClient));
 		
 		this.verifyHttpPost(message, httpPost);
-		verify(httpClient, never()).setPort(anyInt());
+		verify(httpClient).setPort(443);
 	}
 	
 	@Test
 	public void sendMessageHappyPathWithPortShouldSetPort() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
-		Message message = new Message(new URI("http://www.google.com:9008/a/b"), "body", null);
+		Message message = new Message(new URI("https://www.google.com:9008/a/b"), "body", null);
 		
 		StatusLine statusLine = mock(StatusLine.class);
 		when(statusLine.getStatusCode()).thenReturn(200);

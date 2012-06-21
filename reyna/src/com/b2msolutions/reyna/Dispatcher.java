@@ -42,9 +42,11 @@ public class Dispatcher {
 		
 		try {
 			int port = uri.getPort();
-			if(port != -1) {
-				httpClient.setPort(port);
+			if(port == -1) {
+				port = 443;
 			}
+			
+			httpClient.setPort(port);
 		} catch (Exception e) {
 			Log.e("reyna", e.getMessage());
 		}

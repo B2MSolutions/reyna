@@ -20,7 +20,11 @@ public class Message implements Serializable {
 	}
 
 	public Message(Long id, URI uri, String body, Header[] headers) {
+		
+		if(!uri.getScheme().equalsIgnoreCase("https")) throw new UnsupportedOperationException("Only https is supported");
+
 		this.id = id;
+		
 		this.url = uri.toString();
 		this.body = body;
 		this.headers = headers;
