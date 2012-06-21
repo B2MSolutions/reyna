@@ -9,6 +9,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 public class Repository extends SQLiteOpenHelper {
 
@@ -22,16 +23,18 @@ public class Repository extends SQLiteOpenHelper {
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
+		Log.i("reyna", "Repository: onCreate");
 		db.execSQL("CREATE TABLE Message (id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT, body TEXT);");
 		db.execSQL("CREATE TABLE Header (id INTEGER PRIMARY KEY AUTOINCREMENT, messageid INTEGER, key TEXT, value TEXT, FOREIGN KEY(messageid) REFERENCES message(id));");
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+		Log.i("reyna", "Repository: onUpgrade");
 	}
 
 	public void insert(Message message) {
-
+		Log.i("reyna", "Repository: insert");
 		if (message == null)
 			return;
 
@@ -43,9 +46,11 @@ public class Repository extends SQLiteOpenHelper {
 			values.put("url", message.getUrl());
 			values.put("body", message.getBody());
 
-			long messageid = db.insert("Message", null, values);
+			long messageid = db.insert("Message", null, values);			
 			this.addHeaders(db, messageid, message.getHeaders());
 			db.setTransactionSuccessful();
+			
+			Log.i("reyna", "Repository: inserted message " + messageid);
 		} finally {
 			if (db != null) {
 				db.endTransaction();
@@ -54,6 +59,7 @@ public class Repository extends SQLiteOpenHelper {
 	}
 
 	public Message getNext() throws URISyntaxException {
+		Log.i("reyna", "Repository: getNext");
 		Cursor messageCursor = null;
 		Cursor headersCursor = null;
 
@@ -92,7 +98,7 @@ public class Repository extends SQLiteOpenHelper {
 	}
 
 	public void delete(Message message) {
-
+		Log.i("reyna", "Repository: delete");
 		if (message == null)
 			return;
 		if (message.getId() == null)
