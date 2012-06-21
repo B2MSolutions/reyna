@@ -31,55 +31,81 @@ public class Repository extends SQLiteOpenHelper {
 	}
 
 	public void insert(Message message) {
-		
-		if (message == null) return;
-		
-		SQLiteDatabase db = this.getWritableDatabase();
-		db.beginTransaction();
+
+		if (message == null)
+			return;
+
+		SQLiteDatabase db = null;
 		try {
+			db = this.getWritableDatabase();
+			db.beginTransaction();
 			ContentValues values = new ContentValues();
 			values.put("url", message.getUrl());
 			values.put("body", message.getBody());
-			
+
 			long messageid = db.insert("Message", null, values);
 			this.addHeaders(db, messageid, message.getHeaders());
 			db.setTransactionSuccessful();
 		} finally {
-			db.endTransaction();
+			if (db != null) {
+				db.endTransaction();
+			}
 		}
 	}
-	
+
 	public Message getNext() throws URISyntaxException {
-		SQLiteDatabase db = this.getReadableDatabase();
-		Cursor messageCursor = db.query("Message", new String[] { "id", "url", "body"}, null, null, null, null, "id", "1");
-		if(!messageCursor.moveToFirst()) return null;
-		
-		long messageid = messageCursor.getLong(0);
-		String url = messageCursor.getString(1);
-		String body = messageCursor.getString(2);	
-		
-		Cursor headersCursor = db.query("Header", new String[] { "id", "key", "value"}, "messageid = " + messageid, null, null, null, null);
-			
-		ArrayList<Header> headers = new ArrayList<Header>();
-		while(headersCursor.moveToNext()) {
-			headers.add(new Header(headersCursor.getLong(0), headersCursor.getString(1), headersCursor.getString(2)));
+		Cursor messageCursor = null;
+		Cursor headersCursor = null;
+
+		try {
+			SQLiteDatabase db = this.getReadableDatabase();
+			messageCursor = db.query("Message", new String[] { "id", "url",
+					"body" }, null, null, null, null, "id", "1");
+			if (!messageCursor.moveToFirst())
+				return null;
+
+			long messageid = messageCursor.getLong(0);
+			String url = messageCursor.getString(1);
+			String body = messageCursor.getString(2);
+
+			headersCursor = db.query("Header", new String[] { "id", "key",
+					"value" }, "messageid = " + messageid, null, null, null,
+					null);
+
+			ArrayList<Header> headers = new ArrayList<Header>();
+			while (headersCursor.moveToNext()) {
+				headers.add(new Header(headersCursor.getLong(0), headersCursor
+						.getString(1), headersCursor.getString(2)));
+			}
+
+			Header[] headersForMessage = new Header[headers.size()];
+			headers.toArray(headersForMessage);
+
+			return new Message(messageid, new URI(url), body,
+					(Header[]) headersForMessage);
+		} finally {
+			if (messageCursor != null)
+				messageCursor.close();
+			if (headersCursor != null)
+				headersCursor.close();
 		}
-		
-		Header[] headersForMessage = new Header[headers.size()];
-		headers.toArray(headersForMessage);
-		
-		return new Message(messageid, new URI(url), body, (Header[])headersForMessage);
 	}
 
 	public void delete(Message message) {
-		
-		if(message == null) return;
-		if(message.getId() == null) return;
-		
+
+		if (message == null)
+			return;
+		if (message.getId() == null)
+			return;
+
 		SQLiteDatabase db = this.getReadableDatabase();
-		Cursor cursor = db.query("Message", new String[] { "id" }, "id = ?", new String[] { message.getId().toString() }, null, null, null);
-		if (!cursor.moveToFirst()) return;
-		
+		if (!this.doesMessageExist(db, message))
+			return;
+
+		this.deleteExistingMessage(db, message);
+	}
+
+	private void deleteExistingMessage(SQLiteDatabase db, Message message) {
 		db.beginTransaction();
 		try {
 			String[] args = new String[] { message.getId().toString() };
@@ -91,9 +117,22 @@ public class Repository extends SQLiteOpenHelper {
 		}
 	}
 
+	private boolean doesMessageExist(SQLiteDatabase db, Message message) {
+		Cursor cursor = null;
+		try {
+			cursor = db.query("Message", new String[] { "id" }, "id = ?",
+					new String[] { message.getId().toString() }, null, null,
+					null);
+			return cursor.moveToFirst();
+		} finally {
+			if (cursor != null)
+				cursor.close();
+		}
+	}
+
 	private void addHeaders(SQLiteDatabase db, long messageid, Header[] headers) {
 
-		for(Header header : headers) {
+		for (Header header : headers) {
 			ContentValues headerValues = new ContentValues();
 			headerValues.put("messageid", messageid);
 			headerValues.put("key", header.getKey());

@@ -64,9 +64,11 @@ public class RepositoryTest {
 		assertEquals(message.getBody(), messageCursor.getString(1));
 		assertTrue(messageCursor.isFirst());
 		assertTrue(messageCursor.isLast());
+		messageCursor.close();
 		
 		Cursor headerCursor = db.query("Header", new String[] {"messageid", "key", "value"}, null, null, null, null, null);
 		assertFalse(headerCursor.moveToFirst());
+		headerCursor.close();
 	}
 	
 	@Test
@@ -154,5 +156,8 @@ public class RepositoryTest {
 		assertEquals("h2", headerCursor.getString(1));
 		assertEquals("v2", headerCursor.getString(2));
 		assertTrue(headerCursor.isLast());
+		
+		messageCursor.close();
+		headerCursor.close();
 	}
 }

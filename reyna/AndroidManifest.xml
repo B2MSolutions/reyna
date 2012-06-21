@@ -15,7 +15,7 @@
         <!-- Add these services and receiver to your application -->
         <service android:name="com.b2msolutions.reyna.services.StoreService" />
         <service android:name="com.b2msolutions.reyna.services.ForwardService" />
-        <receiver android:name=".receivers.ForwardServiceReceiver">
+        <receiver android:name="com.b2msolutions.reyna.receivers.ForwardServiceReceiver">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
