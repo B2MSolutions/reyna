@@ -1,13 +1,20 @@
 package com.b2msolutions.reyna;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -25,7 +32,7 @@ import com.xtremelabs.robolectric.RobolectricTestRunner;
 public class DispatcherTest {
 
 	@Test
-	public void sendMessageHappyPathShouldSetExecuteCorrectHttpPostAndReturnOK() throws URISyntaxException, ClientProtocolException, IOException {
+	public void sendMessageHappyPathShouldSetExecuteCorrectHttpPostAndReturnOK() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
 		Message message = RepositoryTest.getMessageWithHeaders(); 
 		
 		StatusLine statusLine = mock(StatusLine.class);
@@ -40,6 +47,25 @@ public class DispatcherTest {
 		assertEquals(Result.OK, new Dispatcher().sendMessage(message, httpPost, httpClient));
 		
 		this.verifyHttpPost(message, httpPost);
+		verify(httpClient, never()).setPort(anyInt());
+	}
+	
+	@Test
+	public void sendMessageHappyPathWithPortShouldSetPort() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+		Message message = new Message(new URI("http://www.google.com:9008/a/b"), "body", null);
+		
+		StatusLine statusLine = mock(StatusLine.class);
+		when(statusLine.getStatusCode()).thenReturn(200);
+		HttpResponse httpResponse = mock(HttpResponse.class);
+		when(httpResponse.getStatusLine()).thenReturn(statusLine);
+		
+		HttpPost httpPost = mock(HttpPost.class);
+		IgnoreCertsHttpClient httpClient = mock(IgnoreCertsHttpClient.class);
+		when(httpClient.execute(httpPost)).thenReturn(httpResponse);
+		
+		assertEquals(Result.OK, new Dispatcher().sendMessage(message, httpPost, httpClient));
+		
+		verify(httpClient).setPort(9008);
 	}
 
 	@Test

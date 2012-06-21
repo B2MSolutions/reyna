@@ -1,5 +1,7 @@
 package com.b2msolutions.reyna;
 
+import java.net.URI;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 
@@ -22,7 +24,11 @@ public class Dispatcher {
 			httpPost.setHeader(header.getKey(), header.getValue());
 		}
 
-		httpPost.setURI(message.getURI());
+		URI uri = message.getURI();
+		this.setPort(httpClient, uri);
+ 		
+		httpPost.setURI(uri);
+		
 		try {
 			HttpResponse response = httpClient.execute(httpPost);
 			return getResult(response.getStatusLine().getStatusCode());
@@ -30,6 +36,18 @@ public class Dispatcher {
 			Log.i("reyna", "Dispatcher: " + e.getMessage());
 			return Result.TEMPORARY_ERROR;
 		}		
+	}
+
+	private void setPort(IgnoreCertsHttpClient httpClient, URI uri) {
+		
+		try {
+			int port = uri.getPort();
+			if(port != -1) {
+				httpClient.setPort(port);
+			}
+		} catch (Exception e) {
+			Log.e("reyna", e.getMessage());
+		}
 	}
 	
 	protected static Result getResult(int statusCode) {
