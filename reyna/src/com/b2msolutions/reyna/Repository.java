@@ -30,6 +30,12 @@ public class Repository extends SQLiteOpenHelper {
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 	}
 
+	@Override
+	protected void finalize() throws Throwable {
+		super.finalize();
+		this.close();
+	}
+
 	public void insert(Message message) {
 
 		if (message == null)
