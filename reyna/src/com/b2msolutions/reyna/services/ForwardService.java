@@ -27,15 +27,15 @@ public class ForwardService extends RepositoryService {
 				Log.i(this.getApplicationContext().getString(R.string.library_name), "ForwardService: processing message " + message.getId());
 				Result result = dispatcher.sendMessage(message);
 								
-				if(result == Result.TEMPORARY_ERROR) {
-					return;
-				}
+				if(result == Result.TEMPORARY_ERROR) return;
 
 				this.repository.delete(message);
 				message = this.repository.getNext();
-			}
+			}		
 		} catch(Exception e) {
 			Log.e(this.getLibraryName(), e.getMessage());
-		}
+		} finally {
+			this.repository.close();		
+		}		
 	}	
 }

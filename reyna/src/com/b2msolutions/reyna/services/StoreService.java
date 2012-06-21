@@ -31,8 +31,16 @@ public class StoreService extends RepositoryService {
 		
 		Message message = (Message)intent.getSerializableExtra(MESSAGE);
 		if(message != null) {
+			this.insert(message);
+		}
+	}
+
+	private void insert(Message message) {
+		try {
 			this.repository.insert(message);
 			this.startService(new Intent(this, ForwardService.class));
+		} finally {
+			this.repository.close();
 		}
 	}
 }
