@@ -17,7 +17,7 @@ Reyna will keep trying to post your requests until there is a valid connection.
 		
 	// Create the message to send
 	Message message = new Message(
-		new URI("http://server.tosendmessageto.com), 
+		new URI("http://server.tosendmessageto.com"), 
 		"body of post, probably JSON", 
 		headers);		
     
