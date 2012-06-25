@@ -16,6 +16,8 @@ public class Repository extends SQLiteOpenHelper {
 	public static final String DATABASE_NAME = "reyna.db";
 
 	public static final int DATABASE_VERSION = 1;
+	
+	private static final String TAG = "Repository";
 
 	public Repository(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -23,18 +25,18 @@ public class Repository extends SQLiteOpenHelper {
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		Log.i("reyna", "Repository: onCreate");
+		Log.v(TAG, "onCreate");
 		db.execSQL("CREATE TABLE Message (id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT, body TEXT);");
 		db.execSQL("CREATE TABLE Header (id INTEGER PRIMARY KEY AUTOINCREMENT, messageid INTEGER, key TEXT, value TEXT, FOREIGN KEY(messageid) REFERENCES message(id));");
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		Log.i("reyna", "Repository: onUpgrade");
+		Log.v(TAG, "onUpgrade");
 	}
 
 	public void insert(Message message) {
-		Log.i("reyna", "Repository: insert");
+		Log.v(TAG, "insert");
 		if (message == null)
 			return;
 
@@ -59,7 +61,7 @@ public class Repository extends SQLiteOpenHelper {
 	}
 
 	public Message getNext() throws URISyntaxException {
-		Log.i("reyna", "Repository: getNext");
+		Log.v(TAG, "getNext");
 		Cursor messageCursor = null;
 		Cursor headersCursor = null;
 
@@ -98,7 +100,7 @@ public class Repository extends SQLiteOpenHelper {
 	}
 
 	public void delete(Message message) {
-		Log.i("reyna", "Repository: delete");
+		Log.v(TAG, "delete");
 		if (message == null)
 			return;
 		if (message.getId() == null)
@@ -112,6 +114,7 @@ public class Repository extends SQLiteOpenHelper {
 	}
 
 	private void deleteExistingMessage(SQLiteDatabase db, Message message) {
+		Log.v(TAG, "deleteExistingMessage");
 		db.beginTransaction();
 		try {
 			String[] args = new String[] { message.getId().toString() };
@@ -124,6 +127,8 @@ public class Repository extends SQLiteOpenHelper {
 	}
 
 	private boolean doesMessageExist(SQLiteDatabase db, Message message) {
+		Log.v(TAG, "doesMessageExist");
+		
 		Cursor cursor = null;
 		try {
 			cursor = db.query("Message", new String[] { "id" }, "id = ?",
@@ -137,7 +142,8 @@ public class Repository extends SQLiteOpenHelper {
 	}
 
 	private void addHeaders(SQLiteDatabase db, long messageid, Header[] headers) {
-
+		Log.v(TAG, "addHeaders");
+		
 		for (Header header : headers) {
 			ContentValues headerValues = new ContentValues();
 			headerValues.put("messageid", messageid);
