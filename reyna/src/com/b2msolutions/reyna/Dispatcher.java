@@ -3,11 +3,10 @@ package com.b2msolutions.reyna;
 import java.net.URI;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 
 import android.util.Log;
 
+import com.b2msolutions.reyna.http.HttpPost;
 import com.b2msolutions.reyna.http.IgnoreCertsHttpClient;
 
 public class Dispatcher {
@@ -45,7 +44,7 @@ public class Dispatcher {
 			URI uri = message.getURI();
 			this.setPort(httpClient, uri);
 			httpPost.setURI(uri);
-			httpPost.setEntity(new StringEntity(message.getBody()));
+			httpPost.setEntity(message.getBody());
 			return Result.OK;
 		} catch (Exception e) {
 			Log.e(TAG, "parseHttpPost", e);

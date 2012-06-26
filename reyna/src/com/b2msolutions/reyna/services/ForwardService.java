@@ -10,16 +10,20 @@ import com.b2msolutions.reyna.R;
 
 public class ForwardService extends RepositoryService {	
 	
+	private static final String TAG = "ForwardService";
+	
 	protected Dispatcher dispatcher;
 	
 	public ForwardService() {
 		super(ForwardService.class.getName());
+
+		Log.v(TAG, "ForwardService()");
 		this.dispatcher = new Dispatcher();
 	}
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
-		Log.i(this.getLibraryName(), "ForwardService: onHandleIntent");
+		Log.v(TAG, "onHandleIntent");
 		
 		try {					
 			Message message = this.repository.getNext();
@@ -35,7 +39,7 @@ public class ForwardService extends RepositoryService {
 				message = this.repository.getNext();
 			}		
 		} catch(Exception e) {
-			Log.e(this.getLibraryName(), e.getMessage());
+			Log.e(TAG, "onHandleIntent", e);
 		} finally {
 			this.repository.close();		
 		}		

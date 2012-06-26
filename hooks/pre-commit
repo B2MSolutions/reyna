@@ -15,4 +15,28 @@ lint -Werror .
 
 echo 'running tests'
 cd ~/src/reyna/reyna-test
+
+rm -r junit
 ant "reyna-test (1)"
+
+ant junitreport
+
+if [ ! -f junit/TESTS-TestSuites.xml ]
+then
+	echo 'Tests FAILED (missing file)'
+fi
+
+
+if grep -q -m 1 '<failure' junit/TESTS-TestSuites.xml
+then
+	echo "Tests FAILED"
+  exit 1
+fi
+
+if grep -q -m 1 '<error' junit/TESTS-TestSuites.xml
+then
+	echo "Tests ERRORED"
+  exit 1
+fi
+
+echo "Tests OK"

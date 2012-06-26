@@ -17,12 +17,12 @@ import java.security.cert.CertificateException;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpPost;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
 import com.b2msolutions.reyna.Dispatcher.Result;
+import com.b2msolutions.reyna.http.HttpPost;
 import com.b2msolutions.reyna.http.IgnoreCertsHttpClient;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 
@@ -46,6 +46,7 @@ public class DispatcherTest {
 		
 		this.verifyHttpPost(message, httpPost);
 		verify(httpClient).setPort(443);
+		verify(httpPost).setEntity("body");
 	}
 	
 	@Test
@@ -64,6 +65,7 @@ public class DispatcherTest {
 		assertEquals(Result.OK, new Dispatcher().sendMessage(message, httpPost, httpClient));
 		
 		verify(httpClient).setPort(9008);
+		verify(httpPost).setEntity("body");
 	}
 
 	@Test
