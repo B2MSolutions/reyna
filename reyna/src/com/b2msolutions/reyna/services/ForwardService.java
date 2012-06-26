@@ -6,7 +6,6 @@ import android.util.Log;
 import com.b2msolutions.reyna.Dispatcher;
 import com.b2msolutions.reyna.Dispatcher.Result;
 import com.b2msolutions.reyna.Message;
-import com.b2msolutions.reyna.R;
 
 public class ForwardService extends RepositoryService {	
 	
@@ -28,10 +27,10 @@ public class ForwardService extends RepositoryService {
 		try {					
 			Message message = this.repository.getNext();
 			while(message != null) {
-				Log.i(this.getApplicationContext().getString(R.string.library_name), "ForwardService: processing message " + message.getId());
+				Log.i(TAG, "ForwardService: processing message " + message.getId());
 				Result result = dispatcher.sendMessage(message);
 				
-				Log.i(this.getApplicationContext().getString(R.string.library_name), "ForwardService: send message result: " + result.toString());
+				Log.i(TAG, "ForwardService: send message result: " + result.toString());
 				
 				if(result == Result.TEMPORARY_ERROR) return;
 

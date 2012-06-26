@@ -22,6 +22,6 @@ public abstract class RepositoryService extends IntentService {
 	protected String getLibraryName() {
 		Log.v(TAG, "getLibraryName()");
 		
-		return this.getApplicationContext().getString(R.string.library_name);
+		return this.getApplicationContext().getString(R.string.reyna_library_name);
 	}
 }
