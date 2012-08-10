@@ -54,3 +54,6 @@ You will need to add the following entries into your AndroidManifest.xml in orde
 	// Send the message to Reyna
 	StoreService.start(context, message);
 ```
+
+## Contributors
+Pair programmed by [Roy Lines](http://roylines.co.uk) and [James Bloomer](https://github.com/jamesbloomer).
