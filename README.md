@@ -1,11 +1,11 @@
 reyna : Icelandic for "try"
 =====
-An android store and forward library for http post requests. 
+An android store and forward library for http post requests.
 Reyna will keep trying to post your requests until there is a valid connection.
 
-## Installation 
-Reyna is a standard android library. 
-You can reference it in your android projects in the [usual way]("http://developer.android.com/tools/projects/projects-eclipse.html").
+## Installation
+Reyna is a standard android library.
+You can reference it in your android projects in the [usual way](http://developer.android.com/tools/projects/projects-eclipse.html).
 
 ## Android Manifest
 You will need to add the following entries into your AndroidManifest.xml in order for reyna to have the correct permissions, services and receivers.
@@ -21,7 +21,7 @@ You will need to add the following entries into your AndroidManifest.xml in orde
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
-		<application>        
+		<application>
         <service android:name="com.b2msolutions.reyna.services.StoreService" />
         <service android:name="com.b2msolutions.reyna.services.ForwardService" />
         <receiver android:name="com.b2msolutions.reyna.receivers.ForwardServiceReceiver">
@@ -33,24 +33,24 @@ You will need to add the following entries into your AndroidManifest.xml in orde
  </manifest>
 ```
 
-## Usage 
+## Usage
 
 
 ```java
 	import com.b2msolutions.reyna.services.StoreService;
-    
+
 	// Add any headers if required
 	Header[] headers = new Header[] {
 		new Header("Content-Type", "application/json"),
 		new Header("myheader", "header content")
 	};
-		
+
 	// Create the message to send
 	Message message = new Message(
-		new URI("http://server.tosendmessageto.com"), 
-		"body of post, probably JSON", 
-		headers);		
-    
+		new URI("http://server.tosendmessageto.com"),
+		"body of post, probably JSON",
+		headers);
+
 	// Send the message to Reyna
 	StoreService.start(context, message);
 ```
