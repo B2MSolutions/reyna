@@ -1,11 +1,12 @@
 package com.b2msolutions.reyna.services;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.verify;
-
-import java.net.URISyntaxException;
-
+import android.content.Intent;
+import com.b2msolutions.reyna.Message;
+import com.b2msolutions.reyna.Repository;
+import com.b2msolutions.reyna.RepositoryTest;
+import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.RobolectricTestRunner;
+import com.xtremelabs.robolectric.shadows.ShadowApplication;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,15 +14,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import android.content.Intent;
+import java.net.URISyntaxException;
 
-import com.b2msolutions.reyna.Message;
-import com.b2msolutions.reyna.Repository;
-import com.b2msolutions.reyna.RepositoryTest;
-import com.b2msolutions.reyna.services.StoreService;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
-import com.xtremelabs.robolectric.shadows.ShadowService;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.verify;
 
 @RunWith(RobolectricTestRunner.class)
 public class StoreServiceTest {
@@ -71,9 +68,9 @@ public class StoreServiceTest {
 		assertEquals("v1", message.getHeaders()[0].getValue());
 		assertEquals("h2", message.getHeaders()[1].getKey());
 		assertEquals("v2", message.getHeaders()[1].getValue());
-		
-		ShadowService shadowService = Robolectric.shadowOf(this.storeService);
-		Intent service = shadowService.getNextStartedService();
+
+        ShadowApplication shadowApplication = Robolectric.getShadowApplication();
+        Intent service = shadowApplication.getNextStartedService();
 		assertNotNull(service);
 		assertEquals(ForwardService.class.getName(), service.getComponent().getClassName());
 	}
