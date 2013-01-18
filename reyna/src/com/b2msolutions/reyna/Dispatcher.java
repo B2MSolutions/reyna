@@ -1,13 +1,11 @@
 package com.b2msolutions.reyna;
 
-import java.net.URI;
-
-import org.apache.http.HttpResponse;
-
 import android.util.Log;
-
 import com.b2msolutions.reyna.http.HttpPost;
 import com.b2msolutions.reyna.http.IgnoreCertsHttpClient;
+import org.apache.http.HttpResponse;
+
+import java.net.URI;
 
 public class Dispatcher {
 
@@ -59,7 +57,8 @@ public class Dispatcher {
 			HttpResponse response = httpClient.execute(httpPost);
 			return getResult(response.getStatusLine().getStatusCode());
 		} catch (Exception e) {
-			Log.i(TAG, "tryToExecute", e);
+            Log.d(TAG, "tryToExecute", e);
+			Log.i(TAG, "tryToExecute: temporary error");
 			return Result.TEMPORARY_ERROR;
 		}
 	}
