@@ -1,11 +1,12 @@
 reyna : Icelandic for "try"
 =====
 An android store and forward library for http post requests.
-Reyna will keep trying to post your requests until there is a valid connection.
+Reyna will store your requests and post them when there is a valid connection.
 
 ## Installation
-Reyna is a standard android library.
-You can reference it in your android projects in the [usual way](http://developer.android.com/tools/projects/projects-eclipse.html).
+Reyna is a standard android library and can be referenced as a jar in your project.
+
+If you don't want to build your own, you can [download](https://github.com/B2MSolutions/reyna/blob/master/artifacts/reyna.jar?raw=true) the latest version from the [artifacts directory](https://github.com/B2MSolutions/reyna/tree/master/artifacts).
 
 ## Android Manifest
 You will need to add the following entries into your AndroidManifest.xml in order for reyna to have the correct permissions, services and receivers.
