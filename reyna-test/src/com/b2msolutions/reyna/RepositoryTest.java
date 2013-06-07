@@ -1,24 +1,18 @@
 package com.b2msolutions.reyna;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import java.net.URI;
+import java.net.URISyntaxException;
 
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
+import static org.junit.Assert.*;
 
 @RunWith(RobolectricTestRunner.class)
 public class RepositoryTest {
@@ -127,9 +121,13 @@ public class RepositoryTest {
 	}
 
 	public static Message getMessageWithHeaders() throws URISyntaxException {
-		return new Message(new URI("https://www.google.com"), "body", new Header[] { new Header("h1", "v1"), new Header("h2", "v2") });		
+		return getMessageWithHeaders("body");
 	}
-	
+
+    public static Message getMessageWithHeaders(String body) throws URISyntaxException {
+        return new Message(new URI("https://www.google.com"), body, new Header[] { new Header("h1", "v1"), new Header("h2", "v2") });
+    }
+
 	public static Message getMessageWithHeadersAndNonNullId() throws URISyntaxException {
 		return new Message(new Long(1), new URI("https://www.google.com"), "body", new Header[] { new Header("h1", "v1"), new Header("h2", "v2") });		
 	}

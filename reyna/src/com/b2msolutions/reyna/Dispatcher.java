@@ -4,6 +4,8 @@ import android.util.Log;
 import com.b2msolutions.reyna.http.HttpPost;
 import com.b2msolutions.reyna.http.IgnoreCertsHttpClient;
 import org.apache.http.HttpResponse;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.protocol.HTTP;
 
 import java.net.URI;
 
@@ -42,7 +44,7 @@ public class Dispatcher {
 			URI uri = message.getURI();
 			this.setPort(httpClient, uri);
 			httpPost.setURI(uri);
-			httpPost.setEntity(message.getBody());
+            httpPost.setEntity(new StringEntity(message.getBody(), HTTP.UTF_8));
 			return Result.OK;
 		} catch (Exception e) {
 			Log.e(TAG, "parseHttpPost", e);
