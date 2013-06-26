@@ -2,11 +2,11 @@ package com.b2msolutions.reyna;
 
 import com.b2msolutions.reyna.Dispatcher.Result;
 import com.b2msolutions.reyna.http.HttpPost;
-import com.b2msolutions.reyna.http.IgnoreCertsHttpClient;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
 import org.junit.Test;
@@ -38,14 +38,13 @@ public class DispatcherTest {
 		when(httpResponse.getStatusLine()).thenReturn(statusLine);
 		
 		HttpPost httpPost = mock(HttpPost.class);
-		IgnoreCertsHttpClient httpClient = mock(IgnoreCertsHttpClient.class);
+		HttpClient httpClient = mock(HttpClient.class);
 		when(httpClient.execute(httpPost)).thenReturn(httpResponse);
 		
 		assertEquals(Result.OK, new Dispatcher().sendMessage(message, httpPost, httpClient));
 		
 		this.verifyHttpPost(message, httpPost);
 
-		verify(httpClient).setPort(443);
         ArgumentCaptor<StringEntity> stringEntityCaptor = ArgumentCaptor.forClass(StringEntity.class);
         verify(httpPost).setEntity(stringEntityCaptor.capture());
         StringEntity stringEntity = stringEntityCaptor.getValue();
@@ -63,14 +62,13 @@ public class DispatcherTest {
         when(httpResponse.getStatusLine()).thenReturn(statusLine);
 
         HttpPost httpPost = mock(HttpPost.class);
-        IgnoreCertsHttpClient httpClient = mock(IgnoreCertsHttpClient.class);
+        HttpClient httpClient = mock(HttpClient.class);
         when(httpClient.execute(httpPost)).thenReturn(httpResponse);
 
         assertEquals(Result.OK, new Dispatcher().sendMessage(message, httpPost, httpClient));
 
         this.verifyHttpPost(message, httpPost);
 
-        verify(httpClient).setPort(443);
         ArgumentCaptor<StringEntity> stringEntityCaptor = ArgumentCaptor.forClass(StringEntity.class);
         verify(httpPost).setEntity(stringEntityCaptor.capture());
         StringEntity stringEntity = stringEntityCaptor.getValue();
@@ -88,12 +86,11 @@ public class DispatcherTest {
 		when(httpResponse.getStatusLine()).thenReturn(statusLine);
 		
 		HttpPost httpPost = mock(HttpPost.class);
-		IgnoreCertsHttpClient httpClient = mock(IgnoreCertsHttpClient.class);
-		when(httpClient.execute(httpPost)).thenReturn(httpResponse);
+        HttpClient httpClient = mock(HttpClient.class);
+        when(httpClient.execute(httpPost)).thenReturn(httpResponse);
 		
 		assertEquals(Result.OK, new Dispatcher().sendMessage(message, httpPost, httpClient));
 		
-		verify(httpClient).setPort(9008);
         ArgumentCaptor<StringEntity> stringEntityCaptor = ArgumentCaptor.forClass(StringEntity.class);
         verify(httpPost).setEntity(stringEntityCaptor.capture());
         StringEntity stringEntity = stringEntityCaptor.getValue();
@@ -106,7 +103,7 @@ public class DispatcherTest {
 		Message message = RepositoryTest.getMessageWithHeaders(); 
 				
 		HttpPost httpPost = mock(HttpPost.class);
-		IgnoreCertsHttpClient httpClient = mock(IgnoreCertsHttpClient.class);
+        HttpClient httpClient = mock(HttpClient.class);
 		when(httpClient.execute(httpPost)).thenThrow(new RuntimeException(""));
 		
 		assertEquals(Result.TEMPORARY_ERROR, new Dispatcher().sendMessage(message, httpPost, httpClient));

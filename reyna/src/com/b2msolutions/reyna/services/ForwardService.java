@@ -2,7 +2,6 @@ package com.b2msolutions.reyna.services;
 
 import android.content.Intent;
 import android.util.Log;
-
 import com.b2msolutions.reyna.Dispatcher;
 import com.b2msolutions.reyna.Dispatcher.Result;
 import com.b2msolutions.reyna.Message;
@@ -17,7 +16,7 @@ public class ForwardService extends RepositoryService {
 		super(ForwardService.class.getName());
 
 		Log.v(TAG, "ForwardService()");
-		this.dispatcher = new Dispatcher();
+        this.dispatcher = new Dispatcher();
 	}
 
 	@Override
@@ -28,7 +27,7 @@ public class ForwardService extends RepositoryService {
 			Message message = this.repository.getNext();
 			while(message != null) {
 				Log.i(TAG, "ForwardService: processing message " + message.getId());
-				Result result = dispatcher.sendMessage(message);
+				Result result = dispatcher.sendMessage(this, message);
 				
 				Log.i(TAG, "ForwardService: send message result: " + result.toString());
 				

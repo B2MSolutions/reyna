@@ -1,9 +1,11 @@
 package com.b2msolutions.reyna;
 
+import android.content.Context;
+import android.net.http.AndroidHttpClient;
 import android.util.Log;
 import com.b2msolutions.reyna.http.HttpPost;
-import com.b2msolutions.reyna.http.IgnoreCertsHttpClient;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.protocol.HTTP;
 
@@ -12,19 +14,19 @@ import java.net.URI;
 public class Dispatcher {
 
 	private static final String TAG = "Dispatcher";
-	
-	public enum Result {
+
+    public enum Result {
 		OK, PERMANENT_ERROR, TEMPORARY_ERROR
 	}
 
-	public Result sendMessage(Message message) {
+	public Result sendMessage(Context context, Message message) {
 		Log.v(TAG, "sendMessage");
-		
-		return this.sendMessage(message, new HttpPost(),
-				new IgnoreCertsHttpClient());
+
+        HttpClient httpClient = AndroidHttpClient.newInstance("Reyna", context);
+		return this.sendMessage(message, new HttpPost(), httpClient);
 	}
 
-	protected Result sendMessage(Message message, HttpPost httpPost, IgnoreCertsHttpClient httpClient) {
+	protected Result sendMessage(Message message, HttpPost httpPost, HttpClient httpClient) {
 		Log.v(TAG, "sendMessage: injected");
 		
 		Result parseHttpPostResult = this.parseHttpPost(message, httpPost, httpClient);
@@ -33,7 +35,7 @@ public class Dispatcher {
 		return this.tryToExecute(httpPost, httpClient);
 	}
 	
-	private Result parseHttpPost(Message message, HttpPost httpPost, IgnoreCertsHttpClient httpClient) {
+	private Result parseHttpPost(Message message, HttpPost httpPost, HttpClient httpClient) {
 		Log.v(TAG, "parseHttpPost");
 		
 		try {
@@ -42,7 +44,6 @@ public class Dispatcher {
 			}
 
 			URI uri = message.getURI();
-			this.setPort(httpClient, uri);
 			httpPost.setURI(uri);
             httpPost.setEntity(new StringEntity(message.getBody(), HTTP.UTF_8));
 			return Result.OK;
@@ -52,7 +53,7 @@ public class Dispatcher {
 		}
 	}
 
-	private Result tryToExecute(HttpPost httpPost, IgnoreCertsHttpClient httpClient) {
+	private Result tryToExecute(HttpPost httpPost, HttpClient httpClient) {
 		Log.v(TAG, "tryToExecute");
 		
 		try {
@@ -62,22 +63,6 @@ public class Dispatcher {
             Log.d(TAG, "tryToExecute", e);
 			Log.i(TAG, "tryToExecute: temporary error");
 			return Result.TEMPORARY_ERROR;
-		}
-	}
-
-	private void setPort(IgnoreCertsHttpClient httpClient, URI uri) {
-		Log.v(TAG, "setPort");
-		
-		try {
-			int port = uri.getPort();
-			if (port == -1) {
-				Log.v(TAG, "setPort: no port specified, defaulting to 443");
-				port = 443;
-			}
-
-			httpClient.setPort(port);
-		} catch (Exception e) {
-			Log.e(TAG, "setPort", e);
 		}
 	}
 
