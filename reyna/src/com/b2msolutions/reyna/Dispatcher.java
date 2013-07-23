@@ -22,8 +22,12 @@ public class Dispatcher {
 	public Result sendMessage(Context context, Message message) {
 		Log.v(TAG, "sendMessage");
 
-        HttpClient httpClient = AndroidHttpClient.newInstance("Reyna", context);
-		return this.sendMessage(message, new HttpPost(), httpClient);
+        AndroidHttpClient httpClient = AndroidHttpClient.newInstance("Reyna", context);
+        try {
+		    return this.sendMessage(message, new HttpPost(), httpClient);
+        } finally {
+            httpClient.close();
+        }
 	}
 
 	protected Result sendMessage(Message message, HttpPost httpPost, HttpClient httpClient) {
