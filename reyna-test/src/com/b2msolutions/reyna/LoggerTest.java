@@ -90,6 +90,13 @@ public class LoggerTest {
         assertEquals(6, actual);
     }
 
+    @Test
+    public void LogDebugForLoggerThatConstructedWithDebugLevelWithNullMessageShouldNotLog() {
+        this.logger = new Logger(Log.DEBUG);
+        int actual = this.logger.d("TAG", null);
+        assertEquals(0, actual);
+    }
+
     @Implements(Log.class)
     public static class ShadowLog {
         public static int i(java.lang.String tag, java.lang.String msg) {
