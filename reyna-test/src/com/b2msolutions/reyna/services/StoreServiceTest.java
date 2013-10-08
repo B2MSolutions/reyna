@@ -1,6 +1,8 @@
 package com.b2msolutions.reyna.services;
 
 import android.content.Intent;
+import android.util.Log;
+import com.b2msolutions.reyna.Logger;
 import com.b2msolutions.reyna.Message;
 import com.b2msolutions.reyna.Repository;
 import com.b2msolutions.reyna.RepositoryTest;
@@ -74,4 +76,12 @@ public class StoreServiceTest {
 		assertNotNull(service);
 		assertEquals(ForwardService.class.getName(), service.getComponent().getClassName());
 	}
+
+    @Test
+    public void setLogLevelShouldChangeLogLevel() {
+
+       StoreService.setLogLevel(Log.DEBUG);
+
+        assertEquals(Log.DEBUG, Logger.getLevel());
+    }
 }

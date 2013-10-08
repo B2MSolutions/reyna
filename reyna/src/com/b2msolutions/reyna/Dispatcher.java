@@ -2,7 +2,6 @@ package com.b2msolutions.reyna;
 
 import android.content.Context;
 import android.net.http.AndroidHttpClient;
-import android.util.Log;
 import com.b2msolutions.reyna.http.HttpPost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -20,7 +19,7 @@ public class Dispatcher {
 	}
 
 	public Result sendMessage(Context context, Message message) {
-		Log.v(TAG, "sendMessage");
+		Logger.v(TAG, "sendMessage");
 
         AndroidHttpClient httpClient = AndroidHttpClient.newInstance("Reyna", context);
         try {
@@ -31,7 +30,7 @@ public class Dispatcher {
 	}
 
 	protected Result sendMessage(Message message, HttpPost httpPost, HttpClient httpClient) {
-		Log.v(TAG, "sendMessage: injected");
+        Logger.v(TAG, "sendMessage: injected");
 		
 		Result parseHttpPostResult = this.parseHttpPost(message, httpPost, httpClient);
 		if(parseHttpPostResult != Result.OK) return parseHttpPostResult;
@@ -40,7 +39,7 @@ public class Dispatcher {
 	}
 	
 	private Result parseHttpPost(Message message, HttpPost httpPost, HttpClient httpClient) {
-		Log.v(TAG, "parseHttpPost");
+        Logger.v(TAG, "parseHttpPost");
 		
 		try {
 			for (Header header : message.getHeaders()) {
@@ -52,26 +51,26 @@ public class Dispatcher {
             httpPost.setEntity(new StringEntity(message.getBody(), HTTP.UTF_8));
 			return Result.OK;
 		} catch (Exception e) {
-			Log.e(TAG, "parseHttpPost", e);
+			Logger.e(TAG, "parseHttpPost", e);
 			return Result.PERMANENT_ERROR;
 		}
 	}
 
 	private Result tryToExecute(HttpPost httpPost, HttpClient httpClient) {
-		Log.v(TAG, "tryToExecute");
+        Logger.v(TAG, "tryToExecute");
 		
 		try {
 			HttpResponse response = httpClient.execute(httpPost);
-			return getResult(response.getStatusLine().getStatusCode());
+			return Dispatcher.getResult(response.getStatusLine().getStatusCode());
 		} catch (Exception e) {
-            Log.d(TAG, "tryToExecute", e);
-			Log.i(TAG, "tryToExecute: temporary error");
+            Logger.d(TAG, "tryToExecute", e);
+			Logger.i(TAG, "tryToExecute: temporary error");
 			return Result.TEMPORARY_ERROR;
 		}
 	}
 
 	protected static Result getResult(int statusCode) {
-		Log.v(TAG, "getResult: " + statusCode);
+        Logger.v(TAG, "getResult: " + statusCode);
 		
 		if (statusCode >= 200 && statusCode < 300)
 			return Result.OK;

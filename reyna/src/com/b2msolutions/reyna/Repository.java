@@ -1,15 +1,14 @@
 package com.b2msolutions.reyna;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 public class Repository extends SQLiteOpenHelper {
 
@@ -21,22 +20,22 @@ public class Repository extends SQLiteOpenHelper {
 
 	public Repository(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
-	}
+    }
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		Log.v(TAG, "onCreate");
+		Logger.v(TAG, "onCreate");
 		db.execSQL("CREATE TABLE Message (id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT, body TEXT);");
 		db.execSQL("CREATE TABLE Header (id INTEGER PRIMARY KEY AUTOINCREMENT, messageid INTEGER, key TEXT, value TEXT, FOREIGN KEY(messageid) REFERENCES message(id));");
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		Log.v(TAG, "onUpgrade");
+        Logger.v(TAG, "onUpgrade");
 	}
 
 	public void insert(Message message) {
-		Log.v(TAG, "insert");
+        Logger.v(TAG, "insert");
 		if (message == null)
 			return;
 
@@ -51,8 +50,8 @@ public class Repository extends SQLiteOpenHelper {
 			long messageid = db.insert("Message", null, values);			
 			this.addHeaders(db, messageid, message.getHeaders());
 			db.setTransactionSuccessful();
-			
-			Log.i("reyna", "Repository: inserted message " + messageid);
+
+            Logger.i("reyna", "Repository: inserted message " + messageid);
 		} finally {
 			if (db != null) {
 				db.endTransaction();
@@ -61,7 +60,7 @@ public class Repository extends SQLiteOpenHelper {
 	}
 
 	public Message getNext() throws URISyntaxException {
-		Log.v(TAG, "getNext");
+        Logger.v(TAG, "getNext");
 		Cursor messageCursor = null;
 		Cursor headersCursor = null;
 
@@ -100,7 +99,7 @@ public class Repository extends SQLiteOpenHelper {
 	}
 
 	public void delete(Message message) {
-		Log.v(TAG, "delete");
+        Logger.v(TAG, "delete");
 		if (message == null)
 			return;
 		if (message.getId() == null)
@@ -114,7 +113,7 @@ public class Repository extends SQLiteOpenHelper {
 	}
 
 	private void deleteExistingMessage(SQLiteDatabase db, Message message) {
-		Log.v(TAG, "deleteExistingMessage");
+        Logger.v(TAG, "deleteExistingMessage");
 		db.beginTransaction();
 		try {
 			String[] args = new String[] { message.getId().toString() };
@@ -127,7 +126,7 @@ public class Repository extends SQLiteOpenHelper {
 	}
 
 	private boolean doesMessageExist(SQLiteDatabase db, Message message) {
-		Log.v(TAG, "doesMessageExist");
+        Logger.v(TAG, "doesMessageExist");
 		
 		Cursor cursor = null;
 		try {
@@ -142,7 +141,7 @@ public class Repository extends SQLiteOpenHelper {
 	}
 
 	private void addHeaders(SQLiteDatabase db, long messageid, Header[] headers) {
-		Log.v(TAG, "addHeaders");
+        Logger.v(TAG, "addHeaders");
 		
 		for (Header header : headers) {
 			ContentValues headerValues = new ContentValues();
