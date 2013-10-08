@@ -9,91 +9,82 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 @RunWith(RobolectricTestRunner.class)
 public class LoggerTest {
 	
-	private Logger logger;
-
 	@Before
 	public void setup() {
         Robolectric.bindShadowClass(ShadowLog.class);
-        this.logger = new Logger(Log.INFO);
 	}
 	
-	@Test
-	public void constructionShouldNotThrow() {		
-        assertNotNull(this.logger);
-    }
-
     @Test
     public void LogVerboseShouldNotLogAndReturn0() {
-        int actual = this.logger.v("TAG", "MSG");
+        int actual = Logger.v("TAG", "MSG");
         assertEquals(0, actual);
     }
 
     @Test
     public void LogDebugShouldNotLogAndReturn0() {
-        int actual = this.logger.v("TAG", "MSG");
+        int actual = Logger.v("TAG", "MSG");
         assertEquals(0, actual);
     }
 
     @Test
     public void LogInfoShouldLog() {
-        int actual = this.logger.i("TAG", "MSG");
+        int actual = Logger.i("TAG", "MSG");
         assertEquals(6, actual);
     }
 
     @Test
     public void LogWithNullMessageShouldNotThrowOrLog() {
-        int actual = this.logger.i("TAG", null);
+        int actual = Logger.i("TAG", null);
         assertEquals(0, actual);
     }
 
     @Test
     public void LogWithNullTagShouldNotThrowOrLog() {
-        int actual = this.logger.i(null, null);
+        int actual = Logger.i(null, null);
         assertEquals(0, actual);
     }
 
     @Test
     public void LogWithNullTagAndValidMsgShouldNotThrowOrLog() {
-        int actual = this.logger.i(null, "MSG");
+        int actual = Logger.i(null, "MSG");
         assertEquals(0, actual);
     }
 
     @Test
     public void LogErrorShouldLog() {
-        int actual = this.logger.e("TAG", "MSG");
+        int actual = Logger.e("TAG", "MSG");
         assertEquals(6, actual);
     }
 
     @Test
-    public void LogVerboseForLoggerThatConstructedWithVerboseLevelShouldLog() {
-        this.logger = new Logger(Log.VERBOSE);
-        int actual = this.logger.v("TAG", "MSG");
+    public void LogVerboseAfterSetLevelVerboseLevelShouldLog() {
+        Logger.setLevel(Log.VERBOSE);
+        int actual = Logger.v("TAG", "MSG");
         assertEquals(6, actual);
     }
 
     @Test
-    public void LogDebugForLoggerThatConstructedWithVerboseLevelShouldLog() {
-        this.logger = new Logger(Log.VERBOSE);
-        int actual = this.logger.d("TAG", "MSG");
+    public void LogDebugAfterSetLevelWithVerboseLevelShouldLog() {
+        Logger.setLevel(Log.VERBOSE);
+        int actual = Logger.d("TAG", "MSG");
         assertEquals(6, actual);
     }
 
     @Test
-    public void LogDebugForLoggerThatConstructedWithDebugLevelShouldLog() {
-        this.logger = new Logger(Log.DEBUG);
-        int actual = this.logger.d("TAG", "MSG");
+    public void LogDebugAfterSetLevelWithDebugLevelShouldLog() {
+        Logger.setLevel(Log.DEBUG);
+        int actual = Logger.d("TAG", "MSG");
         assertEquals(6, actual);
     }
 
     @Test
-    public void LogDebugForLoggerThatConstructedWithDebugLevelWithNullMessageShouldNotLog() {
-        this.logger = new Logger(Log.DEBUG);
-        int actual = this.logger.d("TAG", null);
+    public void LogDebugAfterSetLevelWithDebugLevelAndMessageIsNullShouldNotLog() {
+        Logger.setLevel(Log.DEBUG);
+        int actual = Logger.d("TAG", null);
         assertEquals(0, actual);
     }
 
