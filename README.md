@@ -38,7 +38,7 @@ You will need to add the following entries into your AndroidManifest.xml in orde
 
 
 ```java
-	import com.b2msolutions.reyna.servDEBUGices.StoreService;
+	import com.b2msolutions.reyna.services.StoreService;
 
 	// Add any headers if required
 	Header[] headers = new Header[] {
