@@ -128,6 +128,10 @@ public class RepositoryTest {
         return new Message(new URI("https://www.google.com"), body, new Header[] { new Header("h1", "v1"), new Header("h2", "v2") });
     }
 
+    public static Message getMessageWithGzipHeaders(String body) throws URISyntaxException {
+        return new Message(new URI("https://www.google.com"), body, new Header[] { new Header("h1", "v1"), new Header("h2", "v2"), new Header("content-encoding", "gzip") });
+    }
+
 	public static Message getMessageWithHeadersAndNonNullId() throws URISyntaxException {
 		return new Message(new Long(1), new URI("https://www.google.com"), "body", new Header[] { new Header("h1", "v1"), new Header("h2", "v2") });		
 	}
