@@ -1,6 +1,7 @@
 package com.b2msolutions.reyna;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import com.b2msolutions.reyna.Dispatcher.Result;
@@ -263,13 +264,18 @@ public class DispatcherTest {
         int hourOfDay = now.get(Calendar.HOUR_OF_DAY);
 
         TimeRange range = new TimeRange(new Time(hourOfDay - 2, 0), new Time(hourOfDay - 1, 0));
+        new Preferences(this.context).saveCellularDataBlackout(range);
 
-        assertFalse(Dispatcher.isInBlackout(this.context, range));
+        assertFalse(Dispatcher.isInBlackout(this.context));
     }
 
     private void isInBlackoutShouldReturnFalseIfCellularAndHasNoPreferences(int type) {
         when(this.networkInfo.getType()).thenReturn(type);
-        assertFalse(new Dispatcher().isInBlackout(this.context, null));
+        SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.clear();
+        editor.commit();
+        assertFalse(new Dispatcher().isInBlackout(this.context));
     }
 
     private void isInBlackoutShouldReturnTrueIfCellularAndInBlackout(int type) {
@@ -279,8 +285,9 @@ public class DispatcherTest {
         int hourOfDay = now.get(Calendar.HOUR_OF_DAY);
 
         TimeRange range = new TimeRange(new Time(hourOfDay - 1, 0), new Time(hourOfDay + 1, 0));
+        new Preferences(this.context).saveCellularDataBlackout(range);
 
-        assertTrue(new Dispatcher().isInBlackout(this.context, range));
+        assertTrue(new Dispatcher().isInBlackout(this.context));
     }
 
     private void isInBlackoutShouldReturnFalseIfNonCellularAndConnected(int type) {
@@ -289,8 +296,9 @@ public class DispatcherTest {
         Calendar now = Calendar.getInstance();
         int hourOfDay = now.get(Calendar.HOUR_OF_DAY);
         TimeRange range = new TimeRange(new Time(hourOfDay - 1, 0), new Time(hourOfDay + 1, 0));
+        new Preferences(this.context).saveCellularDataBlackout(range);
 
-        assertFalse(new Dispatcher().isInBlackout(this.context, range));
+        assertFalse(new Dispatcher().isInBlackout(this.context));
     }
 
     private void verifyHttpPost(Message message, HttpPost httpPost) {
