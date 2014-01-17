@@ -36,8 +36,7 @@ public class Dispatcher {
     protected Result sendMessage(Message message, HttpPost httpPost, HttpClient httpClient, Context context) {
         Logger.v(TAG, "sendMessage: injected");
 
-        TimeRange range = new Preferences(context).getCellularDataBlackout();
-        if(Dispatcher.isInBlackout(context, range)) {
+        if(Dispatcher.isInBlackout(context)) {
             return Result.BLACKOUT;
         }
 
@@ -47,7 +46,8 @@ public class Dispatcher {
         return this.tryToExecute(httpPost, httpClient);
     }
 
-    public static boolean isInBlackout(Context context, TimeRange range) {
+    public static boolean isInBlackout(Context context) {
+        TimeRange range = new Preferences(context).getCellularDataBlackout();
         if (range == null) {
             return false;
         }
