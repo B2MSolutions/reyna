@@ -1,12 +1,14 @@
 package com.b2msolutions.reyna;
 
 import android.content.Context;
-import android.net.http.AndroidHttpClient;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import com.b2msolutions.reyna.Dispatcher.Result;
 import com.b2msolutions.reyna.http.HttpPost;
 import com.b2msolutions.reyna.shadows.ShadowAndroidHttpClient;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
+import com.xtremelabs.robolectric.shadows.ShadowConnectivityManager;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
@@ -14,7 +16,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.message.BufferedHeader;
 import org.apache.http.util.EntityUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +24,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
@@ -31,12 +34,10 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.Calendar;
 import java.util.zip.GZIPOutputStream;
 
-import static android.test.MoreAsserts.assertNotEqual;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(RobolectricTestRunner.class)
@@ -44,11 +45,18 @@ public class DispatcherTest {
 
     private Context context;
 
+    @Mock
+    NetworkInfo networkInfo;
+
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
         this.context = Robolectric.getShadowApplication().getApplicationContext();
         Robolectric.bindShadowClass(ShadowAndroidHttpClient.class);
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ShadowConnectivityManager shadowConnectivityManager = Robolectric.shadowOf_(connectivityManager);
+        shadowConnectivityManager.setActiveNetworkInfo(this.networkInfo);
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
     }
 
 	@Test
@@ -120,6 +128,18 @@ public class DispatcherTest {
         assertEquals(stringEntity.getContentType().getValue(), "text/plain; charset=UTF-8");
         assertEquals(EntityUtils.toString(stringEntity), "body");
 	}
+
+    @Test
+    public void sendMessageShouldReturnBlackoutWhenInBlackout() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+
+        Calendar now = Calendar.getInstance();
+        int hourOfDay = now.get(Calendar.HOUR_OF_DAY);
+        TimeRange range = new TimeRange(new Time(hourOfDay - 1, 0), new Time(hourOfDay + 1, 0));
+        new Preferences(this.context).saveCellularDataBlackout(range);
+
+        assertEquals(Result.BLACKOUT, new Dispatcher().sendMessage(null, null, null, this.context));
+    }
 
 	@Test
 	public void whenExecuteThrowsReturnTemporaryError() throws URISyntaxException, ClientProtocolException, IOException {
@@ -198,7 +218,82 @@ public class DispatcherTest {
         assertArrayEquals(EntityUtils.toByteArray(byteArrayEntity), expected);
     }
 
-	private void verifyHttpPost(Message message, HttpPost httpPost) {
+    @Test
+    public void isInBlackoutShouldReturnFalseIfBluetoothAndConnected() {
+        isInBlackoutShouldReturnFalseIfNonCellularAndConnected(7); // BLUETOOTH
+        isInBlackoutShouldReturnFalseIfNonCellularAndConnected(ConnectivityManager.TYPE_WIFI);
+        isInBlackoutShouldReturnFalseIfNonCellularAndConnected(8); // DUMMY
+        isInBlackoutShouldReturnFalseIfNonCellularAndConnected(9); // ETHERNET
+    }
+
+    @Test
+    public void isInBlackoutShouldReturnFalseIfMobileAndHasNoPreferences() {
+        isInBlackoutShouldReturnFalseIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_MOBILE);
+        isInBlackoutShouldReturnFalseIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_MOBILE_DUN);
+        isInBlackoutShouldReturnFalseIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_MOBILE_HIPRI);
+        isInBlackoutShouldReturnFalseIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_MOBILE_MMS);
+        isInBlackoutShouldReturnFalseIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_MOBILE_SUPL);
+        isInBlackoutShouldReturnFalseIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_WIMAX);
+    }
+
+    @Test
+    public void isInBlackoutShouldReturnTrueIfMobileAndInBlackout() {
+        isInBlackoutShouldReturnTrueIfCellularAndInBlackout(ConnectivityManager.TYPE_MOBILE);
+        isInBlackoutShouldReturnTrueIfCellularAndInBlackout(ConnectivityManager.TYPE_MOBILE_DUN);
+        isInBlackoutShouldReturnTrueIfCellularAndInBlackout(ConnectivityManager.TYPE_MOBILE_HIPRI);
+        isInBlackoutShouldReturnTrueIfCellularAndInBlackout(ConnectivityManager.TYPE_MOBILE_MMS);
+        isInBlackoutShouldReturnTrueIfCellularAndInBlackout(ConnectivityManager.TYPE_MOBILE_SUPL);
+        isInBlackoutShouldReturnTrueIfCellularAndInBlackout(ConnectivityManager.TYPE_WIMAX);
+    }
+
+    @Test
+    public void isInBlackoutShouldReturnFalseIfMobileAndOutsideOfBlackout() {
+        isInBlackoutShouldReturnFalseIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE);
+        isInBlackoutShouldReturnFalseIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE_DUN);
+        isInBlackoutShouldReturnFalseIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE_HIPRI);
+        isInBlackoutShouldReturnFalseIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE_MMS);
+        isInBlackoutShouldReturnFalseIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE_SUPL);
+        isInBlackoutShouldReturnFalseIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_WIMAX);
+    }
+
+    private void isInBlackoutShouldReturnFalseIfMobileAndOutsideOfBlackout(int type) {
+        when(this.networkInfo.getType()).thenReturn(type);
+
+        Calendar now = Calendar.getInstance();
+        int hourOfDay = now.get(Calendar.HOUR_OF_DAY);
+
+        TimeRange range = new TimeRange(new Time(hourOfDay - 2, 0), new Time(hourOfDay - 1, 0));
+
+        assertFalse(Dispatcher.isInBlackout(this.context, range));
+    }
+
+    private void isInBlackoutShouldReturnFalseIfCellularAndHasNoPreferences(int type) {
+        when(this.networkInfo.getType()).thenReturn(type);
+        assertFalse(new Dispatcher().isInBlackout(this.context, null));
+    }
+
+    private void isInBlackoutShouldReturnTrueIfCellularAndInBlackout(int type) {
+        when(this.networkInfo.getType()).thenReturn(type);
+
+        Calendar now = Calendar.getInstance();
+        int hourOfDay = now.get(Calendar.HOUR_OF_DAY);
+
+        TimeRange range = new TimeRange(new Time(hourOfDay - 1, 0), new Time(hourOfDay + 1, 0));
+
+        assertTrue(new Dispatcher().isInBlackout(this.context, range));
+    }
+
+    private void isInBlackoutShouldReturnFalseIfNonCellularAndConnected(int type) {
+        when(this.networkInfo.getType()).thenReturn(type);
+
+        Calendar now = Calendar.getInstance();
+        int hourOfDay = now.get(Calendar.HOUR_OF_DAY);
+        TimeRange range = new TimeRange(new Time(hourOfDay - 1, 0), new Time(hourOfDay + 1, 0));
+
+        assertFalse(new Dispatcher().isInBlackout(this.context, range));
+    }
+
+    private void verifyHttpPost(Message message, HttpPost httpPost) {
 		ArgumentCaptor<URI> argument = ArgumentCaptor.forClass(URI.class);		
 		verify(httpPost).setURI(argument.capture());
 		assertEquals(message.getUrl(), argument.getValue().toString());

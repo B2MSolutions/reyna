@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import com.b2msolutions.reyna.Logger;
 import com.b2msolutions.reyna.Message;
+import com.b2msolutions.reyna.Preferences;
+import com.b2msolutions.reyna.TimeRange;
 
 public class StoreService extends RepositoryService {
 
@@ -29,6 +31,11 @@ public class StoreService extends RepositoryService {
         Logger.v(TAG, "setLogLevel: " + level);
 
         Logger.setLevel(level);
+    }
+
+    public static void setCellularDataBlackout(Context context, TimeRange range) {
+        Logger.v(TAG, "setCellularDataBlackout: " + range);
+        new Preferences(context).saveCellularDataBlackout(range);
     }
 
 	@Override
