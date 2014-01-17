@@ -1,6 +1,8 @@
 package com.b2msolutions.reyna;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.http.AndroidHttpClient;
 import com.b2msolutions.reyna.http.HttpPost;
 import org.apache.http.HttpResponse;
@@ -17,7 +19,7 @@ public class Dispatcher {
     private static final String TAG = "Dispatcher";
 
     public enum Result {
-        OK, PERMANENT_ERROR, TEMPORARY_ERROR
+        OK, PERMANENT_ERROR, TEMPORARY_ERROR, BLACKOUT
     }
 
     public Result sendMessage(Context context, Message message) {
@@ -34,10 +36,37 @@ public class Dispatcher {
     protected Result sendMessage(Message message, HttpPost httpPost, HttpClient httpClient, Context context) {
         Logger.v(TAG, "sendMessage: injected");
 
+        TimeRange range = new Preferences(context).getCellularDataBlackout();
+        if(Dispatcher.isInBlackout(context, range)) {
+            return Result.BLACKOUT;
+        }
+
         Result parseHttpPostResult = this.parseHttpPost(message, httpPost, httpClient, context);
         if (parseHttpPostResult != Result.OK) return parseHttpPostResult;
 
         return this.tryToExecute(httpPost, httpClient);
+    }
+
+    public static boolean isInBlackout(Context context, TimeRange range) {
+        if (range == null) {
+            return false;
+        }
+
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = connectivityManager.getActiveNetworkInfo();
+
+        int type = info.getType();
+
+        if (type != ConnectivityManager.TYPE_MOBILE &&
+            type != ConnectivityManager.TYPE_MOBILE_DUN &&
+            type != ConnectivityManager.TYPE_MOBILE_HIPRI &&
+            type != ConnectivityManager.TYPE_MOBILE_MMS &&
+            type != ConnectivityManager.TYPE_MOBILE_SUPL &&
+            type != ConnectivityManager.TYPE_WIMAX) {
+            return false;
+        }
+
+        return range.contains(new Time());
     }
 
     private Result parseHttpPost(Message message, HttpPost httpPost, HttpClient httpClient, Context context) {
@@ -86,11 +115,11 @@ public class Dispatcher {
     }
 
     private static boolean shouldGzip(Header[] headers) {
-        for(int i=0; i< headers.length; i++) {
+        for (int i = 0; i < headers.length; i++) {
             Header header = headers[i];
 
             if (header.getKey().equalsIgnoreCase("content-encoding")
-                && header.getValue().equalsIgnoreCase("gzip")) {
+                    && header.getValue().equalsIgnoreCase("gzip")) {
                 return true;
             }
         }
@@ -101,7 +130,7 @@ public class Dispatcher {
     private static Header[] removeGzipEncodingHeader(Header[] headers) {
         ArrayList<Header> filteredHeaders = new ArrayList<Header>();
 
-        for(int i=0; i< headers.length; i++) {
+        for (int i = 0; i < headers.length; i++) {
             Header header = headers[i];
 
             if (header.getKey().equalsIgnoreCase("content-encoding")
@@ -116,7 +145,7 @@ public class Dispatcher {
         return filteredHeaders.toArray(returnedHeaders);
     }
 
-    private static AbstractHttpEntity getCompressedEntity(String content, Context context) throws Exception{
+    private static AbstractHttpEntity getCompressedEntity(String content, Context context) throws Exception {
         byte[] data = content.getBytes();
         return AndroidHttpClient.getCompressedEntity(data, context.getContentResolver());
     }

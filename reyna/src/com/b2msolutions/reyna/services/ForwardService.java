@@ -32,7 +32,7 @@ public class ForwardService extends RepositoryService {
 
                 Logger.i(TAG, "ForwardService: send message result: " + result.toString());
 				
-				if(result == Result.TEMPORARY_ERROR) return;
+				if(result == Result.TEMPORARY_ERROR || result == Result.BLACKOUT) return;
 
 				this.repository.delete(message);
 				message = this.repository.getNext();
@@ -42,5 +42,5 @@ public class ForwardService extends RepositoryService {
 		} finally {
 			this.repository.close();		
 		}		
-	}	
+	}
 }

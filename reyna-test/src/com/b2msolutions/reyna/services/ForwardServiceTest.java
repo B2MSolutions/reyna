@@ -103,7 +103,18 @@ public class ForwardServiceTest {
 		verify(this.dispatcher).sendMessage(this.forwardService, message);
 		verify(this.repository, never()).delete(message);
 	}
-	
+
+    @Test
+    public void whenSingleMessageAndDispatchReturnsBlackoutShouldNotDeleteMessage() throws URISyntaxException {
+        Message message = mock(Message.class);
+        when(this.repository.getNext()).thenReturn(message).thenReturn(null);
+        when(this.dispatcher.sendMessage(this.forwardService, message)).thenReturn(Result.BLACKOUT);
+
+        this.forwardService.onHandleIntent(null);
+        verify(this.dispatcher).sendMessage(this.forwardService, message);
+        verify(this.repository, never()).delete(message);
+    }
+
 	@Test
 	public void whenTwoMessagesAndFirstDispatchReturnsTemporaryErrorShouldNotDeleteMessages() throws URISyntaxException {
 		Message message1 = mock(Message.class);
@@ -123,7 +134,27 @@ public class ForwardServiceTest {
 		inorder.verify(this.dispatcher, never()).sendMessage(this.forwardService, message2);
 		inorder.verify(this.repository, never()).delete(message2);
 	}
-	
+
+    @Test
+    public void whenTwoMessagesAndFirstDispatchReturnsBlackoutShouldNotDeleteMessages() throws URISyntaxException {
+        Message message1 = mock(Message.class);
+        Message message2 = mock(Message.class);
+        when(this.repository.getNext())
+                .thenReturn(message1)
+                .thenReturn(message2)
+                .thenReturn(null);
+
+        when(this.dispatcher.sendMessage(this.forwardService, message1)).thenReturn(Result.BLACKOUT);
+
+        this.forwardService.onHandleIntent(null);
+        InOrder inorder = inOrder(this.dispatcher, this.repository);
+
+        inorder.verify(this.dispatcher).sendMessage(this.forwardService, message1);
+        inorder.verify(this.repository, never()).delete(message1);
+        inorder.verify(this.dispatcher, never()).sendMessage(this.forwardService, message2);
+        inorder.verify(this.repository, never()).delete(message2);
+    }
+
 	@Test
 	public void whenTwoMessagesAndFirstDispatchReturnsPermanentErrorShouldDeleteMessages() throws URISyntaxException {
 		Message message1 = mock(Message.class);

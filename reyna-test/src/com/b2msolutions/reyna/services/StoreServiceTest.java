@@ -1,11 +1,9 @@
 package com.b2msolutions.reyna.services;
 
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import com.b2msolutions.reyna.Logger;
-import com.b2msolutions.reyna.Message;
-import com.b2msolutions.reyna.Repository;
-import com.b2msolutions.reyna.RepositoryTest;
+import com.b2msolutions.reyna.*;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
@@ -83,5 +81,16 @@ public class StoreServiceTest {
        StoreService.setLogLevel(Log.DEBUG);
 
         assertEquals(Log.DEBUG, Logger.getLevel());
+    }
+
+    @Test
+    public void setCellularDataBlackoutShouldSave() {
+        TimeRange range = new TimeRange(new Time(3, 00), new Time(19, 00));
+        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        StoreService.setCellularDataBlackout(context, range);
+        Preferences preferences = new Preferences(context);
+        TimeRange saved = preferences.getCellularDataBlackout();
+        assertEquals(range.getFrom().getMinuteOfDay(), saved.getFrom().getMinuteOfDay());
+        assertEquals(range.getTo().getMinuteOfDay(), saved.getTo().getMinuteOfDay());
     }
 }
