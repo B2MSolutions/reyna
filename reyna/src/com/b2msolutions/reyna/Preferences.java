@@ -14,6 +14,10 @@ public class Preferences {
     }
 
     public void saveCellularDataBlackout(TimeRange timeRange) {
+        if (timeRange == null) {
+            return;
+        }
+
         int from = timeRange.getFrom().getMinuteOfDay();
         int to = timeRange.getTo().getMinuteOfDay();
         SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
@@ -28,7 +32,7 @@ public class Preferences {
         int from = sp.getInt(FROM, -1);
         int to = sp.getInt(TO, -1);
 
-        if(from == -1 || to == -1) {
+        if (from == -1 || to == -1) {
             return null;
         }
 
