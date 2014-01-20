@@ -24,6 +24,12 @@ public class PreferencesTest {
     }
 
     @Test
+    public void whenTimeRangeIsNullShouldNotThrow() {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveCellularDataBlackout(null);
+    }
+
+    @Test
     public void whenNoBlackoutStoredShouldReturnNull() {
         SharedPreferences sp = Robolectric.getShadowApplication().getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
