@@ -1,5 +1,6 @@
 package com.b2msolutions.reyna;
 
+import java.security.InvalidParameterException;
 import java.util.Calendar;
 
 public class Time {
@@ -7,10 +8,18 @@ public class Time {
     private final int minuteOfDay;
 
     public Time(int hour, int minute) {
+        if(hour >= 24 || minute >= 60 || hour < 0 || minute < 0) {
+            throw new InvalidParameterException("Invalid time");
+        }
+
         this.minuteOfDay = (hour * 60) + minute;
     }
 
     public Time(int minuteOfDay) {
+        if(minuteOfDay < 0 || minuteOfDay >= 1440) {
+            throw new InvalidParameterException("Invalid minute of day");
+        }
+
         this.minuteOfDay = minuteOfDay;
     }
 
