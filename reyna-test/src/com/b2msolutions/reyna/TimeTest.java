@@ -2,6 +2,8 @@ package com.b2msolutions.reyna;
 
 import org.junit.Test;
 
+import java.security.InvalidParameterException;
+
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -24,6 +26,36 @@ public class TimeTest {
     @Test
     public void shouldSetMinuteOfDay() {
         assertEquals(12 * 60 + 1, new Time(12, 01).getMinuteOfDay());
-        assertEquals(10000, new Time(10000).getMinuteOfDay());
+        assertEquals(1000, new Time(1000).getMinuteOfDay());
+    }
+
+    @Test(expected = InvalidParameterException.class)
+    public void shouldThrowOnConstructionIfHourTooLarge() {
+        new Time(24, 00);
+    }
+
+    @Test(expected = InvalidParameterException.class)
+    public void shouldThrowOnConstructionIfMinutesTooLarge() {
+        new Time(23, 60);
+    }
+
+    @Test(expected = InvalidParameterException.class)
+    public void shouldThrowOnConstructionIfHourTooSmall() {
+        new Time(-1, 00);
+    }
+
+    @Test(expected = InvalidParameterException.class)
+    public void shouldThrowOnConstructionIfMinutesTooSmall() {
+        new Time(23, -1);
+    }
+
+    @Test(expected = InvalidParameterException.class)
+    public void shouldThrowOnConstructionIfMinuteOfDayTooSmall() {
+        new Time(-1);
+    }
+
+    @Test(expected = InvalidParameterException.class)
+    public void shouldThrowOnConstructionIfMinuteOfDayTooLarge() {
+        new Time(24 * 60);
     }
 }
