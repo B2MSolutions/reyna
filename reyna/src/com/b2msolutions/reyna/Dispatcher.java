@@ -55,6 +55,10 @@ public class Dispatcher {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info = connectivityManager.getActiveNetworkInfo();
 
+        if(info == null) {
+            return false;
+        }
+
         int type = info.getType();
 
         if (type != ConnectivityManager.TYPE_MOBILE &&

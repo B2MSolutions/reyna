@@ -60,29 +60,29 @@ public class DispatcherTest {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
     }
 
-	@Test
-	public void sendMessageHappyPathShouldSetExecuteCorrectHttpPostAndReturnOK() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
-		Message message = RepositoryTest.getMessageWithHeaders(); 
-		
-		StatusLine statusLine = mock(StatusLine.class);
-		when(statusLine.getStatusCode()).thenReturn(200);
-		HttpResponse httpResponse = mock(HttpResponse.class);
-		when(httpResponse.getStatusLine()).thenReturn(statusLine);
-		
-		HttpPost httpPost = mock(HttpPost.class);
-		HttpClient httpClient = mock(HttpClient.class);
-		when(httpClient.execute(httpPost)).thenReturn(httpResponse);
+    @Test
+    public void sendMessageHappyPathShouldSetExecuteCorrectHttpPostAndReturnOK() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+        Message message = RepositoryTest.getMessageWithHeaders();
 
-		assertEquals(Result.OK, new Dispatcher().sendMessage(message, httpPost, httpClient, this.context));
-		
-		this.verifyHttpPost(message, httpPost);
+        StatusLine statusLine = mock(StatusLine.class);
+        when(statusLine.getStatusCode()).thenReturn(200);
+        HttpResponse httpResponse = mock(HttpResponse.class);
+        when(httpResponse.getStatusLine()).thenReturn(statusLine);
+
+        HttpPost httpPost = mock(HttpPost.class);
+        HttpClient httpClient = mock(HttpClient.class);
+        when(httpClient.execute(httpPost)).thenReturn(httpResponse);
+
+        assertEquals(Result.OK, new Dispatcher().sendMessage(message, httpPost, httpClient, this.context));
+
+        this.verifyHttpPost(message, httpPost);
 
         ArgumentCaptor<StringEntity> stringEntityCaptor = ArgumentCaptor.forClass(StringEntity.class);
         verify(httpPost).setEntity(stringEntityCaptor.capture());
         StringEntity stringEntity = stringEntityCaptor.getValue();
         assertEquals(stringEntity.getContentType().getValue(), "text/plain; charset=UTF-8");
         assertEquals(EntityUtils.toString(stringEntity), "body");
-	}
+    }
 
     @Test
     public void sendMessageHappyPathWithChineseCharactersShouldSetExecuteCorrectHttpPostAndReturnOK() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
@@ -107,28 +107,28 @@ public class DispatcherTest {
         assertEquals(stringEntity.getContentType().getValue(), "text/plain; charset=UTF-8");
         assertEquals(EntityUtils.toString(stringEntity), "谷歌拼音输入法");
     }
-	
-	@Test
-	public void sendMessageHappyPathWithPortShouldSetPort() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
-		Message message = new Message(new URI("https://www.google.com:9008/a/b"), "body", null);
-		
-		StatusLine statusLine = mock(StatusLine.class);
-		when(statusLine.getStatusCode()).thenReturn(200);
-		HttpResponse httpResponse = mock(HttpResponse.class);
-		when(httpResponse.getStatusLine()).thenReturn(statusLine);
-		
-		HttpPost httpPost = mock(HttpPost.class);
+
+    @Test
+    public void sendMessageHappyPathWithPortShouldSetPort() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+        Message message = new Message(new URI("https://www.google.com:9008/a/b"), "body", null);
+
+        StatusLine statusLine = mock(StatusLine.class);
+        when(statusLine.getStatusCode()).thenReturn(200);
+        HttpResponse httpResponse = mock(HttpResponse.class);
+        when(httpResponse.getStatusLine()).thenReturn(statusLine);
+
+        HttpPost httpPost = mock(HttpPost.class);
         HttpClient httpClient = mock(HttpClient.class);
         when(httpClient.execute(httpPost)).thenReturn(httpResponse);
-		
-		assertEquals(Result.OK, new Dispatcher().sendMessage(message, httpPost, httpClient, this.context));
-		
+
+        assertEquals(Result.OK, new Dispatcher().sendMessage(message, httpPost, httpClient, this.context));
+
         ArgumentCaptor<StringEntity> stringEntityCaptor = ArgumentCaptor.forClass(StringEntity.class);
         verify(httpPost).setEntity(stringEntityCaptor.capture());
         StringEntity stringEntity = stringEntityCaptor.getValue();
         assertEquals(stringEntity.getContentType().getValue(), "text/plain; charset=UTF-8");
         assertEquals(EntityUtils.toString(stringEntity), "body");
-	}
+    }
 
     @Test
     public void sendMessageShouldReturnBlackoutWhenInBlackout() {
@@ -142,28 +142,28 @@ public class DispatcherTest {
         assertEquals(Result.BLACKOUT, new Dispatcher().sendMessage(null, null, null, this.context));
     }
 
-	@Test
-	public void whenExecuteThrowsReturnTemporaryError() throws URISyntaxException, ClientProtocolException, IOException {
-		Message message = RepositoryTest.getMessageWithHeaders(); 
-				
-		HttpPost httpPost = mock(HttpPost.class);
+    @Test
+    public void whenExecuteThrowsReturnTemporaryError() throws URISyntaxException, ClientProtocolException, IOException {
+        Message message = RepositoryTest.getMessageWithHeaders();
+
+        HttpPost httpPost = mock(HttpPost.class);
         HttpClient httpClient = mock(HttpClient.class);
-		when(httpClient.execute(httpPost)).thenThrow(new RuntimeException(""));
-		
-		assertEquals(Result.TEMPORARY_ERROR, new Dispatcher().sendMessage(message, httpPost, httpClient, this.context));
-		
-		this.verifyHttpPost(message, httpPost);
-	}
-	
-	@Test
-	public void getResultShouldReturnExpected() {
-		assertEquals(Result.PERMANENT_ERROR, Dispatcher.getResult(100));
-		assertEquals(Result.OK, Dispatcher.getResult(200));
-		assertEquals(Result.PERMANENT_ERROR, Dispatcher.getResult(300));
-		assertEquals(Result.PERMANENT_ERROR, Dispatcher.getResult(400));
-		assertEquals(Result.TEMPORARY_ERROR, Dispatcher.getResult(500));
-		assertEquals(Result.PERMANENT_ERROR, Dispatcher.getResult(600));
-	}
+        when(httpClient.execute(httpPost)).thenThrow(new RuntimeException(""));
+
+        assertEquals(Result.TEMPORARY_ERROR, new Dispatcher().sendMessage(message, httpPost, httpClient, this.context));
+
+        this.verifyHttpPost(message, httpPost);
+    }
+
+    @Test
+    public void getResultShouldReturnExpected() {
+        assertEquals(Result.PERMANENT_ERROR, Dispatcher.getResult(100));
+        assertEquals(Result.OK, Dispatcher.getResult(200));
+        assertEquals(Result.PERMANENT_ERROR, Dispatcher.getResult(300));
+        assertEquals(Result.PERMANENT_ERROR, Dispatcher.getResult(400));
+        assertEquals(Result.TEMPORARY_ERROR, Dispatcher.getResult(500));
+        assertEquals(Result.PERMANENT_ERROR, Dispatcher.getResult(600));
+    }
 
     @Test
     public void sendMessageWithGzipAndContentIsLessThanMinGzipLengthShouldRemoveGzipHeaderAndSendMessageAsString() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException, Exception {
@@ -217,6 +217,16 @@ public class DispatcherTest {
 
         byte[] expected = gzip(data);
         assertArrayEquals(EntityUtils.toByteArray(byteArrayEntity), expected);
+    }
+
+    @Test
+    public void isInBlackoutShouldReturnFalseIfNoActiveNetwork() {
+        Preferences preferences = new Preferences(this.context);
+        preferences.saveCellularDataBlackout(new TimeRange(new Time(00, 00), new Time(23, 59)));
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ShadowConnectivityManager shadowConnectivityManager = Robolectric.shadowOf_(connectivityManager);
+        shadowConnectivityManager.setActiveNetworkInfo(null);
+        assertFalse(new Dispatcher().isInBlackout(this.context));
     }
 
     @Test
@@ -302,14 +312,14 @@ public class DispatcherTest {
     }
 
     private void verifyHttpPost(Message message, HttpPost httpPost) {
-		ArgumentCaptor<URI> argument = ArgumentCaptor.forClass(URI.class);		
-		verify(httpPost).setURI(argument.capture());
-		assertEquals(message.getUrl(), argument.getValue().toString());
+        ArgumentCaptor<URI> argument = ArgumentCaptor.forClass(URI.class);
+        verify(httpPost).setURI(argument.capture());
+        assertEquals(message.getUrl(), argument.getValue().toString());
 
-   		verify(httpPost).setHeader(message.getHeaders()[0].getKey(), message.getHeaders()[0].getValue());
+        verify(httpPost).setHeader(message.getHeaders()[0].getKey(), message.getHeaders()[0].getValue());
         verify(httpPost).setHeader(message.getHeaders()[1].getKey(), message.getHeaders()[1].getValue());
         verify(httpPost, times(2)).setHeader(anyString(), anyString());
-	}
+    }
 
     private byte[] gzip(byte[] data) throws IOException {
         ByteArrayOutputStream arr = new ByteArrayOutputStream();
