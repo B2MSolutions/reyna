@@ -36,51 +36,43 @@ public class Dispatcher {
     protected Result sendMessage(Message message, HttpPost httpPost, HttpClient httpClient, Context context) {
         Logger.v(TAG, "sendMessage: injected");
 
-        if(!Dispatcher.isConnected(context)) {
-            return Result.NOTCONNECTED;
+        Result result = Dispatcher.canSend(context);
+        if(result != Result.OK) {
+            return result;
         }
 
-        if(Dispatcher.isInBlackout(context)) {
-            return Result.BLACKOUT;
+        result = this.parseHttpPost(message, httpPost, httpClient, context);
+        if (result != Result.OK) {
+            return result;
         }
-
-        Result parseHttpPostResult = this.parseHttpPost(message, httpPost, httpClient, context);
-        if (parseHttpPostResult != Result.OK) return parseHttpPostResult;
 
         return this.tryToExecute(httpPost, httpClient);
     }
 
-    public static boolean isConnected(Context context) {
+    public static Result canSend(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info = connectivityManager.getActiveNetworkInfo();
-        return info != null && info.isConnectedOrConnecting();
-    }
-
-    public static boolean isInBlackout(Context context) {
-        TimeRange range = new Preferences(context).getCellularDataBlackout();
-        if (range == null) {
-            return false;
+        if(info == null || !info.isConnectedOrConnecting()) {
+            return Result.NOTCONNECTED;
         }
 
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info = connectivityManager.getActiveNetworkInfo();
-
-        if(info == null) {
-            return false;
+        TimeRange range = new Preferences(context).getCellularDataBlackout();
+        if (range == null) {
+            return Result.OK;
         }
 
         int type = info.getType();
 
         if (type != ConnectivityManager.TYPE_MOBILE &&
-            type != ConnectivityManager.TYPE_MOBILE_DUN &&
-            type != ConnectivityManager.TYPE_MOBILE_HIPRI &&
-            type != ConnectivityManager.TYPE_MOBILE_MMS &&
-            type != ConnectivityManager.TYPE_MOBILE_SUPL &&
-            type != ConnectivityManager.TYPE_WIMAX) {
-            return false;
+                type != ConnectivityManager.TYPE_MOBILE_DUN &&
+                type != ConnectivityManager.TYPE_MOBILE_HIPRI &&
+                type != ConnectivityManager.TYPE_MOBILE_MMS &&
+                type != ConnectivityManager.TYPE_MOBILE_SUPL &&
+                type != ConnectivityManager.TYPE_WIMAX) {
+            return Result.OK;
         }
 
-        return range.contains(new Time());
+        return range.contains(new Time()) ? Result.BLACKOUT : Result.OK;
     }
 
     private Result parseHttpPost(Message message, HttpPost httpPost, HttpClient httpClient, Context context) {
