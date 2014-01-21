@@ -9,11 +9,11 @@
     <list default="true" id="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" name="Default" comment="" />
     <ignored path="reyna.iws" />
     <ignored path=".idea/workspace.xml" />
-    <file path="/a.dummy" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1389969499678" ignored="false" />
-    <file path="/fragment.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390235913300" ignored="false" />
+    <file path="/a.dummy" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390303288669" ignored="false" />
+    <file path="/fragment.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390304830284" ignored="false" />
     <file path="/Dummy.txt" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1389954940528" ignored="false" />
     <file path="/StoreServiceTest.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1389961035145" ignored="false" />
-    <file path="/Dispatcher.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390299074010" ignored="false" />
+    <file path="/Dispatcher.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390321493853" ignored="false" />
     <file path="/build.xml" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1359384305326" ignored="false" />
     <file path="$PROJECT_DIR$/../elemez-android/elemez/AndroidManifest.xml" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1362757207243" ignored="false" />
     <file path="/AndroidManifest.xml" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1362756433032" ignored="false" />
@@ -38,18 +38,18 @@
     <file path="$PROJECT_DIR$/../mprodigy-android/mprodigy-junit/src/com/b2msolutions/mprodigy/android/TestModule.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1362762220070" ignored="false" />
     <file path="/TestModule.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1362762208999" ignored="false" />
     <file path="/GivenAProfileUpdate.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1362762879235" ignored="false" />
-    <file path="/DispatcherTest.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390298985766" ignored="false" />
+    <file path="/DispatcherTest.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390321435867" ignored="false" />
     <file path="/RepositoryTest.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1386000594511" ignored="false" />
     <file path="/IgnoreCertsSSLSocketFactory.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1372157067105" ignored="false" />
     <file path="/IgnoreCertsHttpClient.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1372155933538" ignored="false" />
     <file path="/ElemezTest.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1372159031456" ignored="false" />
-    <file path="/ForwardService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1389961495844" ignored="false" />
-    <file path="$PROJECT_DIR$/../elemez-android/elemez/src/com/b2msolutions/elemez/server/Server.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390237876816" ignored="false" />
-    <file path="/Server.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390237565951" ignored="false" />
+    <file path="/ForwardService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390321638764" ignored="false" />
+    <file path="$PROJECT_DIR$/../elemez-android/elemez/src/com/b2msolutions/elemez/server/Server.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390304748759" ignored="false" />
+    <file path="/Server.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390304742009" ignored="false" />
     <file path="$PROJECT_DIR$/reyna/gen/com/b2msolutions/reyna/R.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1372174704417" ignored="false" />
-    <file path="$PROJECT_DIR$/reyna/gen/com/b2msolutions/reyna/BuildConfig.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390219972401" ignored="false" />
+    <file path="$PROJECT_DIR$/reyna/gen/com/b2msolutions/reyna/BuildConfig.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390299249264" ignored="false" />
     <file path="$PROJECT_DIR$/../elemez-android/elemez-test/src/com/b2msolutions/elemez/development/GivenADevelopmentReceiver.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1372171498727" ignored="false" />
-    <file path="/ForwardServiceTest.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1389961456273" ignored="false" />
+    <file path="/ForwardServiceTest.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390321617876" ignored="false" />
     <file path="$PROJECT_DIR$/reyna/bin/proguard.txt" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1372174702503" ignored="false" />
     <file path="$PROJECT_DIR$/reyna/bin/AndroidManifest.xml" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1389971627518" ignored="false" />
     <file path="/MessageTest.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1372327651344" ignored="false" />
@@ -99,23 +99,27 @@
     <file path="$PROJECT_DIR$/../elemez-android/elemez/bin/classes.dex.d" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390224038138" ignored="false" />
     <file path="$PROJECT_DIR$/../elemez-android/elemez/src/com/b2msolutions/elemez/server/BlackoutException.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390233831852" ignored="false" />
     <file path="/BlackoutException.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390233821331" ignored="false" />
-    <file path="$PROJECT_DIR$/../elemez-android/elemez/src/com/b2msolutions/elemez/time/TimeShift.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390233577324" ignored="false" />
-    <file path="$PROJECT_DIR$/../elemez-android/elemez/src/com/b2msolutions/elemez/token/TokenIntentService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390233811810" ignored="false" />
+    <file path="$PROJECT_DIR$/../elemez-android/elemez/src/com/b2msolutions/elemez/time/TimeShift.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390303641201" ignored="false" />
+    <file path="$PROJECT_DIR$/../elemez-android/elemez/src/com/b2msolutions/elemez/token/TokenIntentService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390303418909" ignored="false" />
     <file path="/TokenIntentService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390233809940" ignored="false" />
-    <file path="$PROJECT_DIR$/../elemez-android/elemez-test/src/com/b2msolutions/elemez/server/GivenASubmitService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390233729682" ignored="false" />
+    <file path="$PROJECT_DIR$/../elemez-android/elemez-test/src/com/b2msolutions/elemez/server/GivenASubmitService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390303951043" ignored="false" />
     <file path="$PROJECT_DIR$/../elemez-android/elemez-test/src/com/b2msolutions/elemez/time/GivenATimeSyncService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390233881579" ignored="false" />
     <file path="$PROJECT_DIR$/../elemez-android/elemez-test/src/com/b2msolutions/elemez/token/GivenATokenIntentService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390233909939" ignored="false" />
     <file path="$PROJECT_DIR$/../elemez-android/elemez-test/src/com/b2msolutions/elemez/time/GivenATimeShift.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390234041873" ignored="false" />
     <file path="$PROJECT_DIR$/../elemez-android/elemez-test/src/com/b2msolutions/elemez/configuration/GivenAConfigurationIntentService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390234173475" ignored="false" />
-    <file path="$PROJECT_DIR$/../elemez-android/elemez/src/com/b2msolutions/elemez/server/SubmitService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390234477299" ignored="false" />
+    <file path="$PROJECT_DIR$/../elemez-android/elemez/src/com/b2msolutions/elemez/server/SubmitService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390303380841" ignored="false" />
     <file path="/SubmitService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390234463021" ignored="false" />
-    <file path="$PROJECT_DIR$/../elemez-android/elemez/src/com/b2msolutions/elemez/installer/UpgradeIntentService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390234549410" ignored="false" />
+    <file path="$PROJECT_DIR$/../elemez-android/elemez/src/com/b2msolutions/elemez/installer/UpgradeIntentService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390303368636" ignored="false" />
     <file path="/UpgradeIntentService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390234546518" ignored="false" />
     <file path="/ConfigurationIntentService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390234591095" ignored="false" />
-    <file path="$PROJECT_DIR$/../elemez-android/elemez/src/com/b2msolutions/elemez/configuration/ConfigurationIntentService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390234604369" ignored="false" />
-    <file path="$PROJECT_DIR$/../elemez-android/elemez/src/com/b2msolutions/elemez/time/TimeSyncService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390234651689" ignored="false" />
-    <file path="/TimeSyncService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390234646209" ignored="false" />
-    <file path="$PROJECT_DIR$/../elemez-android/elemez/libs/reyna-2.7.jar!/com/b2msolutions/reyna/services/StoreService.class" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390236885414" ignored="false" />
+    <file path="$PROJECT_DIR$/../elemez-android/elemez/src/com/b2msolutions/elemez/configuration/ConfigurationIntentService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390303348128" ignored="false" />
+    <file path="$PROJECT_DIR$/../elemez-android/elemez/src/com/b2msolutions/elemez/time/TimeSyncService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390303803322" ignored="false" />
+    <file path="/TimeSyncService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390301283951" ignored="false" />
+    <file path="$PROJECT_DIR$/../elemez-android/elemez/libs/reyna-2.7.jar!/com/b2msolutions/reyna/services/StoreService.class" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390299249264" ignored="false" />
+    <file path="$PROJECT_DIR$/../elemez-android/elemez/src/com/b2msolutions/elemez/time/TimeCheckService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390303725111" ignored="false" />
+    <file path="/GivenASubmitService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390303950304" ignored="false" />
+    <file path="$PROJECT_DIR$/../elemez-android/elemez/src/com/b2msolutions/elemez/initialisation/InitialisationIntentService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390306641866" ignored="false" />
+    <file path="/InitialisationIntentService.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390304027877" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -211,16 +215,36 @@
       <file leaf-file-name="Dispatcher.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/Dispatcher.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="58" column="0" selection-start="1931" selection-end="1931" vertical-scroll-proportion="0.0">
+            <state line="20" column="16" selection-start="583" selection-end="583" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="e#4878#4886#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DispatcherTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/DispatcherTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="144" column="0" selection-start="6907" selection-end="6907" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DispatcherTest.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/DispatcherTest.java">
+      <file leaf-file-name="ForwardService.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/services/ForwardService.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="230" column="6" selection-start="11453" selection-end="11453" vertical-scroll-proportion="0.51766783">
+            <state line="34" column="32" selection-start="993" selection-end="993" vertical-scroll-proportion="0.53367877">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ForwardServiceTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/services/ForwardServiceTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="105" column="4" selection-start="3558" selection-end="3558" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -244,14 +268,14 @@
         <option value="$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/TimeRange.java" />
         <option value="$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/services/StoreService.java" />
         <option value="$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/services/StoreServiceTest.java" />
-        <option value="$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/services/ForwardServiceTest.java" />
-        <option value="$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/services/ForwardService.java" />
         <option value="$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/Time.java" />
         <option value="$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/TimeTest.java" />
         <option value="$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/PreferencesTest.java" />
         <option value="$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/Preferences.java" />
         <option value="$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/DispatcherTest.java" />
         <option value="$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/Dispatcher.java" />
+        <option value="$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/services/ForwardServiceTest.java" />
+        <option value="$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/services/ForwardService.java" />
       </list>
     </option>
   </component>
@@ -362,6 +386,28 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="reyna-test" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="reyna" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="services" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="reyna" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="reyna" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -417,57 +463,13 @@
       <recent name="com.b2msolutions.reyna" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.DispatcherTest">
+  <component name="RunManager" selected="JUnit.ForwardServiceTest">
     <configuration default="false" name="DispatcherTest" type="JUnit" factoryName="JUnit" temporary="true">
       <module name="reyna-test" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" value="" />
       <option name="PACKAGE_NAME" value="com.b2msolutions.reyna" />
       <option name="MAIN_CLASS_NAME" value="com.b2msolutions.reyna.DispatcherTest" />
-      <option name="METHOD_NAME" value="" />
-      <option name="TEST_OBJECT" value="class" />
-      <option name="VM_PARAMETERS" value="-ea" />
-      <option name="PARAMETERS" value="" />
-      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/reyna" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="moduleWithDependencies" />
-      </option>
-      <envs />
-      <patterns />
-      <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Run" />
-      <method />
-    </configuration>
-    <configuration default="false" name="All in reyna-test" type="JUnit" factoryName="JUnit" temporary="true">
-      <module name="reyna-test" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" value="" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="TEST_OBJECT" value="package" />
-      <option name="VM_PARAMETERS" value="-ea" />
-      <option name="PARAMETERS" value="" />
-      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/reyna" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="moduleWithDependencies" />
-      </option>
-      <envs />
-      <patterns />
-      <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Run" />
-      <method />
-    </configuration>
-    <configuration default="false" name="TimeTest" type="JUnit" factoryName="JUnit" temporary="true">
-      <module name="reyna-test" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" value="" />
-      <option name="PACKAGE_NAME" value="com.b2msolutions.reyna" />
-      <option name="MAIN_CLASS_NAME" value="com.b2msolutions.reyna.TimeTest" />
       <option name="METHOD_NAME" value="" />
       <option name="TEST_OBJECT" value="class" />
       <option name="VM_PARAMETERS" value="-ea" />
@@ -531,6 +533,50 @@
       </RunnerSettings>
       <RunnerSettings RunnerId="Run" />
       <ConfigurationWrapper RunnerId="Debug" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
+    <configuration default="false" name="DispatcherTest.isConnectedShouldReturnFalseIfNoActiveConnection" type="JUnit" factoryName="JUnit" temporary="true">
+      <module name="reyna-test" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" value="" />
+      <option name="PACKAGE_NAME" value="com.b2msolutions.reyna" />
+      <option name="MAIN_CLASS_NAME" value="com.b2msolutions.reyna.DispatcherTest" />
+      <option name="METHOD_NAME" value="isConnectedShouldReturnFalseIfNoActiveConnection" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/reyna" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <envs />
+      <patterns />
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
+    <configuration default="false" name="ForwardServiceTest" type="JUnit" factoryName="JUnit" temporary="true">
+      <module name="reyna-test" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" value="" />
+      <option name="PACKAGE_NAME" value="com.b2msolutions.reyna.services" />
+      <option name="MAIN_CLASS_NAME" value="com.b2msolutions.reyna.services.ForwardServiceTest" />
+      <option name="METHOD_NAME" value="" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/reyna" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <envs />
+      <patterns />
+      <RunnerSettings RunnerId="Run" />
       <ConfigurationWrapper RunnerId="Run" />
       <method />
     </configuration>
@@ -615,18 +661,18 @@
     </configuration>
     <list size="5">
       <item index="0" class="java.lang.String" itemvalue="JUnit.DispatcherTest" />
-      <item index="1" class="java.lang.String" itemvalue="JUnit.All in reyna-test" />
-      <item index="2" class="java.lang.String" itemvalue="JUnit.TimeTest" />
-      <item index="3" class="java.lang.String" itemvalue="JUnit.PreferencesTest" />
-      <item index="4" class="java.lang.String" itemvalue="JUnit.DispatcherTest.isInBlackoutShouldReturnFalseIfNoActiveNetwork" />
+      <item index="1" class="java.lang.String" itemvalue="JUnit.PreferencesTest" />
+      <item index="2" class="java.lang.String" itemvalue="JUnit.DispatcherTest.isInBlackoutShouldReturnFalseIfNoActiveNetwork" />
+      <item index="3" class="java.lang.String" itemvalue="JUnit.DispatcherTest.isConnectedShouldReturnFalseIfNoActiveConnection" />
+      <item index="4" class="java.lang.String" itemvalue="JUnit.ForwardServiceTest" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="JUnit.DispatcherTest" />
-        <item index="1" class="java.lang.String" itemvalue="JUnit.DispatcherTest.isInBlackoutShouldReturnFalseIfNoActiveNetwork" />
-        <item index="2" class="java.lang.String" itemvalue="JUnit.PreferencesTest" />
-        <item index="3" class="java.lang.String" itemvalue="JUnit.TimeTest" />
-        <item index="4" class="java.lang.String" itemvalue="JUnit.All in reyna-test" />
+        <item index="0" class="java.lang.String" itemvalue="JUnit.ForwardServiceTest" />
+        <item index="1" class="java.lang.String" itemvalue="JUnit.DispatcherTest" />
+        <item index="2" class="java.lang.String" itemvalue="JUnit.DispatcherTest.isConnectedShouldReturnFalseIfNoActiveConnection" />
+        <item index="3" class="java.lang.String" itemvalue="JUnit.DispatcherTest.isInBlackoutShouldReturnFalseIfNoActiveNetwork" />
+        <item index="4" class="java.lang.String" itemvalue="JUnit.PreferencesTest" />
       </list>
     </recent_temporary>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
@@ -688,6 +734,7 @@
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3290398" sideWeight="0.49019608" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3735363" sideWeight="0.49509802" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3290398" sideWeight="0.5055147" order="7" side_tool="true" content_ui="tabs" />
@@ -700,10 +747,9 @@
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.19485295" sideWeight="0.7084309" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.29156908" sideWeight="0.4852941" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.29156908" sideWeight="0.4852941" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3290398" sideWeight="0.49019608" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.6709602" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
@@ -773,20 +819,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/services/ForwardServiceTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="156" column="7" selection-start="5840" selection-end="5840" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/reyna/build.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/reyna/proguard.cfg">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
@@ -807,13 +839,6 @@
     <entry file="file://$PROJECT_DIR$/reyna/project.properties">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/services/ForwardService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="34" column="79" selection-start="1040" selection-end="1040" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -873,16 +898,39 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/Dispatcher.java">
+    <entry file="file://$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/Logger.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="58" column="0" selection-start="1931" selection-end="1931" vertical-scroll-proportion="0.0">
+        <state line="4" column="13" selection-start="72" selection-end="72" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/DispatcherTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="230" column="6" selection-start="11453" selection-end="11453" vertical-scroll-proportion="0.51766783">
+        <state line="144" column="0" selection-start="6907" selection-end="6907" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/services/ForwardServiceTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="105" column="4" selection-start="3558" selection-end="3558" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/Dispatcher.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="20" column="16" selection-start="583" selection-end="583" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="e#4878#4886#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/services/ForwardService.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="34" column="32" selection-start="993" selection-end="993" vertical-scroll-proportion="0.53367877">
           <folding />
         </state>
       </provider>

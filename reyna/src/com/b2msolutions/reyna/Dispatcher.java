@@ -19,7 +19,7 @@ public class Dispatcher {
     private static final String TAG = "Dispatcher";
 
     public enum Result {
-        OK, PERMANENT_ERROR, TEMPORARY_ERROR, BLACKOUT
+        OK, PERMANENT_ERROR, TEMPORARY_ERROR, BLACKOUT, NOTCONNECTED
     }
 
     public Result sendMessage(Context context, Message message) {
@@ -36,6 +36,10 @@ public class Dispatcher {
     protected Result sendMessage(Message message, HttpPost httpPost, HttpClient httpClient, Context context) {
         Logger.v(TAG, "sendMessage: injected");
 
+        if(!Dispatcher.isConnected(context)) {
+            return Result.NOTCONNECTED;
+        }
+
         if(Dispatcher.isInBlackout(context)) {
             return Result.BLACKOUT;
         }
@@ -44,6 +48,12 @@ public class Dispatcher {
         if (parseHttpPostResult != Result.OK) return parseHttpPostResult;
 
         return this.tryToExecute(httpPost, httpClient);
+    }
+
+    public static boolean isConnected(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = connectivityManager.getActiveNetworkInfo();
+        return info != null && info.isConnectedOrConnecting();
     }
 
     public static boolean isInBlackout(Context context) {

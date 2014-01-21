@@ -58,6 +58,7 @@ public class DispatcherTest {
         ShadowConnectivityManager shadowConnectivityManager = Robolectric.shadowOf_(connectivityManager);
         shadowConnectivityManager.setActiveNetworkInfo(this.networkInfo);
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
+        when(this.networkInfo.isConnectedOrConnecting()).thenReturn(true);
     }
 
     @Test
@@ -140,6 +141,12 @@ public class DispatcherTest {
         new Preferences(this.context).saveCellularDataBlackout(range);
 
         assertEquals(Result.BLACKOUT, new Dispatcher().sendMessage(null, null, null, this.context));
+    }
+
+    @Test
+    public void sendMessageShouldReturnNotConnectedWhenNotConnected() {
+        when(this.networkInfo.isConnectedOrConnecting()).thenReturn(false);
+        assertEquals(Result.NOTCONNECTED, new Dispatcher().sendMessage(null, null, null, this.context));
     }
 
     @Test
@@ -265,6 +272,35 @@ public class DispatcherTest {
         isInBlackoutShouldReturnFalseIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE_MMS);
         isInBlackoutShouldReturnFalseIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE_SUPL);
         isInBlackoutShouldReturnFalseIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_WIMAX);
+    }
+
+    @Test
+    public void isConnectedShouldReturnFalseIfNoActiveConnection() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ShadowConnectivityManager shadowConnectivityManager = Robolectric.shadowOf_(connectivityManager);
+        shadowConnectivityManager.setActiveNetworkInfo(null);
+
+        assertFalse(new Dispatcher().isConnected(this.context));
+    }
+
+    @Test
+    public void isConnectedShouldReturnTrueIfActiveConnectionIsConnectedOrConnecting() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ShadowConnectivityManager shadowConnectivityManager = Robolectric.shadowOf_(connectivityManager);
+        when(this.networkInfo.isConnectedOrConnecting()).thenReturn(true);
+        shadowConnectivityManager.setActiveNetworkInfo(this.networkInfo);
+
+        assertTrue(new Dispatcher().isConnected(this.context));
+    }
+
+    @Test
+    public void isConnectedShouldReturnFalseIfActiveConnectionIsNotConnectedOrConnecting() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ShadowConnectivityManager shadowConnectivityManager = Robolectric.shadowOf_(connectivityManager);
+        when(this.networkInfo.isConnectedOrConnecting()).thenReturn(false);
+        shadowConnectivityManager.setActiveNetworkInfo(this.networkInfo);
+
+        assertFalse(new Dispatcher().isConnected(this.context));
     }
 
     private void isInBlackoutShouldReturnFalseIfMobileAndOutsideOfBlackout(int type) {

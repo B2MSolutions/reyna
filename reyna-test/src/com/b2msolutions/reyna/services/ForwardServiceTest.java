@@ -115,6 +115,17 @@ public class ForwardServiceTest {
         verify(this.repository, never()).delete(message);
     }
 
+    @Test
+    public void whenSingleMessageAndDispatchReturnsNotConnectedShouldNotDeleteMessage() throws URISyntaxException {
+        Message message = mock(Message.class);
+        when(this.repository.getNext()).thenReturn(message).thenReturn(null);
+        when(this.dispatcher.sendMessage(this.forwardService, message)).thenReturn(Result.NOTCONNECTED);
+
+        this.forwardService.onHandleIntent(null);
+        verify(this.dispatcher).sendMessage(this.forwardService, message);
+        verify(this.repository, never()).delete(message);
+    }
+
 	@Test
 	public void whenTwoMessagesAndFirstDispatchReturnsTemporaryErrorShouldNotDeleteMessages() throws URISyntaxException {
 		Message message1 = mock(Message.class);
