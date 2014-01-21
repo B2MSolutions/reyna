@@ -227,83 +227,63 @@ public class DispatcherTest {
     }
 
     @Test
-    public void isInBlackoutShouldReturnFalseIfNoActiveNetwork() {
-        Preferences preferences = new Preferences(this.context);
-        preferences.saveCellularDataBlackout(new TimeRange(new Time(00, 00), new Time(23, 59)));
+    public void canSendShouldReturnNOTCONNECTEDIfNoActiveNetwork() {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         ShadowConnectivityManager shadowConnectivityManager = Robolectric.shadowOf_(connectivityManager);
         shadowConnectivityManager.setActiveNetworkInfo(null);
-        assertFalse(new Dispatcher().isInBlackout(this.context));
+        assertEquals(Result.NOTCONNECTED, Dispatcher.canSend(this.context));
     }
 
     @Test
-    public void isInBlackoutShouldReturnFalseIfBluetoothAndConnected() {
-        isInBlackoutShouldReturnFalseIfNonCellularAndConnected(7); // BLUETOOTH
-        isInBlackoutShouldReturnFalseIfNonCellularAndConnected(ConnectivityManager.TYPE_WIFI);
-        isInBlackoutShouldReturnFalseIfNonCellularAndConnected(8); // DUMMY
-        isInBlackoutShouldReturnFalseIfNonCellularAndConnected(9); // ETHERNET
+    public void canSendShouldReturnOKIfNonCellularAndConnected() {
+        canSendShouldReturnOKIfNonCellularAndConnected(7); // BLUETOOTH
+        canSendShouldReturnOKIfNonCellularAndConnected(ConnectivityManager.TYPE_WIFI);
+        canSendShouldReturnOKIfNonCellularAndConnected(8); // DUMMY
+        canSendShouldReturnOKIfNonCellularAndConnected(9); // ETHERNET
     }
 
     @Test
-    public void isInBlackoutShouldReturnFalseIfMobileAndHasNoPreferences() {
-        isInBlackoutShouldReturnFalseIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_MOBILE);
-        isInBlackoutShouldReturnFalseIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_MOBILE_DUN);
-        isInBlackoutShouldReturnFalseIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_MOBILE_HIPRI);
-        isInBlackoutShouldReturnFalseIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_MOBILE_MMS);
-        isInBlackoutShouldReturnFalseIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_MOBILE_SUPL);
-        isInBlackoutShouldReturnFalseIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_WIMAX);
+    public void canSendShouldReturnOKIfMobileAndHasNoPreferences() {
+        canSendShouldReturnOKIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_MOBILE);
+        canSendShouldReturnOKIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_MOBILE_DUN);
+        canSendShouldReturnOKIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_MOBILE_HIPRI);
+        canSendShouldReturnOKIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_MOBILE_MMS);
+        canSendShouldReturnOKIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_MOBILE_SUPL);
+        canSendShouldReturnOKIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_WIMAX);
     }
 
     @Test
-    public void isInBlackoutShouldReturnTrueIfMobileAndInBlackout() {
-        isInBlackoutShouldReturnTrueIfCellularAndInBlackout(ConnectivityManager.TYPE_MOBILE);
-        isInBlackoutShouldReturnTrueIfCellularAndInBlackout(ConnectivityManager.TYPE_MOBILE_DUN);
-        isInBlackoutShouldReturnTrueIfCellularAndInBlackout(ConnectivityManager.TYPE_MOBILE_HIPRI);
-        isInBlackoutShouldReturnTrueIfCellularAndInBlackout(ConnectivityManager.TYPE_MOBILE_MMS);
-        isInBlackoutShouldReturnTrueIfCellularAndInBlackout(ConnectivityManager.TYPE_MOBILE_SUPL);
-        isInBlackoutShouldReturnTrueIfCellularAndInBlackout(ConnectivityManager.TYPE_WIMAX);
+    public void canSendShouldReturnBlackoutIfMobileAndInBlackout() {
+        canSendShouldReturnBlackoutIfCellularAndInBlackout(ConnectivityManager.TYPE_MOBILE);
+        canSendShouldReturnBlackoutIfCellularAndInBlackout(ConnectivityManager.TYPE_MOBILE_DUN);
+        canSendShouldReturnBlackoutIfCellularAndInBlackout(ConnectivityManager.TYPE_MOBILE_HIPRI);
+        canSendShouldReturnBlackoutIfCellularAndInBlackout(ConnectivityManager.TYPE_MOBILE_MMS);
+        canSendShouldReturnBlackoutIfCellularAndInBlackout(ConnectivityManager.TYPE_MOBILE_SUPL);
+        canSendShouldReturnBlackoutIfCellularAndInBlackout(ConnectivityManager.TYPE_WIMAX);
     }
 
     @Test
-    public void isInBlackoutShouldReturnFalseIfMobileAndOutsideOfBlackout() {
-        isInBlackoutShouldReturnFalseIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE);
-        isInBlackoutShouldReturnFalseIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE_DUN);
-        isInBlackoutShouldReturnFalseIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE_HIPRI);
-        isInBlackoutShouldReturnFalseIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE_MMS);
-        isInBlackoutShouldReturnFalseIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE_SUPL);
-        isInBlackoutShouldReturnFalseIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_WIMAX);
+    public void canSendShouldReturnOKIfMobileAndOutsideOfBlackout() {
+        canSendShouldReturnOKIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE);
+        canSendShouldReturnOKIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE_DUN);
+        canSendShouldReturnOKIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE_HIPRI);
+        canSendShouldReturnOKIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE_MMS);
+        canSendShouldReturnOKIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE_SUPL);
+        canSendShouldReturnOKIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_WIMAX);
     }
 
     @Test
-    public void isConnectedShouldReturnFalseIfNoActiveConnection() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        ShadowConnectivityManager shadowConnectivityManager = Robolectric.shadowOf_(connectivityManager);
-        shadowConnectivityManager.setActiveNetworkInfo(null);
-
-        assertFalse(new Dispatcher().isConnected(this.context));
-    }
-
-    @Test
-    public void isConnectedShouldReturnTrueIfActiveConnectionIsConnectedOrConnecting() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        ShadowConnectivityManager shadowConnectivityManager = Robolectric.shadowOf_(connectivityManager);
-        when(this.networkInfo.isConnectedOrConnecting()).thenReturn(true);
-        shadowConnectivityManager.setActiveNetworkInfo(this.networkInfo);
-
-        assertTrue(new Dispatcher().isConnected(this.context));
-    }
-
-    @Test
-    public void isConnectedShouldReturnFalseIfActiveConnectionIsNotConnectedOrConnecting() {
+    public void canSendShouldReturnNoConnectionIfActiveConnectionIsNotConnectedOrConnecting() {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         ShadowConnectivityManager shadowConnectivityManager = Robolectric.shadowOf_(connectivityManager);
         when(this.networkInfo.isConnectedOrConnecting()).thenReturn(false);
         shadowConnectivityManager.setActiveNetworkInfo(this.networkInfo);
 
-        assertFalse(new Dispatcher().isConnected(this.context));
+        assertEquals(Result.NOTCONNECTED, Dispatcher.canSend(this.context));
+
     }
 
-    private void isInBlackoutShouldReturnFalseIfMobileAndOutsideOfBlackout(int type) {
+    private void canSendShouldReturnOKIfMobileAndOutsideOfBlackout(int type) {
         when(this.networkInfo.getType()).thenReturn(type);
 
         Calendar now = Calendar.getInstance();
@@ -312,19 +292,19 @@ public class DispatcherTest {
         TimeRange range = new TimeRange(new Time(hourOfDay - 2, 0), new Time(hourOfDay - 1, 0));
         new Preferences(this.context).saveCellularDataBlackout(range);
 
-        assertFalse(Dispatcher.isInBlackout(this.context));
+        assertEquals(Result.OK, Dispatcher.canSend(this.context));
     }
 
-    private void isInBlackoutShouldReturnFalseIfCellularAndHasNoPreferences(int type) {
+    private void canSendShouldReturnOKIfCellularAndHasNoPreferences(int type) {
         when(this.networkInfo.getType()).thenReturn(type);
         SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
         editor.clear();
         editor.commit();
-        assertFalse(new Dispatcher().isInBlackout(this.context));
+        assertEquals(Result.OK, Dispatcher.canSend(this.context));
     }
 
-    private void isInBlackoutShouldReturnTrueIfCellularAndInBlackout(int type) {
+    private void canSendShouldReturnBlackoutIfCellularAndInBlackout(int type) {
         when(this.networkInfo.getType()).thenReturn(type);
 
         Calendar now = Calendar.getInstance();
@@ -333,10 +313,10 @@ public class DispatcherTest {
         TimeRange range = new TimeRange(new Time(hourOfDay - 1, 0), new Time(hourOfDay + 1, 0));
         new Preferences(this.context).saveCellularDataBlackout(range);
 
-        assertTrue(new Dispatcher().isInBlackout(this.context));
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
     }
 
-    private void isInBlackoutShouldReturnFalseIfNonCellularAndConnected(int type) {
+    private void canSendShouldReturnOKIfNonCellularAndConnected(int type) {
         when(this.networkInfo.getType()).thenReturn(type);
 
         Calendar now = Calendar.getInstance();
@@ -344,7 +324,7 @@ public class DispatcherTest {
         TimeRange range = new TimeRange(new Time(hourOfDay - 1, 0), new Time(hourOfDay + 1, 0));
         new Preferences(this.context).saveCellularDataBlackout(range);
 
-        assertFalse(new Dispatcher().isInBlackout(this.context));
+        assertEquals(Result.OK, Dispatcher.canSend(this.context));
     }
 
     private void verifyHttpPost(Message message, HttpPost httpPost) {
