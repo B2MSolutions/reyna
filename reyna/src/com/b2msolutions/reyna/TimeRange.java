@@ -20,6 +20,10 @@ public class TimeRange {
     }
 
     public boolean contains(Time time) {
-        return time.isAfter(this.from) && time.isBefore(this.to);
+        if(this.to.isAfterOrEqualTo(this.from)) {
+            return time.isAfterOrEqualTo(this.from) && time.isBeforeOrEqualTo(this.to);
+        } else {
+            return time.isAfterOrEqualTo(this.from) || time.isBeforeOrEqualTo(this.to);
+        }
     }
 }
