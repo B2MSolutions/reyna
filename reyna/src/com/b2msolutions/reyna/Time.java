@@ -32,11 +32,11 @@ public class Time {
         return minuteOfDay;
     }
 
-    public boolean isBefore(Time other) {
-        return this.minuteOfDay < other.minuteOfDay;
+    public boolean isBeforeOrEqualTo(Time other) {
+        return this.minuteOfDay <= other.minuteOfDay;
     }
 
-    public boolean isAfter(Time other) {
-        return this.minuteOfDay > other.minuteOfDay;
+    public boolean isAfterOrEqualTo(Time other) {
+        return this.minuteOfDay >= other.minuteOfDay;
     }
 }
