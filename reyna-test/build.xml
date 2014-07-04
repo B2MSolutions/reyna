@@ -3,15 +3,15 @@
     <property environment="env"/>
     <property name="emma" value="/usr/local/src/android-sdk-linux/tools/lib/emma.jar" />
     <property name="emma.ant" value="/usr/local/src/android-sdk-linux/tools/lib/emma_ant.jar" />
-    <property name="android.sdk.8" value="/usr/local/src/android-sdk-linux/platforms/android-8/android.jar"/>
-    <property name="android.sdk.8.maps" value="/usr/local/src/android-sdk-linux/add-ons/addon-google_apis-google_inc_-8/libs/maps.jar"/>
+    <property name="android.sdk.16" value="/usr/local/src/android-sdk-linux/platforms/android-16/android.jar"/>
+    <property name="android.sdk.16.maps" value="/usr/local/src/android-sdk-linux/add-ons/addon-google_apis-google_inc_-16/libs/maps.jar"/>
     <property name="reyna.location" value="../reyna"/>
     <property name="junit.output.dir" value="../tests/junit"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
-    <path id="Android 2.2.libraryclasspath">
-        <pathelement location="/usr/local/src/android-sdk-linux/platforms/android-8/android.jar"/>
+    <path id="Android 4.1.2.libraryclasspath">
+        <pathelement location="/usr/local/src/android-sdk-linux/platforms/android-16/android.jar"/>
     </path>
     <path id="emma.lib" >
         <pathelement location="${emma}" />
@@ -19,7 +19,7 @@
     </path>
     <path id="reyna.classpath">
         <pathelement location="${reyna.location}/bin/classes"/>
-        <path refid="Android 2.2.libraryclasspath"/>
+        <path refid="Android 4.1.2.libraryclasspath"/>
     </path>
     <path id="reyna-junit.classpath">
         <fileset dir="./libs" includes="*.jar"/>
@@ -27,8 +27,8 @@
         <pathelement location="bin"/>
         <path refid="reyna.classpath"/>
         <path refid="emma.lib"/>
-        <pathelement location="${android.sdk.8}"/>
-        <pathelement location="${android.sdk.8.maps}"/>
+        <pathelement location="${android.sdk.16}"/>
+        <pathelement location="${android.sdk.16.maps}"/>
     </path>
 
     <taskdef resource="emma_ant.properties" classpathref="emma.lib" />
