@@ -10,8 +10,8 @@
     <ignored path="reyna.iws" />
     <ignored path=".idea/workspace.xml" />
     <file path="/a.dummy" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390303288669" ignored="false" />
-    <file path="/fragment.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390304830284" ignored="false" />
-    <file path="/Dummy.txt" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1389954940528" ignored="false" />
+    <file path="/fragment.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1404466919749" ignored="false" />
+    <file path="/Dummy.txt" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1404466919749" ignored="false" />
     <file path="/StoreServiceTest.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1389961035145" ignored="false" />
     <file path="/Dispatcher.java" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1390322681340" ignored="false" />
     <file path="/build.xml" changelist="a9d9ce40-267c-4f3d-a62b-6aa8cff73a23" time="1359384305326" ignored="false" />
@@ -134,6 +134,7 @@
     <disable_hints />
   </component>
   <component name="DebuggerManager">
+    <ui_properties default_suspend_policy="SuspendAll" default_condition_enabled="true" />
     <breakpoint_any default_suspend_policy="SuspendAll" default_condition_enabled="true">
       <breakpoint>
         <option name="NOTIFY_CAUGHT" value="true" />
@@ -202,7 +203,6 @@
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
     </line_breakpoints>
-    <ui_properties default_suspend_policy="SuspendAll" default_condition_enabled="true" />
     <breakpoint_rules />
     <ui_properties />
   </component>
@@ -211,19 +211,7 @@
     <favorites_list name="reyna" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="Dispatcher.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/Dispatcher.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="38" column="51" selection-start="1238" selection-end="1238" vertical-scroll-proportion="-0.05172414">
-              <folding>
-                <element signature="e#4563#4571#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf />
   </component>
   <component name="FindManager">
     <FindUsagesManager>
@@ -233,9 +221,6 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/Logger.java" />
-        <option value="$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/shadows/AndroidHttpClient.java" />
-        <option value="$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/RepositoryTest.java" />
         <option value="$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/shadows/ShadowAndroidHttpClient.java" />
         <option value="$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/services/StoreService.java" />
         <option value="$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/services/StoreServiceTest.java" />
@@ -249,6 +234,9 @@
         <option value="$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/Time.java" />
         <option value="$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/TimeTest.java" />
         <option value="$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/TimeRangeTest.java" />
+        <option value="$PROJECT_DIR$/reyna/AndroidManifest.xml" />
+        <option value="$PROJECT_DIR$/reyna/project.properties" />
+        <option value="$PROJECT_DIR$/reyna-test/build.xml" />
       </list>
     </option>
   </component>
@@ -378,29 +366,7 @@
       <recent name="com.b2msolutions.reyna" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.TimeRangeTest">
-    <configuration default="false" name="All in reyna-test" type="JUnit" factoryName="JUnit" temporary="true">
-      <module name="reyna-test" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" value="" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="TEST_OBJECT" value="package" />
-      <option name="VM_PARAMETERS" value="-ea" />
-      <option name="PARAMETERS" value="" />
-      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/reyna" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="moduleWithDependencies" />
-      </option>
-      <envs />
-      <patterns />
-      <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Run" />
-      <method />
-    </configuration>
+  <component name="RunManager" selected="JUnit.All in reyna-test">
     <configuration default="false" name="TimeRangeTest.whenTimeIsWithinRangeContainsShouldReturnTrue" type="JUnit" factoryName="JUnit" temporary="true">
       <module name="reyna-test" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
@@ -451,14 +417,14 @@
       <ConfigurationWrapper RunnerId="Run" />
       <method />
     </configuration>
-    <configuration default="false" name="TimeRangeTest.whenTimeIsNotWithinRangeContainsShouldReturnFalse" type="JUnit" factoryName="JUnit" temporary="true">
+    <configuration default="false" name="TimeTest" type="JUnit" factoryName="JUnit" temporary="true">
       <module name="reyna-test" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" value="" />
       <option name="PACKAGE_NAME" value="com.b2msolutions.reyna" />
-      <option name="MAIN_CLASS_NAME" value="com.b2msolutions.reyna.TimeRangeTest" />
-      <option name="METHOD_NAME" value="whenTimeIsNotWithinRangeContainsShouldReturnFalse" />
-      <option name="TEST_OBJECT" value="method" />
+      <option name="MAIN_CLASS_NAME" value="com.b2msolutions.reyna.TimeTest" />
+      <option name="METHOD_NAME" value="" />
+      <option name="TEST_OBJECT" value="class" />
       <option name="VM_PARAMETERS" value="-ea" />
       <option name="PARAMETERS" value="" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/reyna" />
@@ -469,22 +435,40 @@
       </option>
       <envs />
       <patterns />
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="" />
-        <option name="TRANSPORT" value="0" />
-        <option name="LOCAL" value="true" />
-      </RunnerSettings>
-      <ConfigurationWrapper RunnerId="Debug" />
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
       <method />
     </configuration>
-    <configuration default="false" name="TimeTest" type="JUnit" factoryName="JUnit" temporary="true">
+    <configuration default="false" name="DispatcherTest" type="JUnit" factoryName="JUnit" temporary="true">
       <module name="reyna-test" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" value="" />
       <option name="PACKAGE_NAME" value="com.b2msolutions.reyna" />
-      <option name="MAIN_CLASS_NAME" value="com.b2msolutions.reyna.TimeTest" />
+      <option name="MAIN_CLASS_NAME" value="com.b2msolutions.reyna.DispatcherTest" />
       <option name="METHOD_NAME" value="" />
       <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/reyna" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <envs />
+      <patterns />
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
+    <configuration default="false" name="All in reyna-test" type="JUnit" factoryName="JUnit" temporary="true">
+      <module name="reyna-test" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" value="" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="MAIN_CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="TEST_OBJECT" value="package" />
       <option name="VM_PARAMETERS" value="-ea" />
       <option name="PARAMETERS" value="" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/reyna" />
@@ -579,19 +563,19 @@
       <method />
     </configuration>
     <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="JUnit.All in reyna-test" />
-      <item index="1" class="java.lang.String" itemvalue="JUnit.TimeRangeTest.whenTimeIsWithinRangeContainsShouldReturnTrue" />
-      <item index="2" class="java.lang.String" itemvalue="JUnit.TimeRangeTest" />
-      <item index="3" class="java.lang.String" itemvalue="JUnit.TimeRangeTest.whenTimeIsNotWithinRangeContainsShouldReturnFalse" />
-      <item index="4" class="java.lang.String" itemvalue="JUnit.TimeTest" />
+      <item index="0" class="java.lang.String" itemvalue="JUnit.TimeRangeTest.whenTimeIsWithinRangeContainsShouldReturnTrue" />
+      <item index="1" class="java.lang.String" itemvalue="JUnit.TimeRangeTest" />
+      <item index="2" class="java.lang.String" itemvalue="JUnit.TimeTest" />
+      <item index="3" class="java.lang.String" itemvalue="JUnit.DispatcherTest" />
+      <item index="4" class="java.lang.String" itemvalue="JUnit.All in reyna-test" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="JUnit.TimeRangeTest" />
-        <item index="1" class="java.lang.String" itemvalue="JUnit.TimeTest" />
-        <item index="2" class="java.lang.String" itemvalue="JUnit.TimeRangeTest.whenTimeIsWithinRangeContainsShouldReturnTrue" />
-        <item index="3" class="java.lang.String" itemvalue="JUnit.TimeRangeTest.whenTimeIsNotWithinRangeContainsShouldReturnFalse" />
-        <item index="4" class="java.lang.String" itemvalue="JUnit.All in reyna-test" />
+        <item index="0" class="java.lang.String" itemvalue="JUnit.All in reyna-test" />
+        <item index="1" class="java.lang.String" itemvalue="JUnit.DispatcherTest" />
+        <item index="2" class="java.lang.String" itemvalue="JUnit.TimeRangeTest" />
+        <item index="3" class="java.lang.String" itemvalue="JUnit.TimeTest" />
+        <item index="4" class="java.lang.String" itemvalue="JUnit.TimeRangeTest.whenTimeIsWithinRangeContainsShouldReturnTrue" />
       </list>
     </recent_temporary>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
@@ -647,7 +631,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="24" width="1680" height="1002" extended-state="0" />
+    <frame x="0" y="24" width="1680" height="1002" extended-state="6" />
     <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -658,14 +642,14 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3290398" sideWeight="0.5055147" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32786885" sideWeight="0.49264705" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3272933" sideWeight="0.49264705" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Android" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3290398" sideWeight="0.49754903" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.19485295" sideWeight="0.7096019" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.29039812" sideWeight="0.4852941" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.19461444" sideWeight="0.71007925" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.28992072" sideWeight="0.4852941" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3290398" sideWeight="0.49019608" order="1" side_tool="false" content_ui="tabs" />
@@ -738,91 +722,14 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/reyna/AndroidManifest.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/reyna/project.properties">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/receivers/ForwardServiceReceiver.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="8" column="13" selection-start="255" selection-end="255" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/services/StoreService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="37" column="41" selection-start="1115" selection-end="1115" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/Preferences.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="22" column="42" selection-start="655" selection-end="655" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/PreferencesTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="24" column="4" selection-start="985" selection-end="985" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/reyna-test/libs/robolectric-1.2-jar-with-dependencies.jar!/com/xtremelabs/robolectric/shadows/ShadowConnectivityManager.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="7" column="28" selection-start="264" selection-end="289" vertical-scroll-proportion="0.16245487" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/Logger.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="4" column="13" selection-start="72" selection-end="72" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/services/ForwardServiceTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="105" column="4" selection-start="3558" selection-end="3558" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/DispatcherTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="328" column="1" selection-start="16478" selection-end="16478" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/services/ForwardService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="34" column="32" selection-start="993" selection-end="993" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/Time.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="39" column="34" selection-start="1054" selection-end="1054" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
+        <state line="39" column="34" selection-start="1054" selection-end="1054" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/TimeRange.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="22" column="0" selection-start="364" selection-end="364" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
+        <state line="22" column="0" selection-start="364" selection-end="364" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/TimeTest.java">
@@ -834,19 +741,94 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/TimeRangeTest.java">
+    <entry file="file://$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/Dispatcher.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="29" column="28" selection-start="992" selection-end="992" vertical-scroll-proportion="0.0">
+        <state line="38" column="51" selection-start="1238" selection-end="1238" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/Dispatcher.java">
+    <entry file="file://$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/shadows/ShadowAndroidHttpClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="38" column="51" selection-start="1238" selection-end="1238" vertical-scroll-proportion="-0.05172414">
-          <folding>
-            <element signature="e#4563#4571#0" expanded="true" />
-          </folding>
+        <state line="3" column="33" selection-start="114" selection-end="114" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/TimeRangeTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="26" column="27" selection-start="883" selection-end="883" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/services/ForwardServiceTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="105" column="0" selection-start="3558" selection-end="3558" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/reyna/res/values/strings.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="3" column="12" selection-start="167" selection-end="167" vertical-scroll-proportion="0.078125">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/reyna/proguard-project.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/reyna/proguard.cfg">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/DispatcherTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="263" column="0" selection-start="13355" selection-end="13355" vertical-scroll-proportion="0.50510204">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/reyna/project.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="10" column="17" selection-start="360" selection-end="360" vertical-scroll-proportion="0.24958402">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/reyna/local.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/reyna/build.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="-1.4459234">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/reyna-test/build.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="13" column="19" selection-start="910" selection-end="910" vertical-scroll-proportion="0.3463588">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/reyna/AndroidManifest.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="6" column="39" selection-start="245" selection-end="245" vertical-scroll-proportion="0.14975041">
+          <folding />
         </state>
       </provider>
     </entry>
