@@ -5,12 +5,19 @@ import com.b2msolutions.reyna.Dispatcher;
 import com.b2msolutions.reyna.Dispatcher.Result;
 import com.b2msolutions.reyna.Logger;
 import com.b2msolutions.reyna.Message;
+import com.b2msolutions.reyna.Thread;
 
-public class ForwardService extends RepositoryService {	
-	
-	private static final String TAG = "ForwardService";
+public class ForwardService extends RepositoryService {
+
+    protected static final String TAG = "ForwardService";
+
+    protected static final long SLEEP_MILLISECONDS = 1000; // 1 second
+
+    protected static final long TEMPORARY_ERROR_MILLISECONDS = 300000; // 5 minutes
 
     protected Dispatcher dispatcher;
+
+    protected Thread thread;
 
 	public ForwardService() {
 		super(ForwardService.class.getName());
@@ -18,6 +25,7 @@ public class ForwardService extends RepositoryService {
         Logger.v(TAG, "ForwardService()");
 
         this.dispatcher = new Dispatcher();
+        this.thread = new Thread();
 	}
 
 	@Override
@@ -27,12 +35,21 @@ public class ForwardService extends RepositoryService {
 		try {					
 			Message message = this.repository.getNext();
 			while(message != null) {
+                this.thread.sleep(SLEEP_MILLISECONDS);
 				Logger.i(TAG, "ForwardService: processing message " + message.getId());
 				Result result = dispatcher.sendMessage(this, message);
 
                 Logger.i(TAG, "ForwardService: send message result: " + result.toString());
 				
-				if(result == Result.TEMPORARY_ERROR || result == Result.BLACKOUT || result == Result.NOTCONNECTED) return;
+				if(result == Result.TEMPORARY_ERROR) {
+                    Logger.i(TAG, "ForwardService: temporary error, backing off...");
+                    this.thread.sleep(TEMPORARY_ERROR_MILLISECONDS);
+                    return;
+                }
+
+                if(result == Result.BLACKOUT || result == Result.NOTCONNECTED) {
+                    return;
+                }
 
 				this.repository.delete(message);
 				message = this.repository.getNext();
