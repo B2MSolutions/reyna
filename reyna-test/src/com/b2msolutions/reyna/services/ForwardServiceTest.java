@@ -2,16 +2,15 @@ package com.b2msolutions.reyna.services;
 
 import android.content.Context;
 import android.content.Intent;
-import com.b2msolutions.reyna.Dispatcher;
+import com.b2msolutions.reyna.*;
 import com.b2msolutions.reyna.Dispatcher.Result;
-import com.b2msolutions.reyna.Message;
-import com.b2msolutions.reyna.Repository;
 import com.b2msolutions.reyna.Thread;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -97,6 +96,21 @@ public class ForwardServiceTest {
 
         verify(this.thread, never()).sleep(ForwardService.TEMPORARY_ERROR_MILLISECONDS);
 	}
+
+    @Test
+    public void whenSingleMessageShouldAddMessageIdToHeaders() throws URISyntaxException, InterruptedException {
+        Message message = mock(Message.class);
+        when(message.getId()).thenReturn(42L);
+        when(this.repository.getNext()).thenReturn(message).thenReturn(null);
+        when(this.dispatcher.sendMessage(this.forwardService, message)).thenReturn(Result.OK);
+        ArgumentCaptor<Header> header = ArgumentCaptor.forClass(Header.class);
+
+        this.forwardService.onHandleIntent(null);
+
+        verify(message).addHeader(header.capture());
+        assertEquals("42", header.getValue().getValue());
+        assertEquals("reyna-id", header.getValue().getKey());
+    }
 
 	@Test
 	public void whenTwoMessagesAndDispatchReturnsOKShouldDeleteMessages() throws URISyntaxException, InterruptedException {
