@@ -6,7 +6,7 @@ Reyna will store your requests and post them when there is a valid connection.
 ## Installation
 Reyna is a standard android library and can be referenced as a jar in your project.
 
-If you don't want to build your own, you can [download](https://github.com/B2MSolutions/reyna/blob/master/artifacts/reyna-2.6.jar?raw=true) the latest version from the [artifacts directory](https://github.com/B2MSolutions/reyna/tree/master/artifacts).
+If you don't want to build your own, you can [download](https://github.com/B2MSolutions/reyna/blob/master/artifacts/reyna-2.7.3.jar?raw=true) the latest version from the [artifacts directory](https://github.com/B2MSolutions/reyna/tree/master/artifacts).
 
 ## Android Manifest
 You will need to add the following entries into your AndroidManifest.xml in order for reyna to have the correct permissions, services and receivers.
@@ -63,7 +63,7 @@ You will need to add the following entries into your AndroidManifest.xml in orde
 	// set Reyna logging level, same constant values as android.util.log (ERROR, WARN, INFO, DEBUG, VERBOSE)
 	StoreService.setLogLevel(level);
 ```
-## Latest version is 2.6
+## Latest version is 2.7.3
 
 ## Contributors
 Pair programmed by [Roy Lines](http://roylines.co.uk) and [James Bloomer](https://github.com/jamesbloomer).
