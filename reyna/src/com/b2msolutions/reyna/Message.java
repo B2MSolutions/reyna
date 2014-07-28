@@ -3,6 +3,8 @@ package com.b2msolutions.reyna;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Message implements Serializable {
 	private static final long serialVersionUID = 6230786319646630263L;
@@ -46,6 +48,13 @@ public class Message implements Serializable {
 			return null;
 		}
 	}
+
+    public void addHeader(Header header) {
+        ArrayList<Header> headerList = new ArrayList<Header>(Arrays.asList(this.headers));
+        headerList.add(header);
+        this.headers = new Header[headerList.size()];
+        headerList.toArray(this.headers);
+    }
 
 	public String getBody() {
 		return this.body;

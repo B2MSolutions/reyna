@@ -1,10 +1,8 @@
 package com.b2msolutions.reyna.services;
 
 import android.content.Intent;
-import com.b2msolutions.reyna.Dispatcher;
+import com.b2msolutions.reyna.*;
 import com.b2msolutions.reyna.Dispatcher.Result;
-import com.b2msolutions.reyna.Logger;
-import com.b2msolutions.reyna.Message;
 import com.b2msolutions.reyna.Thread;
 
 public class ForwardService extends RepositoryService {
@@ -37,6 +35,9 @@ public class ForwardService extends RepositoryService {
 			while(message != null) {
                 this.thread.sleep(SLEEP_MILLISECONDS);
 				Logger.i(TAG, "ForwardService: processing message " + message.getId());
+
+                this.addReynaSpecificHeaders(message);
+
 				Result result = dispatcher.sendMessage(this, message);
 
                 Logger.i(TAG, "ForwardService: send message result: " + result.toString());
@@ -60,4 +61,9 @@ public class ForwardService extends RepositoryService {
 			this.repository.close();		
 		}		
 	}
+
+    private void addReynaSpecificHeaders(Message message) {
+        Header header = new Header("reyna-id", message.getId().toString());
+        message.addHeader(header);
+    }
 }
