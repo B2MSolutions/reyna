@@ -44,6 +44,8 @@ public class StoreService extends RepositoryService {
 		StoreService.storageSizeLimit = limit;
 	}
 
+	public static long getStorageSizeLimit() { return StoreService.storageSizeLimit; }
+
 	public static void resetStorageSizeLimit() {
 		StoreService.storageSizeLimit = null;
 	}

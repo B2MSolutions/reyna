@@ -125,4 +125,16 @@ public class StoreServiceTest {
         assertEquals(range.getFrom().getMinuteOfDay(), saved.getFrom().getMinuteOfDay());
         assertEquals(range.getTo().getMinuteOfDay(), saved.getTo().getMinuteOfDay());
     }
+
+	@Test
+	public void setStorageLimitShouldSaveTheLimit() {
+		StoreService.setStorageSizeLimit(42);
+		assertEquals(42, StoreService.getStorageSizeLimit());
+	}
+
+	@Test
+	public void resetStorageLimitShouldSetItToNull() {
+		StoreService.resetStorageSizeLimit();
+		assertEquals(0, StoreService.getStorageSizeLimit());
+	}
 }
