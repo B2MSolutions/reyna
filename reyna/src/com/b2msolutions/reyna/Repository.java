@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
+import android.database.sqlite.SQLiteFullException;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.net.URI;
@@ -35,28 +37,84 @@ public class Repository extends SQLiteOpenHelper {
 	}
 
 	public void insert(Message message) {
-        Logger.v(TAG, "insert");
-		if (message == null)
+		Logger.v(TAG, "insert");
+		if (message == null) {
 			return;
+		}
 
-		SQLiteDatabase db = null;
+		SQLiteDatabase db = this.getWritableDatabase();
+		this.insertMessage(db, message);
+	}
+
+	public void insert(Message message, long dbSizeLimit) {
+		Logger.v(TAG, "insert");
+		if (message == null) {
+			return;
+		}
+
+		SQLiteDatabase db = this.getWritableDatabase();
+		long dbSize = this.getDbSize(db);
+
+		//todo handle (dbSize > dbSizeLimit) with a shrink db operation instead
+		//of doing just one deletion
+		if (dbSize > dbSizeLimit || Math.abs(dbSizeLimit - dbSize) < (dbSize * 0.2)) { //0.2 = 20% of the db size
+			this.clearOldRecords(db, message);
+		}
+
+		this.insertMessage(db, message);
+	}
+
+	private long getDbSize(SQLiteDatabase db) {
+		Cursor cursor = db.rawQuery("pragma page_count", null);
+		cursor.moveToNext();
+		long pageCount = cursor.getLong(0);
+		cursor.close();
+
+		return pageCount * db.getPageSize();
+	}
+
+	private void insertMessage(SQLiteDatabase db, Message message) {
 		try {
-			db = this.getWritableDatabase();
 			db.beginTransaction();
 			ContentValues values = new ContentValues();
 			values.put("url", message.getUrl());
 			values.put("body", message.getBody());
 
-			long messageid = db.insert("Message", null, values);			
-			this.addHeaders(db, messageid, message.getHeaders());
+			long messageId = db.insert("Message", null, values);
+			this.addHeaders(db, messageId, message.getHeaders());
 			db.setTransactionSuccessful();
 
-            Logger.i("reyna", "Repository: inserted message " + messageid);
-		} finally {
-			if (db != null) {
+			Logger.i("reyna", "Repository: inserted message " + messageId);
+		}
+		finally {
+			if (db != null && db.inTransaction()) {
 				db.endTransaction();
 			}
 		}
+	}
+
+	private void clearOldRecords(SQLiteDatabase db, Message message) {
+		Long oldestMessageId = findOldestMessageIdWithType(db, message.getUrl());
+
+		if (oldestMessageId == null) {
+			return;
+		}
+
+		Message messageToRemove = new Message(oldestMessageId, message.getURI(), null, null);
+		this.deleteExistingMessage(db, messageToRemove);
+	}
+
+	private Long findOldestMessageIdWithType(SQLiteDatabase db, String type) {
+		Cursor cursor = db.query("Message", new String[]{"min(id)"}, "url=?", new String[]{type}, null, null, null);
+
+		if (cursor.moveToNext()) {
+			long result = cursor.getLong(0);
+			cursor.close();
+			return result;
+		}
+
+		cursor.close();
+		return null;
 	}
 
 	public Message getNext() throws URISyntaxException {

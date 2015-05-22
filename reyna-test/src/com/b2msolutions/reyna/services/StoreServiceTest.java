@@ -30,6 +30,7 @@ public class StoreServiceTest {
 	@Before
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
+		StoreService.resetStorageSizeLimit();
 		this.storeService = new StoreService();
 		this.storeService.repository = repository;
 	}
@@ -71,6 +72,37 @@ public class StoreServiceTest {
 
         ShadowApplication shadowApplication = Robolectric.getShadowApplication();
         Intent service = shadowApplication.getNextStartedService();
+		assertNotNull(service);
+		assertEquals(ForwardService.class.getName(), service.getComponent().getClassName());
+	}
+
+	@Test
+	public void onHandleIntentWithMessageShouldStoreWithDbSizeLimitAndStartForwardService() throws URISyntaxException {
+		Message message = RepositoryTest.getMessageWithHeaders();
+		Intent intent = new Intent();
+		intent.putExtra(StoreService.MESSAGE, message);
+
+		StoreService.setStorageSizeLimit(42);
+		this.storeService.onHandleIntent(intent);
+
+		ArgumentCaptor<Message> argument = ArgumentCaptor.forClass(Message.class);
+		ArgumentCaptor<Long> argumentLimit = ArgumentCaptor.forClass(Long.class);
+
+		verify(this.repository).insert(argument.capture(), argumentLimit.capture());
+		Message other = argument.getValue();
+		assertNotNull(other);
+		assertEquals(message.getUrl(), other.getUrl());
+		assertEquals(message.getBody(), other.getBody());
+		assertEquals("h1", message.getHeaders()[0].getKey());
+		assertEquals("v1", message.getHeaders()[0].getValue());
+		assertEquals("h2", message.getHeaders()[1].getKey());
+		assertEquals("v2", message.getHeaders()[1].getValue());
+
+		long limit = argumentLimit.getValue();
+		assertEquals(42, limit);
+
+		ShadowApplication shadowApplication = Robolectric.getShadowApplication();
+		Intent service = shadowApplication.getNextStartedService();
 		assertNotNull(service);
 		assertEquals(ForwardService.class.getName(), service.getComponent().getClassName());
 	}

@@ -13,6 +13,8 @@ public class StoreService extends RepositoryService {
 
 	public static final String MESSAGE = "com.b2msolutions.reyna.MESSAGE";
 
+	private static Long storageSizeLimit = null;
+
 	public StoreService() {
 		super(StoreService.class.getName());
 
@@ -38,6 +40,14 @@ public class StoreService extends RepositoryService {
         new Preferences(context).saveCellularDataBlackout(range);
     }
 
+	public static void setStorageSizeLimit(long limit) {
+		StoreService.storageSizeLimit = limit;
+	}
+
+	public static void resetStorageSizeLimit() {
+		StoreService.storageSizeLimit = null;
+	}
+
 	@Override
 	protected void onHandleIntent(Intent intent) {
         Logger.v(TAG, "onHandleIntent");
@@ -56,7 +66,13 @@ public class StoreService extends RepositoryService {
         Logger.v(TAG, "insert");
 		
 		try {
-			this.repository.insert(message);
+			if (StoreService.storageSizeLimit == null) {
+				this.repository.insert(message);
+			}
+			else {
+				this.repository.insert(message, StoreService.storageSizeLimit);
+			}
+
 			this.startService(new Intent(this, ForwardService.class));
 		} finally {
 			this.repository.close();

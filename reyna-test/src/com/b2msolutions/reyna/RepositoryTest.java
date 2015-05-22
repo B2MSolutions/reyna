@@ -1,5 +1,6 @@
 package com.b2msolutions.reyna;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -13,6 +14,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 @RunWith(RobolectricTestRunner.class)
 public class RepositoryTest {
@@ -64,7 +66,130 @@ public class RepositoryTest {
 		assertFalse(headerCursor.moveToFirst());
 		headerCursor.close();
 	}
-	
+
+	@Test
+	public void insertWithHeadersShouldSave() throws URISyntaxException {
+		Message message = getMessageWithHeaders();
+		this.repository.insert(message);
+		assertMessage(this.repository, message);
+	}
+
+	@Test
+	public void insertWithNullMessageAndDbSizeShouldNotThrow() {
+		this.repository.insert(null, 4096);
+	}
+
+	@Test
+	public void insertWithDbSizeShouldNotThrow() throws URISyntaxException {
+		Message message = new Message(new URI("https://www.google.com"), "body", null);
+		this.repository.insert(message, 4096);
+	}
+
+	@Test
+	public void insertWithoutHeadersWithDbSizeShouldSave() throws URISyntaxException {
+		Message message = new Message(new URI("https://www.google.com"), "body", null);
+		this.repository.insert(message, 4096);
+		SQLiteDatabase db = this.repository.getReadableDatabase();
+		Cursor messageCursor = db.query("Message", new String[] {"url", "body"}, null, null, null, null, null);
+		assertTrue(messageCursor.moveToFirst());
+		assertEquals(message.getUrl(), messageCursor.getString(0));
+		assertEquals(message.getBody(), messageCursor.getString(1));
+		assertTrue(messageCursor.isFirst());
+		assertTrue(messageCursor.isLast());
+		messageCursor.close();
+
+		Cursor headerCursor = db.query("Header", new String[] {"messageid", "key", "value"}, null, null, null, null, null);
+		assertFalse(headerCursor.moveToFirst());
+		headerCursor.close();
+	}
+
+	@Test
+	public void insertWithHeadersAndDbSizeShouldSave() throws URISyntaxException {
+		Message message = getMessageWithHeaders();
+		this.repository.insert(message, 4096);
+		assertMessage(this.repository, message);
+	}
+
+	@Test
+	public void insertWithDbSizeShouldDeleteAnOldRecordWithSameTypeIfDbSizeIsBigger() throws URISyntaxException {
+		SQLiteDatabase db = mock(SQLiteDatabase.class);
+		when(db.insert(anyString(), anyString(), any(ContentValues.class))).thenReturn(42l);
+		when(db.getPageSize()).thenReturn(10l);
+
+		Cursor cursor = mock(Cursor.class);
+		when(cursor.moveToNext()).thenReturn(true);
+		when(cursor.getLong(0)).thenReturn(420l);
+		when(db.rawQuery("pragma page_count", null)).thenReturn(cursor);
+
+		Cursor removeCursor = mock(Cursor.class);
+		when(removeCursor.moveToNext()).thenReturn(true);
+		when(removeCursor.getLong(0)).thenReturn(100l);
+		when(db.query("Message", new String[]{"min(id)"}, "url=?", new String[]{"https://www.google.com"}, null, null, null))
+				.thenReturn(removeCursor);
+
+		this.repository = spy(this.repository);
+		when(this.repository.getWritableDatabase()).thenReturn(db);
+
+		Message message = getMessageWithHeaders();
+		this.repository.insert(message, 4096);
+
+		verify(db, times(1)).delete("Header", "messageid = ?", new String[]{"100"});
+		verify(db, times(1)).delete("Message", "id = ?", new String[]{"100"});
+	}
+
+	@Test
+	public void insertWithDbSizeShouldDeleteAnOldRecordWithSameTypeIfDbSizeReachesLimit() throws URISyntaxException {
+		SQLiteDatabase db = mock(SQLiteDatabase.class);
+		when(db.insert(anyString(), anyString(), any(ContentValues.class))).thenReturn(42l);
+		when(db.getPageSize()).thenReturn(10l);
+
+		Cursor cursor = mock(Cursor.class);
+		when(cursor.moveToNext()).thenReturn(true);
+		when(cursor.getLong(0)).thenReturn(400l);
+		when(db.rawQuery("pragma page_count", null)).thenReturn(cursor);
+
+		Cursor removeCursor = mock(Cursor.class);
+		when(removeCursor.moveToNext()).thenReturn(true);
+		when(removeCursor.getLong(0)).thenReturn(100l);
+		when(db.query("Message", new String[]{"min(id)"}, "url=?", new String[]{"https://www.google.com"}, null, null, null))
+				.thenReturn(removeCursor);
+
+		this.repository = spy(this.repository);
+		when(this.repository.getWritableDatabase()).thenReturn(db);
+
+		Message message = getMessageWithHeaders();
+		this.repository.insert(message, 4096);
+
+		verify(db, times(1)).delete("Header", "messageid = ?", new String[]{"100"});
+		verify(db, times(1)).delete("Message", "id = ?", new String[]{"100"});
+	}
+
+	@Test
+	public void insertWithDbSizeShouldNotDeleteIfDbSizeRechedButNoMessagesWithTheSamType() throws URISyntaxException {
+		SQLiteDatabase db = mock(SQLiteDatabase.class);
+		when(db.insert(anyString(), anyString(), any(ContentValues.class))).thenReturn(42l);
+		when(db.getPageSize()).thenReturn(10l);
+
+		Cursor cursor = mock(Cursor.class);
+		when(cursor.moveToNext()).thenReturn(true);
+		when(cursor.getLong(0)).thenReturn(400l);
+		when(db.rawQuery("pragma page_count", null)).thenReturn(cursor);
+
+		Cursor removeCursor = mock(Cursor.class);
+		when(removeCursor.moveToNext()).thenReturn(false);
+		when(db.query("Message", new String[]{"min(id)"}, "url=?", new String[]{"https://www.google.com"}, null, null, null))
+				.thenReturn(removeCursor);
+
+		this.repository = spy(this.repository);
+		when(this.repository.getWritableDatabase()).thenReturn(db);
+
+		Message message = getMessageWithHeaders();
+		this.repository.insert(message, 4096);
+
+		verify(db, times(0)).delete("Header", "messageid = ?", new String[]{"100"});
+		verify(db, times(0)).delete("Message", "id = ?", new String[]{"100"});
+	}
+
 	@Test
 	public void getNextWithNoMessagesShouldReturnNull() throws URISyntaxException {
 		assertNull(this.repository.getNext());
@@ -86,6 +211,12 @@ public class RepositoryTest {
 		assertEquals("h2", nextMessage.getHeaders()[1].getKey());
 		assertEquals("v2", nextMessage.getHeaders()[1].getValue());
 	}
+
+
+
+
+
+
 	
 	@Test
 	public void deleteWithNullMessageShouldNotThrow() {
@@ -111,13 +242,6 @@ public class RepositoryTest {
 		this.repository.delete(nextMessage);
 		
 		assertNull(this.repository.getNext());
-	}
-		
-	@Test
-	public void insertWithHeadersShouldSave() throws URISyntaxException {		
-		Message message = getMessageWithHeaders();
-		this.repository.insert(message);
-		assertMessage(this.repository, message);		
 	}
 
 	public static Message getMessageWithHeaders() throws URISyntaxException {
