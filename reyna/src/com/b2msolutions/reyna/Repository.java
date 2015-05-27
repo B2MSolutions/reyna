@@ -4,8 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteFullException;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.net.URI;
@@ -47,21 +45,98 @@ public class Repository extends SQLiteOpenHelper {
 	}
 
 	public void insert(Message message, long dbSizeLimit) {
-		Logger.v(TAG, "insert");
+		Logger.v(TAG, "insert with limit");
 		if (message == null) {
 			return;
 		}
 
 		SQLiteDatabase db = this.getWritableDatabase();
-		long dbSize = this.getDbSize(db);
 
-		//todo handle (dbSize > dbSizeLimit) with a shrink db operation instead
-		//of doing just one deletion
-		if (dbSize > dbSizeLimit || Math.abs(dbSizeLimit - dbSize) < (dbSize * 0.2)) { //0.2 = 20% of the db size
+		if (this.dbSizeApproachesLimit(db, dbSizeLimit)) {
 			this.clearOldRecords(db, message);
+		} else if (this.dbSizeExceedsLimit(db, dbSizeLimit)) {
+			this.shrinkDb(db, dbSizeLimit);
 		}
 
 		this.insertMessage(db, message);
+	}
+
+	private boolean dbSizeApproachesLimit(SQLiteDatabase db, long limit) {
+		long dbSize = this.getDbSize(db);
+		boolean dbSizeCloseToThreshold = (limit > dbSize) && (limit - dbSize) < (limit * 0.2); // less than 20% is considered as close to threshold
+
+		return dbSizeCloseToThreshold;
+	}
+
+	private boolean dbSizeExceedsLimit(SQLiteDatabase db, long limit) {
+		long dbSize = this.getDbSize(db);
+		return dbSize > limit;
+	}
+
+	private void shrinkDb(SQLiteDatabase db, long limit) {
+		long dbSizeBeforeShrink = this.getDbSize(db);
+
+		do {
+			this.shrink(db, limit);
+		}
+		while (this.dbSizeExceedsLimit(db, limit));
+
+		if (this.shouldVacuum(dbSizeBeforeShrink, limit)) {
+			this.vacuum(db);
+		}
+	}
+
+	private void shrink(SQLiteDatabase db, long limit) {
+		long dbSize = this.getDbSize(db);
+		double limitPercentage = 1 - (double)limit / dbSize;
+		long numberOfMessages = this.getNumberOfMessages(db);
+		long numberOfMessagesToRemove = Math.round(numberOfMessages * limitPercentage);
+		numberOfMessagesToRemove = numberOfMessagesToRemove == 0 ? 1 : numberOfMessagesToRemove;
+
+		try {
+			db.beginTransaction();
+
+			long thresholdId = this.getMessageIdToWhichShrink(db, numberOfMessagesToRemove);
+
+			db.execSQL("delete from Message where id < " + thresholdId);
+			db.execSQL("delete from Header where messageid < " + thresholdId);
+
+			db.setTransactionSuccessful();
+		}
+		finally {
+			if (db.inTransaction()) {
+				db.endTransaction();
+			}
+		}
+	}
+
+	private boolean shouldVacuum(long dbSize, long limit) {
+		long difference = dbSize - limit;
+
+		// perform vacuuming if db size exceeds 10% of the db size
+		return ((double)difference / dbSize) * 100 > 10;
+	}
+
+	private void vacuum(SQLiteDatabase db) {
+		db.execSQL("vacuum");
+	}
+
+	private long getMessageIdToWhichShrink(SQLiteDatabase db, long numberOfMessagesToRemove) {
+		Cursor cursor = db.rawQuery("select id from Message limit 1 offset " + numberOfMessagesToRemove, null);
+		cursor.moveToFirst();
+		long id = cursor.getLong(0);
+		cursor.close();
+
+		return id;
+	}
+
+	private long getNumberOfMessages(SQLiteDatabase db) {
+		Cursor cursor = db.rawQuery("select count(*) from Message", null);
+		cursor.moveToFirst();
+		long numberOfMessages = cursor.getLong(0);
+		cursor.close();
+
+		return numberOfMessages;
 	}
 
 	private long getDbSize(SQLiteDatabase db) {

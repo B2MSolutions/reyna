@@ -18,6 +18,7 @@ import java.net.URISyntaxException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.verify;
 
 @RunWith(RobolectricTestRunner.class)
@@ -135,6 +136,6 @@ public class StoreServiceTest {
 	@Test
 	public void resetStorageLimitShouldSetItToNull() {
 		StoreService.resetStorageSizeLimit();
-		assertEquals(new Long(0), StoreService.getStorageSizeLimit());
+		assertNull(StoreService.getStorageSizeLimit());
 	}
 }
