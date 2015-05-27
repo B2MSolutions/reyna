@@ -17,24 +17,24 @@ import com.xtremelabs.robolectric.RobolectricTestRunner;
 @RunWith(RobolectricTestRunner.class)
 public class ForwardServiceReceiverTest {
 
-	private ForwardServiceReceiver receiver;
+    private ForwardServiceReceiver receiver;
 
-	@Before
-	public void setup() {
-		this.receiver = new ForwardServiceReceiver();
-	}
+    @Before
+    public void setup() {
+        this.receiver = new ForwardServiceReceiver();
+    }
 
-	@Test
-	public void testConstruction() {
-		assertNotNull(this.receiver);
-	}
+    @Test
+    public void testConstruction() {
+        assertNotNull(this.receiver);
+    }
 
-	@Test
-	public void receiveShouldStartForwardService() {
-		Context context = Robolectric.application.getApplicationContext();
-		this.receiver.onReceive(context, null);	
-		Intent service = Robolectric.getShadowApplication().getNextStartedService();
-		assertNotNull(service);
-		assertEquals(ForwardService.class.getName(), service.getComponent().getClassName());
-	}
+    @Test
+    public void receiveShouldStartForwardService() {
+        Context context = Robolectric.application.getApplicationContext();
+        this.receiver.onReceive(context, null);
+        Intent service = Robolectric.getShadowApplication().getNextStartedService();
+        assertNotNull(service);
+        assertEquals(ForwardService.class.getName(), service.getComponent().getClassName());
+    }
 }

@@ -22,26 +22,26 @@ import static org.mockito.Mockito.*;
 
 @RunWith(RobolectricTestRunner.class)
 public class ForwardServiceTest {
-	
-	private ForwardService forwardService;
 
-	@Mock Dispatcher dispatcher;
-	
-	@Mock Repository repository;
+    private ForwardService forwardService;
+
+    @Mock Dispatcher dispatcher;
+
+    @Mock Repository repository;
 
     @Mock Thread thread;
 
     private Context context;
 
     @Before
-	public void setup() {
-		MockitoAnnotations.initMocks(this);
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
         this.context = Robolectric.getShadowApplication().getApplicationContext();
-		this.forwardService = new ForwardService();
-		this.forwardService.dispatcher = dispatcher;
-		this.forwardService.repository = repository;
+        this.forwardService = new ForwardService();
+        this.forwardService.dispatcher = dispatcher;
+        this.forwardService.repository = repository;
         this.forwardService.thread = thread;
-	}
+    }
 
     @Test
     public void sleepTimeoutShouldBeCorrect() {
@@ -53,20 +53,20 @@ public class ForwardServiceTest {
         assertEquals(300000, ForwardService.TEMPORARY_ERROR_MILLISECONDS);
     };
 
-	@Test
-	public void testConstruction() {        
+    @Test
+    public void testConstruction() {
         assertNotNull(this.forwardService);
     }	
 
-	@Test
-	public void whenNotNullIntentShouldNotThrow() {
-		this.forwardService.onHandleIntent(new Intent());
-	}
+    @Test
+    public void whenNotNullIntentShouldNotThrow() {
+        this.forwardService.onHandleIntent(new Intent());
+    }
 
-	@Test
-	public void whenThereAreNoMessagesShouldNotThrow() {
-		this.forwardService.onHandleIntent(null);
-	}
+    @Test
+    public void whenThereAreNoMessagesShouldNotThrow() {
+        this.forwardService.onHandleIntent(null);
+    }
 
     @Test
     public void whenThereAreNoMessagesShouldNotSleep() throws InterruptedException {
@@ -74,19 +74,19 @@ public class ForwardServiceTest {
         verify(this.thread, never()).sleep(anyLong());
     }
 
-	@Test
-	public void whenMoveNextThrowsShouldNotThrow() throws URISyntaxException {
-		when(this.repository.getNext()).thenThrow(new URISyntaxException("", ""));
-		this.forwardService.onHandleIntent(null);
-	}
-		
-	@Test
-	public void whenSingleMessageAndDispatchReturnsOKShouldDeleteMessage() throws URISyntaxException, InterruptedException {
-		Message message = mock(Message.class);
-		when(this.repository.getNext()).thenReturn(message).thenReturn(null);
-		when(this.dispatcher.sendMessage(this.forwardService, message)).thenReturn(Result.OK);
-		
-		this.forwardService.onHandleIntent(null);
+    @Test
+    public void whenMoveNextThrowsShouldNotThrow() throws URISyntaxException {
+        when(this.repository.getNext()).thenThrow(new URISyntaxException("", ""));
+        this.forwardService.onHandleIntent(null);
+    }
+
+    @Test
+    public void whenSingleMessageAndDispatchReturnsOKShouldDeleteMessage() throws URISyntaxException, InterruptedException {
+        Message message = mock(Message.class);
+        when(this.repository.getNext()).thenReturn(message).thenReturn(null);
+        when(this.dispatcher.sendMessage(this.forwardService, message)).thenReturn(Result.OK);
+
+        this.forwardService.onHandleIntent(null);
 
         InOrder inorder = inOrder(this.thread, this.dispatcher, this.repository);
 
@@ -95,7 +95,7 @@ public class ForwardServiceTest {
         inorder.verify(this.repository).delete(message);
 
         verify(this.thread, never()).sleep(ForwardService.TEMPORARY_ERROR_MILLISECONDS);
-	}
+    }
 
     @Test
     public void whenSingleMessageShouldAddMessageIdToHeaders() throws URISyntaxException, InterruptedException {
@@ -112,40 +112,40 @@ public class ForwardServiceTest {
         assertEquals("reyna-id", header.getValue().getKey());
     }
 
-	@Test
-	public void whenTwoMessagesAndDispatchReturnsOKShouldDeleteMessages() throws URISyntaxException, InterruptedException {
-		Message message1 = mock(Message.class);
-		Message message2 = mock(Message.class);
-		when(this.repository.getNext())
-			.thenReturn(message1)
-			.thenReturn(message2)
-			.thenReturn(null);
-		
-		when(this.dispatcher.sendMessage(this.forwardService, message1)).thenReturn(Result.OK);
-		when(this.dispatcher.sendMessage(this.forwardService, message2)).thenReturn(Result.OK);
-		
-		this.forwardService.onHandleIntent(null);
-		InOrder inorder = inOrder(this.thread, this.dispatcher, this.repository);
+    @Test
+    public void whenTwoMessagesAndDispatchReturnsOKShouldDeleteMessages() throws URISyntaxException, InterruptedException {
+        Message message1 = mock(Message.class);
+        Message message2 = mock(Message.class);
+        when(this.repository.getNext())
+            .thenReturn(message1)
+            .thenReturn(message2)
+            .thenReturn(null);
+
+        when(this.dispatcher.sendMessage(this.forwardService, message1)).thenReturn(Result.OK);
+        when(this.dispatcher.sendMessage(this.forwardService, message2)).thenReturn(Result.OK);
+
+        this.forwardService.onHandleIntent(null);
+        InOrder inorder = inOrder(this.thread, this.dispatcher, this.repository);
 
         inorder.verify(this.thread).sleep(ForwardService.SLEEP_MILLISECONDS);
-		inorder.verify(this.dispatcher).sendMessage(this.forwardService, message1);
-		inorder.verify(this.repository).delete(message1);
+        inorder.verify(this.dispatcher).sendMessage(this.forwardService, message1);
+        inorder.verify(this.repository).delete(message1);
         inorder.verify(this.thread).sleep(ForwardService.SLEEP_MILLISECONDS);
-		inorder.verify(this.dispatcher).sendMessage(this.forwardService, message2);
-		inorder.verify(this.repository).delete(message2);
+        inorder.verify(this.dispatcher).sendMessage(this.forwardService, message2);
+        inorder.verify(this.repository).delete(message2);
 
         verify(this.thread, never()).sleep(ForwardService.TEMPORARY_ERROR_MILLISECONDS);
-	}
-	
-	@Test
-	public void whenSingleMessageAndDispatchReturnsTemporaryErrorShouldNotDeleteMessage() throws URISyntaxException, InterruptedException {
-		Message message = mock(Message.class);
-		when(this.repository.getNext()).thenReturn(message).thenReturn(null);
-		when(this.dispatcher.sendMessage(this.forwardService, message)).thenReturn(Result.TEMPORARY_ERROR);
-		
-		this.forwardService.onHandleIntent(null);
-		verify(this.dispatcher).sendMessage(this.forwardService, message);
-		verify(this.repository, never()).delete(message);
+    }
+
+    @Test
+    public void whenSingleMessageAndDispatchReturnsTemporaryErrorShouldNotDeleteMessage() throws URISyntaxException, InterruptedException {
+        Message message = mock(Message.class);
+        when(this.repository.getNext()).thenReturn(message).thenReturn(null);
+        when(this.dispatcher.sendMessage(this.forwardService, message)).thenReturn(Result.TEMPORARY_ERROR);
+
+        this.forwardService.onHandleIntent(null);
+        verify(this.dispatcher).sendMessage(this.forwardService, message);
+        verify(this.repository, never()).delete(message);
 
         verify(this.thread).sleep(ForwardService.TEMPORARY_ERROR_MILLISECONDS);
     }
@@ -176,24 +176,24 @@ public class ForwardServiceTest {
         verify(this.thread, never()).sleep(ForwardService.TEMPORARY_ERROR_MILLISECONDS);
     }
 
-	@Test
-	public void whenTwoMessagesAndFirstDispatchReturnsTemporaryErrorShouldNotDeleteMessages() throws URISyntaxException, InterruptedException {
-		Message message1 = mock(Message.class);
-		Message message2 = mock(Message.class);
-		when(this.repository.getNext())
-			.thenReturn(message1)
-			.thenReturn(message2)
-			.thenReturn(null);
-		
-		when(this.dispatcher.sendMessage(this.forwardService, message1)).thenReturn(Result.TEMPORARY_ERROR);
-		
-		this.forwardService.onHandleIntent(null);
-		InOrder inorder = inOrder(this.dispatcher, this.repository);
-				
-		inorder.verify(this.dispatcher).sendMessage(this.forwardService, message1);
-		inorder.verify(this.repository, never()).delete(message1);
-		inorder.verify(this.dispatcher, never()).sendMessage(this.forwardService, message2);
-		inorder.verify(this.repository, never()).delete(message2);
+    @Test
+    public void whenTwoMessagesAndFirstDispatchReturnsTemporaryErrorShouldNotDeleteMessages() throws URISyntaxException, InterruptedException {
+        Message message1 = mock(Message.class);
+        Message message2 = mock(Message.class);
+        when(this.repository.getNext())
+            .thenReturn(message1)
+            .thenReturn(message2)
+            .thenReturn(null);
+
+        when(this.dispatcher.sendMessage(this.forwardService, message1)).thenReturn(Result.TEMPORARY_ERROR);
+
+        this.forwardService.onHandleIntent(null);
+        InOrder inorder = inOrder(this.dispatcher, this.repository);
+
+        inorder.verify(this.dispatcher).sendMessage(this.forwardService, message1);
+        inorder.verify(this.repository, never()).delete(message1);
+        inorder.verify(this.dispatcher, never()).sendMessage(this.forwardService, message2);
+        inorder.verify(this.repository, never()).delete(message2);
 
         verify(this.thread).sleep(ForwardService.TEMPORARY_ERROR_MILLISECONDS);
     }
@@ -220,25 +220,25 @@ public class ForwardServiceTest {
         verify(this.thread, never()).sleep(ForwardService.TEMPORARY_ERROR_MILLISECONDS);
     }
 
-	@Test
-	public void whenTwoMessagesAndFirstDispatchReturnsPermanentErrorShouldDeleteMessages() throws URISyntaxException, InterruptedException {
-		Message message1 = mock(Message.class);
-		Message message2 = mock(Message.class);
-		when(this.repository.getNext())
-			.thenReturn(message1)
-			.thenReturn(message2)
-			.thenReturn(null);
-		
-		when(this.dispatcher.sendMessage(this.forwardService, message1)).thenReturn(Result.PERMANENT_ERROR);
-		when(this.dispatcher.sendMessage(this.forwardService, message2)).thenReturn(Result.OK);
-		
-		this.forwardService.onHandleIntent(null);
-		InOrder inorder = inOrder(this.dispatcher, this.repository);
-				
-		inorder.verify(this.dispatcher).sendMessage(this.forwardService, message1);
-		inorder.verify(this.repository).delete(message1);
-		inorder.verify(this.dispatcher).sendMessage(this.forwardService, message2);
-		inorder.verify(this.repository).delete(message2);
+    @Test
+    public void whenTwoMessagesAndFirstDispatchReturnsPermanentErrorShouldDeleteMessages() throws URISyntaxException, InterruptedException {
+        Message message1 = mock(Message.class);
+        Message message2 = mock(Message.class);
+        when(this.repository.getNext())
+            .thenReturn(message1)
+            .thenReturn(message2)
+            .thenReturn(null);
+
+        when(this.dispatcher.sendMessage(this.forwardService, message1)).thenReturn(Result.PERMANENT_ERROR);
+        when(this.dispatcher.sendMessage(this.forwardService, message2)).thenReturn(Result.OK);
+
+        this.forwardService.onHandleIntent(null);
+        InOrder inorder = inOrder(this.dispatcher, this.repository);
+
+        inorder.verify(this.dispatcher).sendMessage(this.forwardService, message1);
+        inorder.verify(this.repository).delete(message1);
+        inorder.verify(this.dispatcher).sendMessage(this.forwardService, message2);
+        inorder.verify(this.repository).delete(message2);
 
         verify(this.thread, never()).sleep(ForwardService.TEMPORARY_ERROR_MILLISECONDS);
     }

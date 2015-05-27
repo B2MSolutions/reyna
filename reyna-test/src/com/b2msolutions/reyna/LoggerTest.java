@@ -12,12 +12,12 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(RobolectricTestRunner.class)
 public class LoggerTest {
-	
-	@Before
-	public void setup() {
+
+    @Before
+    public void setup() {
         Robolectric.bindShadowClass(ShadowLog.class);
-	}
-	
+    }
+
     @Test
     public void LogVerboseShouldNotLogAndReturn0() {
         int actual = Logger.v("TAG", "MSG");
