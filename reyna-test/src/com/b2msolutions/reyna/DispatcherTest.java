@@ -7,9 +7,10 @@ import android.net.NetworkInfo;
 import com.b2msolutions.reyna.Dispatcher.Result;
 import com.b2msolutions.reyna.http.HttpPost;
 import com.b2msolutions.reyna.shadows.ShadowAndroidHttpClient;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
-import com.xtremelabs.robolectric.shadows.ShadowConnectivityManager;
+import org.robolectric.Robolectric;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowConnectivityManager;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
@@ -24,6 +25,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import static org.junit.Assert.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -38,10 +40,10 @@ import java.security.cert.CertificateException;
 import java.util.Calendar;
 import java.util.zip.GZIPOutputStream;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(RobolectricTestRunner.class)
+@Config(shadows = {ShadowAndroidHttpClient.class})
 public class DispatcherTest {
 
     private Context context;
@@ -53,7 +55,6 @@ public class DispatcherTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
         this.context = Robolectric.getShadowApplication().getApplicationContext();
-        Robolectric.bindShadowClass(ShadowAndroidHttpClient.class);
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         ShadowConnectivityManager shadowConnectivityManager = Robolectric.shadowOf_(connectivityManager);
         shadowConnectivityManager.setActiveNetworkInfo(this.networkInfo);

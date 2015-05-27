@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="junit:junit-dep:4.10" type="repository">
+    <properties maven-id="junit:junit-dep:4.10" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/junit/junit-dep/4.10/junit-dep-4.10.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

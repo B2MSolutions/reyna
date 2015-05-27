@@ -1,10 +1,7 @@
 package com.b2msolutions.reyna.shadows;
 
 import android.content.ContentResolver;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.internal.Implementation;
-import com.xtremelabs.robolectric.internal.Implements;
-import com.xtremelabs.robolectric.internal.RealObject;
+import org.robolectric.Robolectric;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -18,6 +15,9 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
+import org.robolectric.annotation.Implementation;
+import org.robolectric.annotation.Implements;
+import org.robolectric.annotation.RealObject;
 
 import android.content.Context;
 import android.net.http.AndroidHttpClient;
@@ -29,7 +29,8 @@ import java.util.zip.GZIPOutputStream;
 
 @Implements(AndroidHttpClient.class)
 public class ShadowAndroidHttpClient {
-    @RealObject private AndroidHttpClient client;
+    @RealObject
+    private AndroidHttpClient client;
 
     private HttpClient httpClient = new DefaultHttpClient();
 

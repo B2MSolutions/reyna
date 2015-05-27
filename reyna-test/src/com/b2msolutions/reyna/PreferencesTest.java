@@ -2,8 +2,8 @@ package com.b2msolutions.reyna;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
+import org.robolectric.Robolectric;
+import org.robolectric.RobolectricTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

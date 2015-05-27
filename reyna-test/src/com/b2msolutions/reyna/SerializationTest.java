@@ -15,7 +15,7 @@ import java.net.URISyntaxException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.xtremelabs.robolectric.RobolectricTestRunner;
+import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class SerializationTest {

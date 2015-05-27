@@ -11,8 +11,8 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.b2msolutions.reyna.services.ForwardService;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
+import org.robolectric.Robolectric;
+import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class ForwardServiceReceiverTest {

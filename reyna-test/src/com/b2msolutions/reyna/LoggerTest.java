@@ -1,21 +1,21 @@
 package com.b2msolutions.reyna;
 
 import android.util.Log;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
-import com.xtremelabs.robolectric.internal.Implements;
+import org.robolectric.RobolectricTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.Config;
+import org.robolectric.annotation.Implements;
 
 import static org.junit.Assert.assertEquals;
 
 @RunWith(RobolectricTestRunner.class)
+@Config(shadows = {LoggerTest.ShadowLog.class})
 public class LoggerTest {
 	
 	@Before
 	public void setup() {
-        Robolectric.bindShadowClass(ShadowLog.class);
 	}
 	
     @Test
