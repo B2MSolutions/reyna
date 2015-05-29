@@ -39,4 +39,19 @@ public class PreferencesTest {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         assertNull(preferences.getCellularDataBlackout());
     }
+
+    @Test
+    public void canStoreStorageSize() {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveStorageSize(100);
+        long storageSize = preferences.getStorageSize();
+        assertEquals(100, storageSize);
+    }
+
+    @Test
+    public void shouldReturnDefaultWhenNoStorageSize() {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        long storageSize = preferences.getStorageSize();
+        assertEquals(-1, storageSize);
+    }
 }

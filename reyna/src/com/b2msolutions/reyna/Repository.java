@@ -51,43 +51,35 @@ public class Repository extends SQLiteOpenHelper {
         }
 
         SQLiteDatabase db = this.getWritableDatabase();
+        long dbSize = this.getDbSize(db);
 
-        if (this.dbSizeApproachesLimit(db, dbSizeLimit)) {
+        if (this.dbSizeApproachesLimit(dbSize, dbSizeLimit)) {
             this.clearOldRecords(db, message);
-        } else if (this.dbSizeExceedsLimit(db, dbSizeLimit)) {
-            this.shrinkDb(db, dbSizeLimit);
+        } else if (dbSize > dbSizeLimit) {
+            this.shrinkDb(db, dbSizeLimit, dbSize);
         }
 
         this.insertMessage(db, message);
     }
 
-    private boolean dbSizeApproachesLimit(SQLiteDatabase db, long limit) {
-        long dbSize = this.getDbSize(db);
-        boolean dbSizeCloseToThreshold = (limit > dbSize) && (limit - dbSize) < (limit * 0.2); // less than 20% is considered as close to threshold
-
-        return dbSizeCloseToThreshold;
+    private boolean dbSizeApproachesLimit(long dbSize, long limit) {
+        return (limit > dbSize) && (limit - dbSize) < (limit * 0.2); // less than 20% is considered as close to threshold
     }
 
-    private boolean dbSizeExceedsLimit(SQLiteDatabase db, long limit) {
-        long dbSize = this.getDbSize(db);
-        return dbSize > limit;
-    }
-
-    private void shrinkDb(SQLiteDatabase db, long limit) {
-        long dbSizeBeforeShrink = this.getDbSize(db);
-
+    private void shrinkDb(SQLiteDatabase db, long limit, long dbSizeBeforeShrink) {
+        long dbSize = dbSizeBeforeShrink;
         do {
-            this.shrink(db, limit);
+            this.shrink(db, limit, dbSize);
+            dbSize = this.getDbSize(db);
         }
-        while (this.dbSizeExceedsLimit(db, limit));
+        while (dbSize > limit);
 
         if (this.shouldVacuum(dbSizeBeforeShrink, limit)) {
             this.vacuum(db);
         }
     }
 
-    private void shrink(SQLiteDatabase db, long limit) {
-        long dbSize = this.getDbSize(db);
+    private void shrink(SQLiteDatabase db, long limit, long dbSize) {
         double limitPercentage = 1 - (double)limit / dbSize;
         long numberOfMessages = this.getNumberOfMessages(db);
         long numberOfMessagesToRemove = Math.round(numberOfMessages * limitPercentage);
@@ -159,7 +151,7 @@ public class Repository extends SQLiteOpenHelper {
             this.addHeaders(db, messageId, message.getHeaders());
             db.setTransactionSuccessful();
 
-            Logger.i("reyna", "Repository: inserted message " + messageId);
+            Logger.v("reyna", "Repository: inserted message " + messageId);
         }
         finally {
             if (db != null && db.inTransaction()) {

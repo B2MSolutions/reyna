@@ -13,8 +13,6 @@ public class StoreService extends RepositoryService {
 
     public static final String MESSAGE = "com.b2msolutions.reyna.MESSAGE";
 
-    private static Long storageSizeLimit = null;
-
     public StoreService() {
         super(StoreService.class.getName());
 
@@ -40,14 +38,23 @@ public class StoreService extends RepositoryService {
         new Preferences(context).saveCellularDataBlackout(range);
     }
 
-    public static void setStorageSizeLimit(long limit) {
-        StoreService.storageSizeLimit = limit;
+    public static void setStorageSizeLimit(Context context, long limit) {
+        if (limit <= 0) {
+            return;
+        }
+
+        Preferences preferences = new Preferences(context);
+        preferences.saveStorageSize(limit);
     }
 
-    public static Long getStorageSizeLimit() { return StoreService.storageSizeLimit; }
+    public static long getStorageSizeLimit(Context context) {
+        Preferences preferences = new Preferences(context);
+        return preferences.getStorageSize();
+    }
 
-    public static void resetStorageSizeLimit() {
-        StoreService.storageSizeLimit = null;
+    public static void resetStorageSizeLimit(Context context) {
+        Preferences preferences = new Preferences(context);
+        preferences.saveStorageSize(-1);
     }
 
     @Override
@@ -67,12 +74,13 @@ public class StoreService extends RepositoryService {
     private void insert(Message message) {
         Logger.v(TAG, "insert");
 
+        long limit = getStorageSizeLimit(this);
         try {
-            if (StoreService.storageSizeLimit == null) {
+            if (limit == -1) {
                 this.repository.insert(message);
             }
             else {
-                this.repository.insert(message, StoreService.storageSizeLimit);
+                this.repository.insert(message, getStorageSizeLimit(this));
             }
 
             this.startService(new Intent(this, ForwardService.class));

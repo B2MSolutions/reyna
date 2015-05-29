@@ -122,9 +122,6 @@ public class RepositoryTest {
         Cursor cursor = mock(Cursor.class);
         when(cursor.getLong(0))
                 .thenReturn(10l)
-                .thenReturn(10l)
-                .thenReturn(10l)
-                .thenReturn(10l)
                 .thenReturn(1l);
         when(db.rawQuery("pragma page_count", null)).thenReturn(cursor);
 
@@ -160,9 +157,6 @@ public class RepositoryTest {
         //get page count
         Cursor cursor = mock(Cursor.class);
         when(cursor.getLong(0))
-                .thenReturn(10l)
-                .thenReturn(10l)
-                .thenReturn(10l)
                 .thenReturn(10l)
                 .thenReturn(1l);
         when(db.rawQuery("pragma page_count", null)).thenReturn(cursor);
@@ -201,10 +195,6 @@ public class RepositoryTest {
         Cursor cursor = mock(Cursor.class);
         when(cursor.getLong(0))
                 .thenReturn(10l)
-                .thenReturn(10l)
-                .thenReturn(10l)
-                .thenReturn(10l)
-                .thenReturn(5l)
                 .thenReturn(5l)
                 .thenReturn(1l);
         when(db.rawQuery("pragma page_count", null)).thenReturn(cursor);
