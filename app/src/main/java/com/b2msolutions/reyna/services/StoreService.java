@@ -28,10 +28,10 @@ public class StoreService extends RepositoryService {
 	}
 
     public static void setLogLevel(int level) {
-        Logger.v(TAG, "setLogLevel: " + level);
+		Logger.v(TAG, "setLogLevel: " + level);
 
-        Logger.setLevel(level);
-    }
+		Logger.setLevel(level);
+	}
 
     public static void setCellularDataBlackout(Context context, TimeRange range) {
         Logger.v(TAG, "setCellularDataBlackout: " + range);

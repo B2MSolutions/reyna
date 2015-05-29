@@ -39,4 +39,20 @@ public class PreferencesTest {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         assertNull(preferences.getCellularDataBlackout());
     }
+
+    @Test
+    public void canStoreTemporaryErrorTimeout(){
+        long timeout = 42l;
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveTemporaryErrorTimeout(timeout);
+        long result = preferences.getTemporaryErrorTimeout();
+        assertEquals(timeout, result);
+    }
+
+    @Test
+    public void whenCallingGetTemporaryErrorTimeoutWithoutSettigDefaultValueIsReturned(){
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        long result = preferences.getTemporaryErrorTimeout();
+        assertEquals(preferences.DEFAULT_TEMPORARY_ERROR_TIMEOUT_SETTING,result);
+    }
 }

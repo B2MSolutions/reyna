@@ -1,5 +1,6 @@
 package com.b2msolutions.reyna.services;
 
+import android.content.Context;
 import android.content.Intent;
 import com.b2msolutions.reyna.*;
 import com.b2msolutions.reyna.Dispatcher.Result;
@@ -11,17 +12,22 @@ public class ForwardService extends RepositoryService {
 
     protected static final long SLEEP_MILLISECONDS = 1000; // 1 second
 
-    protected static final long TEMPORARY_ERROR_MILLISECONDS = 300000; // 5 minutes
-
     protected Dispatcher dispatcher;
 
     protected Thread thread;
+
+    protected Preferences preferences;
+
+    public static void setErrorTimeout(Context context, long timeoutMilliseconds){
+        new Preferences(context).saveTemporaryErrorTimeout(timeoutMilliseconds);
+    }
 
 	public ForwardService() {
 		super(ForwardService.class.getName());
 
         Logger.v(TAG, "ForwardService()");
 
+        this.preferences = new Preferences(this);
         this.dispatcher = new Dispatcher();
         this.thread = new Thread();
 	}
@@ -30,7 +36,7 @@ public class ForwardService extends RepositoryService {
 	protected void onHandleIntent(Intent intent) {
 		Logger.v(TAG, "onHandleIntent");
 		
-		try {					
+		try {
 			Message message = this.repository.getNext();
 			while(message != null) {
                 this.thread.sleep(SLEEP_MILLISECONDS);
@@ -44,7 +50,7 @@ public class ForwardService extends RepositoryService {
 				
 				if(result == Result.TEMPORARY_ERROR) {
                     Logger.i(TAG, "ForwardService: temporary error, backing off...");
-                    this.thread.sleep(TEMPORARY_ERROR_MILLISECONDS);
+                    this.thread.sleep(preferences.getTemporaryErrorTimeout());
                     return;
                 }
 

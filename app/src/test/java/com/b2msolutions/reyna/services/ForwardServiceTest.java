@@ -6,7 +6,6 @@ import com.b2msolutions.reyna.*;
 import com.b2msolutions.reyna.Dispatcher.Result;
 import com.b2msolutions.reyna.Thread;
 import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,7 +30,11 @@ public class ForwardServiceTest {
 
     @Mock Thread thread;
 
+	@Mock Preferences preferences;
+
     private Context context;
+
+	private final long TEMPORARY_ERROR_MILLISECONDS = 345;
 
     @Before
 	public void setup() {
@@ -41,17 +44,10 @@ public class ForwardServiceTest {
 		this.forwardService.dispatcher = dispatcher;
 		this.forwardService.repository = repository;
         this.forwardService.thread = thread;
+		this.forwardService.preferences = preferences;
+
+		when(this.preferences.getTemporaryErrorTimeout()).thenReturn(TEMPORARY_ERROR_MILLISECONDS);
 	}
-
-    @Test
-    public void sleepTimeoutShouldBeCorrect() {
-      assertEquals(1000, ForwardService.SLEEP_MILLISECONDS);
-    };
-
-    @Test
-    public void temporaryErrorTimeoutShouldBeCorrect() {
-        assertEquals(300000, ForwardService.TEMPORARY_ERROR_MILLISECONDS);
-    };
 
 	@Test
 	public void testConstruction() {        
@@ -94,7 +90,7 @@ public class ForwardServiceTest {
         inorder.verify(this.dispatcher).sendMessage(this.forwardService, message);
         inorder.verify(this.repository).delete(message);
 
-        verify(this.thread, never()).sleep(ForwardService.TEMPORARY_ERROR_MILLISECONDS);
+        verify(this.thread, never()).sleep(TEMPORARY_ERROR_MILLISECONDS);
 	}
 
     @Test
@@ -134,7 +130,7 @@ public class ForwardServiceTest {
 		inorder.verify(this.dispatcher).sendMessage(this.forwardService, message2);
 		inorder.verify(this.repository).delete(message2);
 
-        verify(this.thread, never()).sleep(ForwardService.TEMPORARY_ERROR_MILLISECONDS);
+        verify(this.thread, never()).sleep(TEMPORARY_ERROR_MILLISECONDS);
 	}
 	
 	@Test
@@ -147,7 +143,7 @@ public class ForwardServiceTest {
 		verify(this.dispatcher).sendMessage(this.forwardService, message);
 		verify(this.repository, never()).delete(message);
 
-        verify(this.thread).sleep(ForwardService.TEMPORARY_ERROR_MILLISECONDS);
+        verify(this.thread).sleep(TEMPORARY_ERROR_MILLISECONDS);
     }
 
     @Test
@@ -160,7 +156,7 @@ public class ForwardServiceTest {
         verify(this.dispatcher).sendMessage(this.forwardService, message);
         verify(this.repository, never()).delete(message);
 
-        verify(this.thread, never()).sleep(ForwardService.TEMPORARY_ERROR_MILLISECONDS);
+        verify(this.thread, never()).sleep(TEMPORARY_ERROR_MILLISECONDS);
     }
 
     @Test
@@ -173,7 +169,7 @@ public class ForwardServiceTest {
         verify(this.dispatcher).sendMessage(this.forwardService, message);
         verify(this.repository, never()).delete(message);
 
-        verify(this.thread, never()).sleep(ForwardService.TEMPORARY_ERROR_MILLISECONDS);
+        verify(this.thread, never()).sleep(TEMPORARY_ERROR_MILLISECONDS);
     }
 
 	@Test
@@ -195,7 +191,7 @@ public class ForwardServiceTest {
 		inorder.verify(this.dispatcher, never()).sendMessage(this.forwardService, message2);
 		inorder.verify(this.repository, never()).delete(message2);
 
-        verify(this.thread).sleep(ForwardService.TEMPORARY_ERROR_MILLISECONDS);
+        verify(this.thread).sleep(TEMPORARY_ERROR_MILLISECONDS);
     }
 
     @Test
@@ -217,7 +213,7 @@ public class ForwardServiceTest {
         inorder.verify(this.dispatcher, never()).sendMessage(this.forwardService, message2);
         inorder.verify(this.repository, never()).delete(message2);
 
-        verify(this.thread, never()).sleep(ForwardService.TEMPORARY_ERROR_MILLISECONDS);
+        verify(this.thread, never()).sleep(TEMPORARY_ERROR_MILLISECONDS);
     }
 
 	@Test
@@ -240,6 +236,6 @@ public class ForwardServiceTest {
 		inorder.verify(this.dispatcher).sendMessage(this.forwardService, message2);
 		inorder.verify(this.repository).delete(message2);
 
-        verify(this.thread, never()).sleep(ForwardService.TEMPORARY_ERROR_MILLISECONDS);
+        verify(this.thread, never()).sleep(TEMPORARY_ERROR_MILLISECONDS);
     }
 }
