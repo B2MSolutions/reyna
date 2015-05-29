@@ -29,23 +29,28 @@ dependencies {
     testCompile 'org.robolectric:robolectric:2.4'
 }
 
-task cleanJarDir(type: Delete) {
-    delete fileTree('build/outputs/jar/')
-}
-
 task makeReleaseJar(type: Copy) {
+    outputs.upToDateWhen {false}
+    delete 'reyna-' + android.defaultConfig.versionName +'.jar'
     from('build/intermediates/bundles/release/')
     into('build/outputs/jar/')
     include('classes.jar')
-    rename ('classes.jar', 'reyna' + android.defaultConfig.versionName +'.jar')
+    rename ('classes.jar', 'reyna-' + android.defaultConfig.versionName +'.jar')
 }
 
 task makeDebugJar(type: Copy) {
+    outputs.upToDateWhen {false}
+    delete 'reyna-debug-' + android.defaultConfig.versionName + '.jar'
     from('build/intermediates/bundles/debug/')
     into('build/outputs/jar/')
     include('classes.jar')
     rename ('classes.jar', 'reyna-debug-' + android.defaultConfig.versionName + '.jar')
 }
 
-makeReleaseJar.dependsOn(check, cleanJarDir)
-makeDebugJar.dependsOn(check, cleanJarDir)
+task makeJar() {
+}
+
+makeReleaseJar.dependsOn(build)
+makeDebugJar.dependsOn(build)
+makeJar.dependsOn(makeReleaseJar, makeDebugJar)
+
