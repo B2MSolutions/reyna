@@ -1,5 +1,7 @@
-reyna : Icelandic for "try"
-=====
+# reyna : Icelandic for "try"
+
+[![Build Status](https://travis-ci.org/B2MSolutions/reyna.svg)](https://travis-ci.org/B2MSolutions/reyna)
+
 An android store and forward library for http post requests.
 Reyna will store your requests and post them when there is a valid connection.
 
