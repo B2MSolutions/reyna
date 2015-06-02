@@ -4,13 +4,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import com.b2msolutions.reyna.Dispatcher.Result;
+
 import com.b2msolutions.reyna.http.HttpPost;
+import com.b2msolutions.reyna.http.Result;
 import com.b2msolutions.reyna.shadows.ShadowAndroidHttpClient;
-import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowConnectivityManager;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
@@ -25,7 +23,9 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import static org.junit.Assert.*;
+import org.robolectric.Robolectric;
+import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowConnectivityManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -40,7 +40,14 @@ import java.security.cert.CertificateException;
 import java.util.Calendar;
 import java.util.zip.GZIPOutputStream;
 
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(ReynaTestRunner.class)
 @Config(shadows = {ShadowAndroidHttpClient.class})

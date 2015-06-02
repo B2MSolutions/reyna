@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">ReynaExample</string>
+
+    <string name="url">Request Url</string>
+    <string name="emptyUrl">Enter URL to send POST request</string>
+</resources>

@@ -5,6 +5,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.http.AndroidHttpClient;
 import com.b2msolutions.reyna.http.HttpPost;
+import com.b2msolutions.reyna.http.Result;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.entity.AbstractHttpEntity;
@@ -17,10 +19,6 @@ import java.util.ArrayList;
 public class Dispatcher {
 
     private static final String TAG = "Dispatcher";
-
-    public enum Result {
-        OK, PERMANENT_ERROR, TEMPORARY_ERROR, BLACKOUT, NOTCONNECTED
-    }
 
     public Result sendMessage(Context context, Message message) {
         Logger.v(TAG, "sendMessage");
@@ -107,7 +105,7 @@ public class Dispatcher {
         }
     }
 
-    protected static Result getResult(int statusCode) {
+    public static Result getResult(int statusCode) {
         Logger.v(TAG, "getResult: " + statusCode);
 
         if (statusCode >= 200 && statusCode < 300)
