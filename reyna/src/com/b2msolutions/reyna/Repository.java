@@ -18,6 +18,10 @@ public class Repository extends SQLiteOpenHelper {
 
     private static final String TAG = "Repository";
 
+    private static final int SIZE_DIFFERENCE_TO_START_CLEANING = 307200; //300Kb in bytes
+
+    private static final int SIZE_DIFFERENCE_TO_START_VACUUM = 1048576; //1Mb in bytes
+
     public Repository(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -63,7 +67,7 @@ public class Repository extends SQLiteOpenHelper {
     }
 
     private boolean dbSizeApproachesLimit(long dbSize, long limit) {
-        return (limit > dbSize) && (limit - dbSize) < (limit * 0.2); // less than 20% is considered as close to threshold
+        return (limit > dbSize) && (limit - dbSize) < SIZE_DIFFERENCE_TO_START_CLEANING;
     }
 
     private void shrinkDb(SQLiteDatabase db, long limit, long dbSizeBeforeShrink) {
@@ -103,10 +107,7 @@ public class Repository extends SQLiteOpenHelper {
     }
 
     private boolean shouldVacuum(long dbSize, long limit) {
-        long difference = dbSize - limit;
-
-        // perform vacuuming if difference size exceeds 10% of the db size
-        return ((double)difference / dbSize) * 100 > 10;
+        return dbSize - limit >= SIZE_DIFFERENCE_TO_START_VACUUM;
     }
 
     private void vacuum(SQLiteDatabase db) {

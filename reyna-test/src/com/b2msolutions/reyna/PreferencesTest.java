@@ -54,4 +54,12 @@ public class PreferencesTest {
         long storageSize = preferences.getStorageSize();
         assertEquals(-1, storageSize);
     }
+
+    @Test
+    public void shouldResetStorageSizeByRemovingTheKeyFromPreferences() {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveStorageSize(42);
+        preferences.resetStorageSize();
+        assertEquals(-1, preferences.getStorageSize());
+    }
 }

@@ -157,7 +157,7 @@ public class RepositoryTest {
         //get page count
         Cursor cursor = mock(Cursor.class);
         when(cursor.getLong(0))
-                .thenReturn(10l)
+                .thenReturn(300l)
                 .thenReturn(1l);
         when(db.rawQuery("pragma page_count", null)).thenReturn(cursor);
 
@@ -169,7 +169,7 @@ public class RepositoryTest {
         //get message id to which to shrink
         Cursor idToShrinkCursor = mock(Cursor.class);
         when(idToShrinkCursor.getLong(0)).thenReturn(101l);
-        when(db.rawQuery("select id from Message limit 1 offset 11", null)).thenReturn(idToShrinkCursor);
+        when(db.rawQuery("select id from Message limit 1 offset 41", null)).thenReturn(idToShrinkCursor);
 
         this.repository = spy(this.repository);
         when(this.repository.getWritableDatabase()).thenReturn(db);
@@ -194,7 +194,7 @@ public class RepositoryTest {
         //get page count
         Cursor cursor = mock(Cursor.class);
         when(cursor.getLong(0))
-                .thenReturn(10l)
+                .thenReturn(300l)
                 .thenReturn(5l)
                 .thenReturn(1l);
         when(db.rawQuery("pragma page_count", null)).thenReturn(cursor);
@@ -207,7 +207,7 @@ public class RepositoryTest {
         //get message id to which to shrink
         Cursor idToShrinkCursor = mock(Cursor.class);
         when(idToShrinkCursor.getLong(0)).thenReturn(101l).thenReturn(32l);
-        when(db.rawQuery("select id from Message limit 1 offset 21", null)).thenReturn(idToShrinkCursor);
+        when(db.rawQuery("select id from Message limit 1 offset 41", null)).thenReturn(idToShrinkCursor);
         when(db.rawQuery("select id from Message limit 1 offset 1", null)).thenReturn(idToShrinkCursor);
 
         this.repository = spy(this.repository);

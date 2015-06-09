@@ -83,7 +83,7 @@ public class StoreServiceTest {
         Intent intent = new Intent();
         intent.putExtra(StoreService.MESSAGE, message);
 
-        StoreService.setStorageSizeLimit(context, 42);
+        StoreService.setStorageSizeLimit(context, 2100042);
         this.storeService.onHandleIntent(intent);
 
         ArgumentCaptor<Message> argument = ArgumentCaptor.forClass(Message.class);
@@ -100,7 +100,7 @@ public class StoreServiceTest {
         assertEquals("v2", message.getHeaders()[1].getValue());
 
         long limit = argumentLimit.getValue();
-        assertEquals(42, limit);
+        assertEquals(2100042, limit);
 
         ShadowApplication shadowApplication = Robolectric.getShadowApplication();
         Intent service = shadowApplication.getNextStartedService();
@@ -128,24 +128,32 @@ public class StoreServiceTest {
     @Test
     public void setStorageLimitShouldSaveTheLimit() {
         Context context = Robolectric.getShadowApplication().getApplicationContext();
-        StoreService.setStorageSizeLimit(context, 42);
-        assertEquals(42, StoreService.getStorageSizeLimit(context));
+        StoreService.setStorageSizeLimit(context, 2100042);
+        assertEquals(2100042, StoreService.getStorageSizeLimit(context));
     }
 
     @Test
     public void setStorageLimitShouldNotSaveTheLimitIfItLessThan0() {
         Context context = Robolectric.getShadowApplication().getApplicationContext();
-        StoreService.setStorageSizeLimit(context, 42);
+        StoreService.setStorageSizeLimit(context, 2100042);
         StoreService.setStorageSizeLimit(context, -100);
-        assertEquals(42, StoreService.getStorageSizeLimit(context));
+        assertEquals(2100042, StoreService.getStorageSizeLimit(context));
     }
 
     @Test
     public void setStorageLimitShouldNotSaveTheLimitIfItEqual0() {
         Context context = Robolectric.getShadowApplication().getApplicationContext();
-        StoreService.setStorageSizeLimit(context, 42);
+        StoreService.setStorageSizeLimit(context, 2100042);
         StoreService.setStorageSizeLimit(context, 0);
-        assertEquals(42, StoreService.getStorageSizeLimit(context));
+        assertEquals(2100042, StoreService.getStorageSizeLimit(context));
+    }
+
+
+    @Test
+    public void setStorageLimitShouldSetSizeToMinValueIfPassedValueIsLessThanMinValue() {
+        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        StoreService.setStorageSizeLimit(context, 42);
+        assertEquals(2097152, StoreService.getStorageSizeLimit(context));
     }
 
     @Test

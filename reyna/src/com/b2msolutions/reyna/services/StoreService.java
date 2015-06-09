@@ -11,6 +11,8 @@ public class StoreService extends RepositoryService {
 
     private static final String TAG = "StoreService";
 
+    private static final long MINIMUM_STORAGE_LIMIT = 2097152; // 2Mb in bytes
+
     public static final String MESSAGE = "com.b2msolutions.reyna.MESSAGE";
 
     public StoreService() {
@@ -43,6 +45,8 @@ public class StoreService extends RepositoryService {
             return;
         }
 
+        limit = limit < MINIMUM_STORAGE_LIMIT ? MINIMUM_STORAGE_LIMIT : limit;
+
         Preferences preferences = new Preferences(context);
         preferences.saveStorageSize(limit);
     }
@@ -54,7 +58,7 @@ public class StoreService extends RepositoryService {
 
     public static void resetStorageSizeLimit(Context context) {
         Preferences preferences = new Preferences(context);
-        preferences.saveStorageSize(-1);
+        preferences.resetStorageSize();
     }
 
     @Override

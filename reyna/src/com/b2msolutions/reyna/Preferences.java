@@ -51,4 +51,11 @@ public class Preferences {
         edit.putLong(STORAGE_SIZE, value);
         edit.commit();
     }
+
+    public void resetStorageSize() {
+        SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
+        SharedPreferences.Editor edit = sp.edit();
+        edit.remove(STORAGE_SIZE);
+        edit.commit();
+    }
 }
