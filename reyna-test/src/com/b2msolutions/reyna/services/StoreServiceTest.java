@@ -133,19 +133,19 @@ public class StoreServiceTest {
     }
 
     @Test
-    public void setStorageLimitShouldNotSaveTheLimitIfItLessThan0() {
+    public void setStorageLimitShouldSetLimitToMinValueIfItLessThan0() {
         Context context = Robolectric.getShadowApplication().getApplicationContext();
         StoreService.setStorageSizeLimit(context, 2100042);
         StoreService.setStorageSizeLimit(context, -100);
-        assertEquals(2100042, StoreService.getStorageSizeLimit(context));
+        assertEquals(1867776, StoreService.getStorageSizeLimit(context));
     }
 
     @Test
-    public void setStorageLimitShouldNotSaveTheLimitIfItEqual0() {
+    public void setStorageLimitShouldSetLimitToMinValueIfItLessEqual0() {
         Context context = Robolectric.getShadowApplication().getApplicationContext();
         StoreService.setStorageSizeLimit(context, 2100042);
         StoreService.setStorageSizeLimit(context, 0);
-        assertEquals(2100042, StoreService.getStorageSizeLimit(context));
+        assertEquals(1867776, StoreService.getStorageSizeLimit(context));
     }
 
 

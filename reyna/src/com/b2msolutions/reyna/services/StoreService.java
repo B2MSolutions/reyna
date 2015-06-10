@@ -38,10 +38,6 @@ public class StoreService extends RepositoryService {
     }
 
     public static void setStorageSizeLimit(Context context, long limit) {
-        if (limit <= 0) {
-            return;
-        }
-
         limit = limit < MINIMUM_STORAGE_LIMIT ? MINIMUM_STORAGE_LIMIT : limit;
 
         Preferences preferences = new Preferences(context);
