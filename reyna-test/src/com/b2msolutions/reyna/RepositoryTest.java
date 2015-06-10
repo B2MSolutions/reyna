@@ -111,11 +111,10 @@ public class RepositoryTest {
     }
 
     @Test
-    public void insertShouldDeleteOldRecordsIfLimitCrossed() throws URISyntaxException {
+    public void shrinkDbShouldDeleteOldMessagesIfLimitCrossed() throws URISyntaxException {
         SQLiteDatabase db = mock(SQLiteDatabase.class);
 
         // get db size
-        when(db.insert(anyString(), anyString(), any(ContentValues.class))).thenReturn(42l);
         when(db.getPageSize()).thenReturn(4096l);
 
         //get page count
@@ -133,62 +132,23 @@ public class RepositoryTest {
         //get message id to which to shrink
         Cursor idToShrinkCursor = mock(Cursor.class);
         when(idToShrinkCursor.getLong(0)).thenReturn(101l);
-        when(db.rawQuery("select id from Message limit 1 offset 2", null)).thenReturn(idToShrinkCursor);
+        when(db.rawQuery("select id from Message limit 1 offset 32", null)).thenReturn(idToShrinkCursor);
 
         this.repository = spy(this.repository);
         when(this.repository.getWritableDatabase()).thenReturn(db);
 
-        Message message = getMessageWithHeaders();
-        this.repository.insert(message, 39000);
-
-        verify(db, times(1)).execSQL("delete from Message where id < 101");
-        verify(db, times(1)).execSQL("delete from Header where messageid < 101");
-        assertMockedMessage(db);
-    }
-
-    @Test
-    public void insertShouldDeleteOldRecordsIfLimitCrossedAndPerformVacuumIfCrossedMoreThan10Percent() throws URISyntaxException {
-        SQLiteDatabase db = mock(SQLiteDatabase.class);
-
-        // get db size
-        when(db.insert(anyString(), anyString(), any(ContentValues.class))).thenReturn(42l);
-        when(db.getPageSize()).thenReturn(4096l);
-
-        //get page count
-        Cursor cursor = mock(Cursor.class);
-        when(cursor.getLong(0))
-                .thenReturn(300l)
-                .thenReturn(1l);
-        when(db.rawQuery("pragma page_count", null)).thenReturn(cursor);
-
-        //get number of messages
-        Cursor numberOfMessagesCursor = mock(Cursor.class);
-        when(numberOfMessagesCursor.getLong(0)).thenReturn(42l);
-        when(db.rawQuery("select count(*) from Message", null)).thenReturn(numberOfMessagesCursor);
-
-        //get message id to which to shrink
-        Cursor idToShrinkCursor = mock(Cursor.class);
-        when(idToShrinkCursor.getLong(0)).thenReturn(101l);
-        when(db.rawQuery("select id from Message limit 1 offset 41", null)).thenReturn(idToShrinkCursor);
-
-        this.repository = spy(this.repository);
-        when(this.repository.getWritableDatabase()).thenReturn(db);
-
-        Message message = getMessageWithHeaders();
-        this.repository.insert(message, 30000);
+        this.repository.shrinkDb(317200);
 
         verify(db, times(1)).execSQL("delete from Message where id < 101");
         verify(db, times(1)).execSQL("delete from Header where messageid < 101");
         verify(db, times(1)).execSQL("vacuum");
-        assertMockedMessage(db);
     }
 
     @Test
-    public void insertShouldDeleteOldRecordsMultipleTimesIfLimitCrossedAndShrinkRunsMoreThanOnce() throws URISyntaxException {
+    public void shrinkDbShouldDeleteOldRecordsMultipleTimesIfLimitCrossedAndShrinkRunsMoreThanOnce() throws URISyntaxException {
         SQLiteDatabase db = mock(SQLiteDatabase.class);
 
         // get db size
-        when(db.insert(anyString(), anyString(), any(ContentValues.class))).thenReturn(42l);
         when(db.getPageSize()).thenReturn(4096l);
 
         //get page count
@@ -207,21 +167,19 @@ public class RepositoryTest {
         //get message id to which to shrink
         Cursor idToShrinkCursor = mock(Cursor.class);
         when(idToShrinkCursor.getLong(0)).thenReturn(101l).thenReturn(32l);
-        when(db.rawQuery("select id from Message limit 1 offset 41", null)).thenReturn(idToShrinkCursor);
-        when(db.rawQuery("select id from Message limit 1 offset 1", null)).thenReturn(idToShrinkCursor);
+        when(db.rawQuery("select id from Message limit 1 offset 42", null)).thenReturn(idToShrinkCursor);
+        when(db.rawQuery("select id from Message limit 1 offset 21", null)).thenReturn(idToShrinkCursor);
 
         this.repository = spy(this.repository);
         when(this.repository.getWritableDatabase()).thenReturn(db);
 
-        Message message = getMessageWithHeaders();
-        this.repository.insert(message, 20000);
+        this.repository.shrinkDb(317200);
 
         verify(db, times(1)).execSQL("delete from Message where id < 101");
         verify(db, times(1)).execSQL("delete from Header where messageid < 101");
         verify(db, times(1)).execSQL("delete from Message where id < 32");
         verify(db, times(1)).execSQL("delete from Header where messageid < 32");
         verify(db, times(1)).execSQL("vacuum");
-        assertMockedMessage(db);
     }
 
     @Test

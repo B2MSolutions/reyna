@@ -9,6 +9,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Repository extends SQLiteOpenHelper {
 
@@ -18,9 +20,9 @@ public class Repository extends SQLiteOpenHelper {
 
     private static final String TAG = "Repository";
 
-    private static final int SIZE_DIFFERENCE_TO_START_CLEANING = 307200; //300Kb in bytes
+    private static final Lock lock = new ReentrantLock();
 
-    private static final int SIZE_DIFFERENCE_TO_START_VACUUM = 1048576; //1Mb in bytes
+    private static final int SIZE_DIFFERENCE_TO_START_CLEANING = 307200; //300Kb in bytes
 
     public Repository(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -40,105 +42,73 @@ public class Repository extends SQLiteOpenHelper {
 
     public void insert(Message message) {
         Logger.v(TAG, "insert");
-        if (message == null) {
-            return;
-        }
+        lock.lock();
 
-        SQLiteDatabase db = this.getWritableDatabase();
-        this.insertMessage(db, message);
+        try {
+            if (message == null) {
+                return;
+            }
+
+            SQLiteDatabase db = this.getWritableDatabase();
+            this.insertMessage(db, message);
+        }
+        finally {
+            lock.unlock();
+        }
     }
 
     public void insert(Message message, long dbSizeLimit) {
         Logger.v(TAG, "insert with limit");
-        if (message == null) {
-            return;
+        lock.lock();
+
+        try {
+            if (message == null) {
+                return;
+            }
+
+            SQLiteDatabase db = this.getWritableDatabase();
+            long dbSize = this.getDbSize(db);
+
+            if (this.dbSizeApproachesLimit(dbSize, dbSizeLimit)) {
+                this.clearOldRecords(db, message);
+            }
+
+            this.insertMessage(db, message);
         }
-
-        SQLiteDatabase db = this.getWritableDatabase();
-        long dbSize = this.getDbSize(db);
-
-        if (this.dbSizeApproachesLimit(dbSize, dbSizeLimit)) {
-            this.clearOldRecords(db, message);
-        } else if (dbSize > dbSizeLimit) {
-            this.shrinkDb(db, dbSizeLimit, dbSize);
+        finally {
+            lock.unlock();
         }
-
-        this.insertMessage(db, message);
     }
 
     private boolean dbSizeApproachesLimit(long dbSize, long limit) {
         return (limit > dbSize) && (limit - dbSize) < SIZE_DIFFERENCE_TO_START_CLEANING;
     }
 
-    private void shrinkDb(SQLiteDatabase db, long limit, long dbSizeBeforeShrink) {
-        long dbSize = dbSizeBeforeShrink;
-        do {
-            this.shrink(db, limit, dbSize);
-            dbSize = this.getDbSize(db);
-        }
-        while (dbSize > limit);
+    public void shrinkDb(long limit) {
+        lock.lock();
 
-        if (this.shouldVacuum(dbSizeBeforeShrink, limit)) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        try {
+            limit -= SIZE_DIFFERENCE_TO_START_CLEANING;
+            long dbSize = this.getDbSize(db);
+
+            if (dbSize <= limit) {
+                return;
+            }
+
+            do {
+                this.shrink(db, limit, dbSize);
+                dbSize = this.getDbSize(db);
+            }
+            while (dbSize > limit);
+
             this.vacuum(db);
         }
-    }
-
-    private void shrink(SQLiteDatabase db, long limit, long dbSize) {
-        double limitPercentage = 1 - (double)limit / dbSize;
-        long numberOfMessages = this.getNumberOfMessages(db);
-        long numberOfMessagesToRemove = Math.round(numberOfMessages * limitPercentage);
-        numberOfMessagesToRemove = numberOfMessagesToRemove == 0 ? 1 : numberOfMessagesToRemove;
-
-        try {
-            db.beginTransaction();
-
-            long thresholdId = this.getMessageIdToWhichShrink(db, numberOfMessagesToRemove);
-
-            db.execSQL("delete from Message where id < " + thresholdId);
-            db.execSQL("delete from Header where messageid < " + thresholdId);
-
-            db.setTransactionSuccessful();
-        }
         finally {
-            if (db.inTransaction()) {
-                db.endTransaction();
-            }
+            db.close();
+            lock.unlock();
         }
-    }
 
-    private boolean shouldVacuum(long dbSize, long limit) {
-        return dbSize - limit >= SIZE_DIFFERENCE_TO_START_VACUUM;
-    }
-
-    private void vacuum(SQLiteDatabase db) {
-        db.execSQL("vacuum");
-    }
-
-    private long getMessageIdToWhichShrink(SQLiteDatabase db, long numberOfMessagesToRemove) {
-        Cursor cursor = db.rawQuery("select id from Message limit 1 offset " + numberOfMessagesToRemove, null);
-        cursor.moveToFirst();
-        long id = cursor.getLong(0);
-        cursor.close();
-
-        return id;
-    }
-
-    private long getNumberOfMessages(SQLiteDatabase db) {
-        Cursor cursor = db.rawQuery("select count(*) from Message", null);
-        cursor.moveToFirst();
-        long numberOfMessages = cursor.getLong(0);
-        cursor.close();
-
-        return numberOfMessages;
-    }
-
-    private long getDbSize(SQLiteDatabase db) {
-        Cursor cursor = db.rawQuery("pragma page_count", null);
-        cursor.moveToNext();
-        long pageCount = cursor.getLong(0);
-        cursor.close();
-
-        return pageCount * db.getPageSize();
     }
 
     private void insertMessage(SQLiteDatabase db, Message message) {
@@ -277,5 +247,60 @@ public class Repository extends SQLiteOpenHelper {
 
             db.insert("Header", null, headerValues);
         }
+    }
+
+
+    private void shrink(SQLiteDatabase db, long limit, long dbSize) {
+        double limitPercentage = 1 - (double)limit / dbSize;
+        long numberOfMessages = this.getNumberOfMessages(db);
+        long numberOfMessagesToRemove = Math.round(numberOfMessages * limitPercentage);
+        numberOfMessagesToRemove = numberOfMessagesToRemove == 0 ? 1 : numberOfMessagesToRemove;
+
+        try {
+            db.beginTransaction();
+
+            long thresholdId = this.getMessageIdToWhichShrink(db, numberOfMessagesToRemove);
+
+            db.execSQL("delete from Message where id < " + thresholdId);
+            db.execSQL("delete from Header where messageid < " + thresholdId);
+
+            db.setTransactionSuccessful();
+        }
+        finally {
+            if (db.inTransaction()) {
+                db.endTransaction();
+            }
+        }
+    }
+
+    private void vacuum(SQLiteDatabase db) {
+        db.execSQL("vacuum");
+    }
+
+    private long getMessageIdToWhichShrink(SQLiteDatabase db, long numberOfMessagesToRemove) {
+        Cursor cursor = db.rawQuery("select id from Message limit 1 offset " + numberOfMessagesToRemove, null);
+        cursor.moveToFirst();
+        long id = cursor.getLong(0);
+        cursor.close();
+
+        return id;
+    }
+
+    private long getNumberOfMessages(SQLiteDatabase db) {
+        Cursor cursor = db.rawQuery("select count(*) from Message", null);
+        cursor.moveToFirst();
+        long numberOfMessages = cursor.getLong(0);
+        cursor.close();
+
+        return numberOfMessages;
+    }
+
+    private long getDbSize(SQLiteDatabase db) {
+        Cursor cursor = db.rawQuery("pragma page_count", null);
+        cursor.moveToNext();
+        long pageCount = cursor.getLong(0);
+        cursor.close();
+
+        return pageCount * db.getPageSize();
     }
 }

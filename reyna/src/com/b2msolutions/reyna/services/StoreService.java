@@ -2,16 +2,13 @@ package com.b2msolutions.reyna.services;
 
 import android.content.Context;
 import android.content.Intent;
-import com.b2msolutions.reyna.Logger;
-import com.b2msolutions.reyna.Message;
-import com.b2msolutions.reyna.Preferences;
-import com.b2msolutions.reyna.TimeRange;
+import com.b2msolutions.reyna.*;
 
 public class StoreService extends RepositoryService {
 
     private static final String TAG = "StoreService";
 
-    private static final long MINIMUM_STORAGE_LIMIT = 2097152; // 2Mb in bytes
+    private static final long MINIMUM_STORAGE_LIMIT = 1867776; // 1Mb 800Kb
 
     public static final String MESSAGE = "com.b2msolutions.reyna.MESSAGE";
 
@@ -49,6 +46,9 @@ public class StoreService extends RepositoryService {
 
         Preferences preferences = new Preferences(context);
         preferences.saveStorageSize(limit);
+
+        Repository repo = new Repository(context);
+        repo.shrinkDb(limit);
     }
 
     public static long getStorageSizeLimit(Context context) {

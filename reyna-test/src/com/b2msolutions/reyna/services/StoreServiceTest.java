@@ -153,7 +153,7 @@ public class StoreServiceTest {
     public void setStorageLimitShouldSetSizeToMinValueIfPassedValueIsLessThanMinValue() {
         Context context = Robolectric.getShadowApplication().getApplicationContext();
         StoreService.setStorageSizeLimit(context, 42);
-        assertEquals(2097152, StoreService.getStorageSizeLimit(context));
+        assertEquals(1867776, StoreService.getStorageSizeLimit(context));
     }
 
     @Test
