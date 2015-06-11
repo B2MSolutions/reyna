@@ -61,6 +61,7 @@ public class ForwardServiceTest {
 		this.forwardService.preferences = preferences;
 
 		when(this.preferences.getTemporaryErrorTimeout()).thenReturn(TEMPORARY_ERROR_MILLISECONDS);
+        when(this.preferences.getDispatcherServiceName()).thenReturn(DispatcherService.class.getName());
 	}
 
 	@Test
@@ -259,7 +260,8 @@ public class ForwardServiceTest {
 
         Intent intent = shadowOf(this.forwardService).getNextStartedService();
         assertNotNull(intent);
-        assertEquals("com.b2msolutions.reyna.BindDispatcher", intent.getAction());
+        assertEquals("com.b2msolutions.reyna.services.DispatcherService", intent.getComponent().getClassName());
+        assertEquals("com.my.package.name", intent.getComponent().getPackageName());
     }
 
     @Test

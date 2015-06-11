@@ -2,10 +2,12 @@ package com.b2msolutions.reyna;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
+
+import com.b2msolutions.reyna.services.DispatcherService;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
@@ -53,6 +55,22 @@ public class PreferencesTest {
     public void whenCallingGetTemporaryErrorTimeoutWithoutSettigDefaultValueIsReturned(){
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         long result = preferences.getTemporaryErrorTimeout();
-        assertEquals(preferences.DEFAULT_TEMPORARY_ERROR_TIMEOUT_SETTING,result);
+        assertEquals(preferences.DEFAULT_TEMPORARY_ERROR_TIMEOUT_SETTING, result);
+    }
+
+    @Test
+    public void canStoreDispatcherServiceName(){
+        String dispatcherName = "dipatcher";
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveDispatcherServiceName(dispatcherName);
+        String result = preferences.getDispatcherServiceName();
+        assertEquals(dispatcherName, result);
+    }
+
+    @Test
+    public void whenCallingGetDispatcherServiceNameWithoutSettigDefaultValueIsReturned(){
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        String result = preferences.getDispatcherServiceName();
+        assertEquals(DispatcherService.class.getName(), result);
     }
 }

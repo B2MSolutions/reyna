@@ -28,6 +28,10 @@ public class ForwardService extends RepositoryService {
         new Preferences(context).saveTemporaryErrorTimeout(timeoutMilliseconds);
     }
 
+    public static void setDispatcherServiceName(Context context, String dispatcherServiceName){
+        new Preferences(context).saveDispatcherServiceName(dispatcherServiceName);
+    }
+
 	public ForwardService() {
 		super(ForwardService.class.getName());
 
@@ -83,7 +87,9 @@ public class ForwardService extends RepositoryService {
 	}
 
     private void doBindService() {
-        Intent intent = new Intent("com.b2msolutions.reyna.BindDispatcher");
+        Intent intent = new Intent();
+        intent.setComponent(new ComponentName(this.getPackageName(), this.preferences.getDispatcherServiceName()));
+
         this.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
 

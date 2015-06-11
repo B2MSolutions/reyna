@@ -14,11 +14,7 @@
         <!-- Add these services and receiver to your application -->
         <service android:name="com.b2msolutions.reyna.services.StoreService" />
         <service android:name="com.b2msolutions.reyna.services.ForwardService" />
-        <service android:name="com.b2msolutions.reyna.services.DispatcherService">
-            <intent-filter>
-                <action android:name="com.b2msolutions.reyna.BindDispatcher"/>
-            </intent-filter>
-        </service>>
+        <service android:name="com.b2msolutions.reyna.services.DispatcherService"/>
         <receiver android:name="com.b2msolutions.reyna.receivers.ForwardServiceReceiver">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
