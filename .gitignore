@@ -10,6 +10,15 @@
 .classpath
 .settings/
 
+# Android Studio files
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+.DS_Store
+/build
+/captures
+
 # generated files
 reyna/build.xml
 bin/

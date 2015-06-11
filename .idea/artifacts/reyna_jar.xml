@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="reyna:jar">
-    <output-path>$PROJECT_DIR$/artifacts</output-path>
-    <root id="archive" name="reyna.jar">
-      <element id="module-output" name="reyna" />
-    </root>
-  </artifact>
-</component>
