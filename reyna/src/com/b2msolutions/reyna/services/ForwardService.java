@@ -17,32 +17,32 @@ public class ForwardService extends RepositoryService {
 
     protected Thread thread;
 
-	public ForwardService() {
-		super(ForwardService.class.getName());
+    public ForwardService() {
+        super(ForwardService.class.getName());
 
         Logger.v(TAG, "ForwardService()");
 
         this.dispatcher = new Dispatcher();
         this.thread = new Thread();
-	}
+    }
 
-	@Override
-	protected void onHandleIntent(Intent intent) {
-		Logger.v(TAG, "onHandleIntent");
-		
-		try {					
-			Message message = this.repository.getNext();
-			while(message != null) {
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        Logger.v(TAG, "onHandleIntent");
+
+        try {
+            Message message = this.repository.getNext();
+            while(message != null) {
                 this.thread.sleep(SLEEP_MILLISECONDS);
-				Logger.i(TAG, "ForwardService: processing message " + message.getId());
+                Logger.i(TAG, "ForwardService: processing message " + message.getId());
 
                 this.addReynaSpecificHeaders(message);
 
-				Result result = dispatcher.sendMessage(this, message);
+                Result result = dispatcher.sendMessage(this, message);
 
                 Logger.i(TAG, "ForwardService: send message result: " + result.toString());
-				
-				if(result == Result.TEMPORARY_ERROR) {
+
+                if(result == Result.TEMPORARY_ERROR) {
                     Logger.i(TAG, "ForwardService: temporary error, backing off...");
                     this.thread.sleep(TEMPORARY_ERROR_MILLISECONDS);
                     return;
@@ -52,15 +52,15 @@ public class ForwardService extends RepositoryService {
                     return;
                 }
 
-				this.repository.delete(message);
-				message = this.repository.getNext();
-			}		
-		} catch(Exception e) {
+                this.repository.delete(message);
+                message = this.repository.getNext();
+            }
+        } catch(Exception e) {
             Logger.e(TAG, "onHandleIntent", e);
-		} finally {
-			this.repository.close();		
-		}		
-	}
+        } finally {
+            this.repository.close();
+        }
+    }
 
     private void addReynaSpecificHeaders(Message message) {
         Header header = new Header("reyna-id", message.getId().toString());
