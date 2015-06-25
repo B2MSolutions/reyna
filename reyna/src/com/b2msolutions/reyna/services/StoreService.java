@@ -38,8 +38,10 @@ public class StoreService extends RepositoryService {
     }
 
     public static void setStorageSizeLimit(Context context, long limit) {
+        Logger.v(TAG, "setStorageSizeLimit, limit: " + limit);
         limit = limit < MINIMUM_STORAGE_LIMIT ? MINIMUM_STORAGE_LIMIT : limit;
 
+        Logger.v(TAG, "setStorageSizeLimit,  limit: " + limit);
         Preferences preferences = new Preferences(context);
         preferences.saveStorageSize(limit);
 
@@ -48,11 +50,15 @@ public class StoreService extends RepositoryService {
     }
 
     public static long getStorageSizeLimit(Context context) {
+        Logger.v(TAG, "getStorageSizeLimit");
         Preferences preferences = new Preferences(context);
-        return preferences.getStorageSize();
+        long result =  preferences.getStorageSize();
+        Logger.v(TAG, "getStorageSizeLimit, size: " + result);
+        return result;
     }
 
     public static void resetStorageSizeLimit(Context context) {
+        Logger.v(TAG, "resetStorageSizeLimit");
         Preferences preferences = new Preferences(context);
         preferences.resetStorageSize();
     }
@@ -75,11 +81,13 @@ public class StoreService extends RepositoryService {
         Logger.v(TAG, "insert");
 
         long limit = getStorageSizeLimit(this);
+        Logger.v(TAG, "insert, getStorageSizeLimit: " + limit);
         try {
             if (limit == -1) {
                 this.repository.insert(message);
             }
             else {
+
                 this.repository.insert(message, getStorageSizeLimit(this));
             }
 

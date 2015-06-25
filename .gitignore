@@ -20,6 +20,11 @@ local.properties
 junit/
 reports/
 
+.idea/workspace.xml
+
+# backup files
+*.*~
+
 # eclipse meta
 .metadata
 lint.xml

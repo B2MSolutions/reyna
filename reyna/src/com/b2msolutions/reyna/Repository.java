@@ -68,8 +68,9 @@ public class Repository extends SQLiteOpenHelper {
 
             SQLiteDatabase db = this.getWritableDatabase();
             long dbSize = this.getDbSize(db);
-
+            Logger.v(TAG, String.format("insert with limit. dbSize: %d, dbSizeLimit: %d", dbSize, dbSizeLimit));
             if (this.dbSizeApproachesLimit(dbSize, dbSizeLimit)) {
+                Logger.v(TAG, "insert with limit, dbSizeApproachesLimit");
                 this.clearOldRecords(db, message);
             }
 
@@ -81,10 +82,14 @@ public class Repository extends SQLiteOpenHelper {
     }
 
     private boolean dbSizeApproachesLimit(long dbSize, long limit) {
-        return (limit > dbSize) && (limit - dbSize) < SIZE_DIFFERENCE_TO_START_CLEANING;
+        Logger.v(TAG, String.format("dbSizeApproachesLimit, dbSize: %d, limit %d, SIZE_DIFFERENCE_TO_START_CLEANING: %d", dbSize, limit, SIZE_DIFFERENCE_TO_START_CLEANING));
+        boolean result =  (limit > dbSize) && (limit - dbSize) < SIZE_DIFFERENCE_TO_START_CLEANING;
+        Logger.v(TAG, "dbSizeApproachesLimit, result: " + result);
+        return result;
     }
 
     public void shrinkDb(long limit) {
+        Logger.v(TAG, "shrinkDb");
         lock.lock();
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -92,16 +97,21 @@ public class Repository extends SQLiteOpenHelper {
             limit -= SIZE_DIFFERENCE_TO_START_CLEANING;
             long dbSize = this.getDbSize(db);
 
+            Logger.v(TAG, "shrinkDb, dbSize: " + dbSize);
+            Logger.v(TAG, "shrinkDb, limit: " + limit);
             if (dbSize <= limit) {
+                Logger.v(TAG, "shrinkDb, dbSize <= limit, no SHRINK");
                 return;
             }
 
             do {
+                Logger.v(TAG, String.format("shrinkDb, dbSize > limit, SHRINK needed, dbSize: %d, limit: %d", dbSize, limit));
                 this.shrink(db, limit, dbSize);
                 dbSize = this.getDbSize(db);
             }
             while (dbSize > limit);
 
+            Logger.v(TAG, String.format("shrinkDb, dbSize: %d, limit: %d", dbSize, limit));
             this.vacuum(db);
         }
         finally {
@@ -112,6 +122,7 @@ public class Repository extends SQLiteOpenHelper {
     }
 
     private void insertMessage(SQLiteDatabase db, Message message) {
+        Logger.v(TAG, "insertMessage");
         try {
             db.beginTransaction();
             ContentValues values = new ContentValues();
@@ -132,8 +143,11 @@ public class Repository extends SQLiteOpenHelper {
     }
 
     private void clearOldRecords(SQLiteDatabase db, Message message) {
+        Logger.v(TAG, "clearOldRecords");
         Long oldestMessageId = findOldestMessageIdWithType(db, message.getUrl());
 
+        Logger.v(TAG, "clearOldRecords, message.getUrl(): " + message.getUrl());
+        Logger.v(TAG, "clearOldRecords, oldestMessageId: " + oldestMessageId);
         if (oldestMessageId == null) {
             return;
         }
@@ -143,14 +157,17 @@ public class Repository extends SQLiteOpenHelper {
     }
 
     private Long findOldestMessageIdWithType(SQLiteDatabase db, String type) {
+        Logger.v(TAG, "findOldestMessageIdWithType");
         Cursor cursor = db.query("Message", new String[]{"min(id)"}, "url=?", new String[]{type}, null, null, null);
 
         if (cursor.moveToNext()) {
             long result = cursor.getLong(0);
+            Logger.v(TAG, "findOldestMessageIdWithType, oldest messageid: " +  result);
             cursor.close();
             return result;
         }
 
+        Logger.v(TAG, "findOldestMessageIdWithType, NO Message found");
         cursor.close();
         return null;
     }
@@ -274,24 +291,29 @@ public class Repository extends SQLiteOpenHelper {
     }
 
     private void vacuum(SQLiteDatabase db) {
+        Logger.v(TAG, "vacuum");
         db.execSQL("vacuum");
     }
 
     private long getMessageIdToWhichShrink(SQLiteDatabase db, long numberOfMessagesToRemove) {
+        Logger.v(TAG, "getMessageIdToWhichShrink");
         Cursor cursor = db.rawQuery("select id from Message limit 1 offset " + numberOfMessagesToRemove, null);
         cursor.moveToFirst();
         long id = cursor.getLong(0);
         cursor.close();
 
+        Logger.v(TAG, "getMessageIdToWhichShrink, id: " + id);
         return id;
     }
 
     private long getNumberOfMessages(SQLiteDatabase db) {
+        Logger.v(TAG, "getNumberOfMessages");
         Cursor cursor = db.rawQuery("select count(*) from Message", null);
         cursor.moveToFirst();
         long numberOfMessages = cursor.getLong(0);
         cursor.close();
 
+        Logger.v(TAG, "getNumberOfMessages, numberOfMessages: " + numberOfMessages);
         return numberOfMessages;
     }
 
