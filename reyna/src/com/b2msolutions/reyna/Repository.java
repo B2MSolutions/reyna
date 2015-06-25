@@ -104,14 +104,14 @@ public class Repository extends SQLiteOpenHelper {
                 return;
             }
 
-            Logger.v(TAG, "shrinkDb, dbSize <= limit, SHRINK needed");
             do {
+                Logger.v(TAG, String.format("shrinkDb, dbSize > limit, SHRINK needed, dbSize: %d, limit: %d", dbSize, limit));
                 this.shrink(db, limit, dbSize);
                 dbSize = this.getDbSize(db);
-                Logger.v(TAG, String.format("shrinkDb after shrink, dbSize: %d, limit: %d", dbSize, limit));
             }
             while (dbSize > limit);
 
+            Logger.v(TAG, String.format("shrinkDb, dbSize: %d, limit: %d", dbSize, limit));
             this.vacuum(db);
         }
         finally {
