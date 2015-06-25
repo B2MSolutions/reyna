@@ -25,7 +25,7 @@ public class Preferences {
         SharedPreferences.Editor editor = sp.edit();
         editor.putInt(FROM, from);
         editor.putInt(TO, to);
-        editor.commit();
+        editor.apply();
     }
 
     public TimeRange getCellularDataBlackout() {
@@ -49,13 +49,13 @@ public class Preferences {
         SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
         SharedPreferences.Editor edit = sp.edit();
         edit.putLong(STORAGE_SIZE, value);
-        edit.commit();
+        edit.apply();
     }
 
     public void resetStorageSize() {
         SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
         SharedPreferences.Editor edit = sp.edit();
         edit.remove(STORAGE_SIZE);
-        edit.commit();
+        edit.apply();
     }
 }
