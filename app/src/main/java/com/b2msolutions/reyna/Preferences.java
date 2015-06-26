@@ -66,6 +66,6 @@ public class Preferences {
 
     public String getDispatcherServiceName(){
         SharedPreferences sp = getSharedPreferences();
-        return sp.getString(DISPATCHER_SERVICE_NAME, DispatcherService.class.getName());
+        return sp.getString(DISPATCHER_SERVICE_NAME, null);
     }
 }
