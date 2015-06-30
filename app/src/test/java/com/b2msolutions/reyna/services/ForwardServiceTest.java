@@ -3,6 +3,7 @@ package com.b2msolutions.reyna.services;
 import android.content.Context;
 import android.content.Intent;
 
+import com.b2msolutions.reyna.Dispatcher;
 import com.b2msolutions.reyna.Header;
 import com.b2msolutions.reyna.Message;
 import com.b2msolutions.reyna.Preferences;
@@ -25,6 +26,8 @@ import java.net.URISyntaxException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -46,6 +49,8 @@ public class ForwardServiceTest {
 
 	@Mock Preferences preferences;
 
+    @Mock Dispatcher dispatcher;
+
     private Context context;
 
 	private final long TEMPORARY_ERROR_MILLISECONDS = 345;
@@ -55,13 +60,14 @@ public class ForwardServiceTest {
 		MockitoAnnotations.initMocks(this);
         this.context = Robolectric.getShadowApplication().getApplicationContext();
 		this.forwardService = Robolectric.setupService(ForwardService.class);
-		this.forwardService.mService = dispatcherService;
+		this.forwardService.mService = null;
 		this.forwardService.repository = repository;
         this.forwardService.thread = thread;
 		this.forwardService.preferences = preferences;
+        this.forwardService.dispatcher = dispatcher;
 
 		when(this.preferences.getTemporaryErrorTimeout()).thenReturn(TEMPORARY_ERROR_MILLISECONDS);
-        when(this.preferences.getDispatcherServiceName()).thenReturn(DispatcherService.class.getName());
+        when(this.preferences.getDispatcherServiceName()).thenReturn(null);
 	}
 
 	@Test
@@ -89,14 +95,14 @@ public class ForwardServiceTest {
 	public void whenSingleMessageAndDispatchReturnsOKShouldDeleteMessage() throws URISyntaxException, InterruptedException {
 		Message message = mock(Message.class);
 		when(this.repository.getNext()).thenReturn(message).thenReturn(null);
-		when(this.dispatcherService.sendMessage(message)).thenReturn(Result.OK);
+		when(this.dispatcher.sendMessage(any(Context.class), eq(message))).thenReturn(Result.OK);
 
 		this.forwardService.onHandleIntent(null);
 
-        InOrder inorder = inOrder(this.thread, this.dispatcherService, this.repository);
+        InOrder inorder = inOrder(this.thread, this.dispatcher, this.repository);
 
         inorder.verify(this.thread).sleep(ForwardService.SLEEP_MILLISECONDS);
-        inorder.verify(this.dispatcherService).sendMessage(message);
+        inorder.verify(this.dispatcher).sendMessage(any(Context.class), eq(message));
         inorder.verify(this.repository).delete(message);
 
         verify(this.thread, never()).sleep(TEMPORARY_ERROR_MILLISECONDS);
@@ -126,17 +132,17 @@ public class ForwardServiceTest {
 			.thenReturn(message2)
 			.thenReturn(null);
 
-		when(this.dispatcherService.sendMessage(message1)).thenReturn(Result.OK);
-		when(this.dispatcherService.sendMessage(message2)).thenReturn(Result.OK);
+		when(this.dispatcher.sendMessage(any(Context.class), eq(message1))).thenReturn(Result.OK);
+		when(this.dispatcher.sendMessage(any(Context.class), eq(message2))).thenReturn(Result.OK);
 
 		this.forwardService.onHandleIntent(null);
-		InOrder inorder = inOrder(this.thread, this.dispatcherService, this.repository);
+		InOrder inorder = inOrder(this.thread, this.dispatcher, this.repository);
 
         inorder.verify(this.thread).sleep(ForwardService.SLEEP_MILLISECONDS);
-		inorder.verify(this.dispatcherService).sendMessage(message1);
+		inorder.verify(this.dispatcher).sendMessage(any(Context.class), eq(message1));
 		inorder.verify(this.repository).delete(message1);
         inorder.verify(this.thread).sleep(ForwardService.SLEEP_MILLISECONDS);
-		inorder.verify(this.dispatcherService).sendMessage(message2);
+		inorder.verify(this.dispatcher).sendMessage(any(Context.class), eq(message2));
 		inorder.verify(this.repository).delete(message2);
 
         verify(this.thread, never()).sleep(TEMPORARY_ERROR_MILLISECONDS);
@@ -146,10 +152,10 @@ public class ForwardServiceTest {
 	public void whenSingleMessageAndDispatchReturnsTemporaryErrorShouldNotDeleteMessage() throws URISyntaxException, InterruptedException {
 		Message message = mock(Message.class);
 		when(this.repository.getNext()).thenReturn(message).thenReturn(null);
-		when(this.dispatcherService.sendMessage(message)).thenReturn(Result.TEMPORARY_ERROR);
+		when(this.dispatcher.sendMessage(any(Context.class), eq(message))).thenReturn(Result.TEMPORARY_ERROR);
 
 		this.forwardService.onHandleIntent(null);
-		verify(this.dispatcherService).sendMessage(message);
+		verify(this.dispatcher).sendMessage(any(Context.class), eq(message));
 		verify(this.repository, never()).delete(message);
 
         verify(this.thread).sleep(TEMPORARY_ERROR_MILLISECONDS);
@@ -159,10 +165,10 @@ public class ForwardServiceTest {
     public void whenSingleMessageAndDispatchReturnsBlackoutShouldNotDeleteMessage() throws URISyntaxException, InterruptedException {
         Message message = mock(Message.class);
         when(this.repository.getNext()).thenReturn(message).thenReturn(null);
-        when(this.dispatcherService.sendMessage(message)).thenReturn(Result.BLACKOUT);
+        when(this.dispatcher.sendMessage(any(Context.class), eq(message))).thenReturn(Result.BLACKOUT);
 
         this.forwardService.onHandleIntent(null);
-        verify(this.dispatcherService).sendMessage(message);
+        verify(this.dispatcher).sendMessage(any(Context.class), eq(message));
         verify(this.repository, never()).delete(message);
 
         verify(this.thread, never()).sleep(TEMPORARY_ERROR_MILLISECONDS);
@@ -172,10 +178,10 @@ public class ForwardServiceTest {
     public void whenSingleMessageAndDispatchReturnsNotConnectedShouldNotDeleteMessage() throws URISyntaxException, InterruptedException {
         Message message = mock(Message.class);
         when(this.repository.getNext()).thenReturn(message).thenReturn(null);
-        when(this.dispatcherService.sendMessage(message)).thenReturn(Result.NOTCONNECTED);
+        when(this.dispatcher.sendMessage(any(Context.class), eq(message))).thenReturn(Result.NOTCONNECTED);
 
         this.forwardService.onHandleIntent(null);
-        verify(this.dispatcherService).sendMessage(message);
+        verify(this.dispatcher).sendMessage(any(Context.class), eq(message));
         verify(this.repository, never()).delete(message);
 
         verify(this.thread, never()).sleep(TEMPORARY_ERROR_MILLISECONDS);
@@ -190,14 +196,14 @@ public class ForwardServiceTest {
 			.thenReturn(message2)
 			.thenReturn(null);
 
-		when(this.dispatcherService.sendMessage(message1)).thenReturn(Result.TEMPORARY_ERROR);
+		when(this.dispatcher.sendMessage(any(Context.class), eq(message1))).thenReturn(Result.TEMPORARY_ERROR);
 
 		this.forwardService.onHandleIntent(null);
-		InOrder inorder = inOrder(this.dispatcherService, this.repository);
+		InOrder inorder = inOrder(this.dispatcher, this.repository);
 
-		inorder.verify(this.dispatcherService).sendMessage(message1);
+		inorder.verify(this.dispatcher).sendMessage(any(Context.class), eq(message1));
 		inorder.verify(this.repository, never()).delete(message1);
-		inorder.verify(this.dispatcherService, never()).sendMessage(message2);
+		inorder.verify(this.dispatcher, never()).sendMessage(any(Context.class), eq(message2));
 		inorder.verify(this.repository, never()).delete(message2);
 
         verify(this.thread).sleep(TEMPORARY_ERROR_MILLISECONDS);
@@ -212,14 +218,14 @@ public class ForwardServiceTest {
                 .thenReturn(message2)
                 .thenReturn(null);
 
-        when(this.dispatcherService.sendMessage(message1)).thenReturn(Result.BLACKOUT);
+        when(this.dispatcher.sendMessage(any(Context.class), eq(message1))).thenReturn(Result.BLACKOUT);
 
         this.forwardService.onHandleIntent(null);
-        InOrder inorder = inOrder(this.dispatcherService, this.repository);
+        InOrder inorder = inOrder(this.dispatcher, this.repository);
 
-        inorder.verify(this.dispatcherService).sendMessage(message1);
+        inorder.verify(this.dispatcher).sendMessage(any(Context.class), eq(message1));
         inorder.verify(this.repository, never()).delete(message1);
-        inorder.verify(this.dispatcherService, never()).sendMessage(message2);
+        inorder.verify(this.dispatcher, never()).sendMessage(any(Context.class), eq(message2));
         inorder.verify(this.repository, never()).delete(message2);
 
         verify(this.thread, never()).sleep(TEMPORARY_ERROR_MILLISECONDS);
@@ -234,22 +240,23 @@ public class ForwardServiceTest {
 			.thenReturn(message2)
 			.thenReturn(null);
 
-		when(this.dispatcherService.sendMessage(message1)).thenReturn(Result.PERMANENT_ERROR);
-		when(this.dispatcherService.sendMessage(message2)).thenReturn(Result.OK);
+		when(this.dispatcher.sendMessage(any(Context.class), eq(message1))).thenReturn(Result.PERMANENT_ERROR);
+		when(this.dispatcher.sendMessage(any(Context.class), eq(message2))).thenReturn(Result.OK);
 
 		this.forwardService.onHandleIntent(null);
-		InOrder inorder = inOrder(this.dispatcherService, this.repository);
+		InOrder inorder = inOrder(this.dispatcher, this.repository);
 
-		inorder.verify(this.dispatcherService).sendMessage(message1);
+		inorder.verify(this.dispatcher).sendMessage(any(Context.class), eq(message1));
 		inorder.verify(this.repository).delete(message1);
-		inorder.verify(this.dispatcherService).sendMessage(message2);
+		inorder.verify(this.dispatcher).sendMessage(any(Context.class), eq(message2));
 		inorder.verify(this.repository).delete(message2);
 
         verify(this.thread, never()).sleep(TEMPORARY_ERROR_MILLISECONDS);
     }
 
     @Test
-    public void whenCallingOnHandleIntentShouldBindDispatcherService(){
+    public void whenCallingOnHandleIntentAndHaveCustomDispatcherShouldBindDispatcherService(){
+        when(this.preferences.getDispatcherServiceName()).thenReturn(DispatcherService.class.getName());
         this.forwardService.onHandleIntent(new Intent());
 
         Intent intent = shadowOf(this.forwardService).getNextStartedService();
@@ -286,6 +293,26 @@ public class ForwardServiceTest {
     public void whenCallingOnServiceDisconnectedShouldSetDispatcherServiceToNull(){
         this.forwardService.mConnection.onServiceDisconnected(null);
 
+        assertNull(this.forwardService.mService);
+    }
+
+    @Test
+    public void whenCallingOnHandleIntentAndCustomDispatcherSetupedAndCustomDispatcherServiceIsConnectedShouldDisconnectAfterSendingMessage() throws Exception{
+        when(this.preferences.getDispatcherServiceName()).thenReturn(DispatcherService.class.getName());
+        Message message1 = mock(Message.class);
+        Message message2 = mock(Message.class);
+        when(this.dispatcherService.sendMessage(any(Message.class))).thenReturn(Result.OK);
+        when(this.repository.getNext())
+                .thenReturn(message1)
+                .thenReturn(message2)
+                .thenReturn(null);
+
+        this.forwardService.mService = this.dispatcherService;
+        this.forwardService.onHandleIntent(new Intent());
+
+        InOrder order = inOrder(this.dispatcherService);
+        order.verify(this.dispatcherService).sendMessage(message1);
+        order.verify(this.dispatcherService).sendMessage(message2);
         assertNull(this.forwardService.mService);
     }
 }

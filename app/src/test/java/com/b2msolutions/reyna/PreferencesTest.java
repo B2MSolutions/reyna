@@ -71,7 +71,7 @@ public class PreferencesTest {
     public void whenCallingGetDispatcherServiceNameWithoutSettingDefaultValueIsReturned(){
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         String result = preferences.getDispatcherServiceName();
-        assertEquals(DispatcherService.class.getName(), result);
+        assertEquals(null, result);
     }
 
     @Test

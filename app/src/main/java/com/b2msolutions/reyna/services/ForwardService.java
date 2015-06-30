@@ -47,7 +47,9 @@ public class ForwardService extends RepositoryService {
 		Logger.v(TAG, "onHandleIntent");
 
 		try {
-            this.doBindService();
+            if(this.haveCustomDispatcher() && this.mService == null){
+                this.doBindService();
+            }
 			Message message = this.repository.getNext();
 			while(message != null) {
                 this.thread.sleep(SLEEP_MILLISECONDS);
@@ -55,11 +57,7 @@ public class ForwardService extends RepositoryService {
 
                 this.addReynaSpecificHeaders(message);
 
-                if(mService==null){
-                    return;
-                }
-
-				Result result = mService.sendMessage(message);
+                Result result = sendMessage(message);
 
                 Logger.i(TAG, "ForwardService: send message result: " + result.toString());
 				
@@ -84,6 +82,24 @@ public class ForwardService extends RepositoryService {
             }
 		}		
 	}
+
+    private boolean haveCustomDispatcher(){
+        String customDispatcher = this.preferences.getDispatcherServiceName();
+        return (customDispatcher != null && !customDispatcher.isEmpty());
+    }
+
+    private Result sendMessage(Message message){
+        if(this.haveCustomDispatcher()) {
+            if (mService == null) {
+                return Result.NOTCONNECTED;
+            }
+            return mService.sendMessage(message);
+        }
+        else
+        {
+            return this.dispatcher.sendMessage(this, message);
+        }
+    }
 
     private void doBindService() {
         Intent intent = new Intent();
