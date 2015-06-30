@@ -71,7 +71,7 @@ public class DispatcherTest {
 
     @Test
     public void sendMessageHappyPathShouldSetExecuteCorrectHttpPostAndReturnOK() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
-        Message message = RepositoryTest.getMessageWithHeaders();
+        Message message = ReynaSqlHelperTest.getMessageWithHeaders();
 
         StatusLine statusLine = mock(StatusLine.class);
         when(statusLine.getStatusCode()).thenReturn(200);
@@ -95,7 +95,7 @@ public class DispatcherTest {
 
     @Test
     public void sendMessageHappyPathWithChineseCharactersShouldSetExecuteCorrectHttpPostAndReturnOK() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
-        Message message = RepositoryTest.getMessageWithHeaders("谷歌拼音输入法");
+        Message message = ReynaSqlHelperTest.getMessageWithHeaders("谷歌拼音输入法");
 
         StatusLine statusLine = mock(StatusLine.class);
         when(statusLine.getStatusCode()).thenReturn(200);
@@ -159,7 +159,7 @@ public class DispatcherTest {
 
     @Test
     public void whenExecuteThrowsReturnTemporaryError() throws URISyntaxException, ClientProtocolException, IOException {
-        Message message = RepositoryTest.getMessageWithHeaders();
+        Message message = ReynaSqlHelperTest.getMessageWithHeaders();
 
         HttpPost httpPost = mock(HttpPost.class);
         HttpClient httpClient = mock(HttpClient.class);
@@ -182,7 +182,7 @@ public class DispatcherTest {
 
     @Test
     public void sendMessageWithGzipAndContentIsLessThanMinGzipLengthShouldRemoveGzipHeaderAndSendMessageAsString() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException, Exception {
-        Message message = RepositoryTest.getMessageWithGzipHeaders("body");
+        Message message = ReynaSqlHelperTest.getMessageWithGzipHeaders("body");
 
         StatusLine statusLine = mock(StatusLine.class);
         when(statusLine.getStatusCode()).thenReturn(200);
@@ -207,7 +207,7 @@ public class DispatcherTest {
 
     @Test
     public void sendMessageWithGzipHeaderShouldCompressContentAndReturnOK() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
-        Message message = RepositoryTest.getMessageWithGzipHeaders("this any message body more than 10 bytes length");
+        Message message = ReynaSqlHelperTest.getMessageWithGzipHeaders("this any message body more than 10 bytes length");
         byte[] data = new String("this any message body more than 10 bytes length").getBytes("utf-8");
 
         StatusLine statusLine = mock(StatusLine.class);

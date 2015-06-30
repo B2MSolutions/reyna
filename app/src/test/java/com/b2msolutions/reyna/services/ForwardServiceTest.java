@@ -86,12 +86,6 @@ public class ForwardServiceTest {
     }
 
 	@Test
-	public void whenMoveNextThrowsShouldNotThrow() throws URISyntaxException {
-		when(this.repository.getNext()).thenThrow(new URISyntaxException("", ""));
-		this.forwardService.onHandleIntent(null);
-	}
-
-	@Test
 	public void whenSingleMessageAndDispatchReturnsOKShouldDeleteMessage() throws URISyntaxException, InterruptedException {
 		Message message = mock(Message.class);
 		when(this.repository.getNext()).thenReturn(message).thenReturn(null);

@@ -79,7 +79,6 @@ public class ForwardService extends RepositoryService {
 		} catch(Exception e) {
             Logger.e(TAG, "onHandleIntent", e);
 		} finally {
-			this.repository.close();
             if(mService!= null) {
                 this.doUnbindService();
             }
