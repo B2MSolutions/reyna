@@ -1,165 +1,167 @@
 package com.b2msolutions.reyna;
 
 import android.content.Context;
-import android.database.Cursor;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
-import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
+
+import com.b2msolutions.reyna.services.FileManager;
+
+import junit.framework.Assert;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static org.junit.Assert.*;
+import static junit.framework.TestCase.assertNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@RunWith(ReynaTestRunner.class)
 public class RepositoryTest {
-	
-	private Repository repository;
 
-	@Before
-	public void setup() {
-		Context context = Robolectric.application.getApplicationContext();
+    private Repository repository;
+
+    @Mock Context context;
+    @Mock ReynaSqlHelper sqlHelper;
+    @Mock SharedPreferences sharedPreferences;
+    @Mock Preferences preferences;
+    @Mock FileManager fileManager;
+
+    protected Message message1;
+    protected Message message2;
+
+    @Before
+    public void setup(){
+        MockitoAnnotations.initMocks(this);
+        Repository.reynaSqlHelper = this.sqlHelper;
         this.repository = new Repository(context);
-	}
-	
-	@Test
-	public void constructionShouldNotThrow() {		
-        assertNotNull(this.repository);
-    }	
+        this.repository.fileManager = this.fileManager;
+        this.repository.preferences = this.preferences;
 
-	@Test
-	public void onCreateShouldNotThrow() {		
-        SQLiteDatabase db = this.repository.getReadableDatabase();
-        assertNotNull(db);
-    }
-	
-	@Test
-	public void insertWithNullMessageShouldNotThrow() {
-		this.repository.insert(null);
-	}
+        SQLiteDatabase db = mock(SQLiteDatabase.class);
+        when(db.getPath()).thenReturn("/data/data/packageName/databases/reyna.db");
+        when(this.sqlHelper.getReadableDatabase()).thenReturn(db);
 
-	@Test
-	public void insertShouldNotThrow() throws URISyntaxException {
-		Message message = new Message(new URI("https://www.google.com"), "body", null);
-		this.repository.insert(message);
-	}
-	
-	@Test
-	public void insertWithoutHeadersShouldSave() throws URISyntaxException {
-		Message message = new Message(new URI("https://www.google.com"), "body", null);
-		this.repository.insert(message);
-		SQLiteDatabase db = this.repository.getReadableDatabase();
-		Cursor messageCursor = db.query("Message", new String[] {"url", "body"}, null, null, null, null, null);
-		assertTrue(messageCursor.moveToFirst());
-		assertEquals(message.getUrl(), messageCursor.getString(0));
-		assertEquals(message.getBody(), messageCursor.getString(1));
-		assertTrue(messageCursor.isFirst());
-		assertTrue(messageCursor.isLast());
-		messageCursor.close();
-		
-		Cursor headerCursor = db.query("Header", new String[] {"messageid", "key", "value"}, null, null, null, null, null);
-		assertFalse(headerCursor.moveToFirst());
-		headerCursor.close();
-	}
-	
-	@Test
-	public void getNextWithNoMessagesShouldReturnNull() throws URISyntaxException {
-		assertNull(this.repository.getNext());
-	}
+        when(this.context.getApplicationContext()).thenReturn(this.context);
+        when(this.context.getSharedPreferences(anyString(), anyInt())).thenReturn(this.sharedPreferences);
+        when(this.sharedPreferences.getString(eq("DB_FILE"), anyString())).thenReturn("reyna.db");
 
-	@Test
-	public void getNextWithMessageShouldReturnIt() throws URISyntaxException {
-		Message message = getMessageWithHeaders();
-		this.repository.insert(message);
-		
-		Message nextMessage = this.repository.getNext();
-		
-		assertNotNull(nextMessage);			
-		assertNotNull(nextMessage.getId());	
-		assertEquals(message.getUrl(), nextMessage.getUrl());
-		assertEquals(message.getBody(), nextMessage.getBody());
-		assertEquals("h1", nextMessage.getHeaders()[0].getKey());
-		assertEquals("v1", nextMessage.getHeaders()[0].getValue());
-		assertEquals("h2", nextMessage.getHeaders()[1].getKey());
-		assertEquals("v2", nextMessage.getHeaders()[1].getValue());
-	}
-	
-	@Test
-	public void deleteWithNullMessageShouldNotThrow() {
-		this.repository.delete(null);
-	}
-
-	@Test
-	public void deleteWithMessageThatHasNullIdShouldNotThrow() throws URISyntaxException {
-		this.repository.delete(getMessageWithHeadersAndNonNullId());
-	}
-	
-	@Test
-	public void deleteWithMissingMessageShouldNotThrow() throws URISyntaxException {
-		this.repository.delete(getMessageWithHeaders());
-	}
-	
-	@Test
-	public void deleteWithMessageShouldDelete() throws URISyntaxException {
-		Message message = getMessageWithHeaders();
-		this.repository.insert(message);
-		
-		Message nextMessage = this.repository.getNext();
-		this.repository.delete(nextMessage);
-		
-		assertNull(this.repository.getNext());
-	}
-		
-	@Test
-	public void insertWithHeadersShouldSave() throws URISyntaxException {		
-		Message message = getMessageWithHeaders();
-		this.repository.insert(message);
-		assertMessage(this.repository, message);		
-	}
-
-	public static Message getMessageWithHeaders() throws URISyntaxException {
-		return getMessageWithHeaders("body");
-	}
-
-    public static Message getMessageWithHeaders(String body) throws URISyntaxException {
-        return new Message(new URI("https://www.google.com"), body, new Header[] { new Header("h1", "v1"), new Header("h2", "v2") });
+        this.message1 = createMessage();
+        this.message2 = createMessage();
     }
 
-    public static Message getMessageWithGzipHeaders(String body) throws URISyntaxException {
-        return new Message(new URI("https://www.google.com"), body, new Header[] { new Header("h1", "v1"), new Header("h2", "v2"), new Header("content-encoding", "gzip") });
+    @Test
+    public void whenGettingSqlHelperAndStaticSqlHelperIsNullShouldCreateNewOne() {
+        Repository.reynaSqlHelper = null;
+        assertNotNull(Repository.getSqlHelper(context));
     }
 
-	public static Message getMessageWithHeadersAndNonNullId() throws URISyntaxException {
-		return new Message(new Long(1), new URI("https://www.google.com"), "body", new Header[] { new Header("h1", "v1"), new Header("h2", "v2") });		
-	}
-	
-	public static void assertMessage(Repository repository, Message message) {
-		SQLiteDatabase db = repository.getReadableDatabase();
-		Cursor messageCursor = db.query("Message", new String[] {"id", "url", "body"}, null, null, null, null, null);
-		assertTrue(messageCursor.moveToFirst());
-		assertEquals(message.getUrl(), messageCursor.getString(1));
-		assertEquals(message.getBody(), messageCursor.getString(2));
-		
-		assertTrue(messageCursor.isFirst());
-		assertTrue(messageCursor.isLast());
-		
-		Cursor headerCursor = db.query("Header", new String[] {"messageid", "key", "value"}, null, null, null, null, "key");
-		assertTrue(headerCursor.moveToFirst());
-		assertEquals(messageCursor.getLong(0), headerCursor.getLong(0));
-		assertEquals("h1", headerCursor.getString(1));
-		assertEquals("v1", headerCursor.getString(2));
-		assertTrue(headerCursor.isFirst());
-		
-		assertTrue(headerCursor.moveToNext());
-		assertEquals(messageCursor.getLong(0), headerCursor.getLong(0));
-		assertEquals("h2", headerCursor.getString(1));
-		assertEquals("v2", headerCursor.getString(2));
-		assertTrue(headerCursor.isLast());
-		
-		messageCursor.close();
-		headerCursor.close();
-	}
+    @Test
+    public void whenCallingInsertWithTwoRepositoriesShouldUseTheSameReynaSqlHelper() {
+        Repository repository1 = new Repository(this.context);
+        Repository repository2 = new Repository(this.context);
+
+        repository1.insert(this.message1);
+        repository2.insert(this.message2);
+
+        verify(this.sqlHelper).insert(this.message1);
+        verify(this.sqlHelper).insert(this.message2);
+    }
+
+    @Test
+    public void whenCallingDeleteWithTwoRepositoriesShouldUseTheSameReynaSqlHelper() {
+        Repository repository1 = new Repository(this.context);
+        Repository repository2 = new Repository(this.context);
+
+        repository1.delete(this.message1);
+        repository2.delete(this.message2);
+
+        verify(this.sqlHelper).delete(this.message1);
+        verify(this.sqlHelper).delete(this.message2);
+    }
+
+    @Test
+    public void whenCallingGetNextWithTwoRepositoriesShouldUseTheSameReynaSqlHelper() throws URISyntaxException {
+        when(this.sqlHelper.getNext()).thenReturn(this.message1).thenReturn(this.message2);
+
+        Repository repository1 = new Repository(this.context);
+        Repository repository2 = new Repository(this.context);
+
+        Message receivedMessage1 = repository1.getNext();
+        Message receivedMessage2 = repository2.getNext();
+
+        verify(this.sqlHelper, times(2)).getNext();
+        assertEquals(this.message1, receivedMessage1);
+        assertEquals(this.message2, receivedMessage2);
+    }
+
+    @Test
+    public void WhenCallingMoveDatabaseShouldMoveDbFileToNewLocation() throws Exception{
+
+        this.repository.moveDatabase("/sdcard/mounted/0/reyna.db");
+
+        verify(this.fileManager).copy("/data/data/packageName/databases/reyna.db", "/sdcard/mounted/0/reyna.db");
+    }
+
+    @Test
+    public void WhenCallingMoveDatabaseShouldSetNewLocationInPreferences() throws Exception{
+        this.repository.moveDatabase("/sdcard/mounted/0/reyna.db");
+
+        verify(this.preferences).saveDbFile("/sdcard/mounted/0/reyna.db");
+    }
+
+    @Test
+    public void WhenCallingMoveDatabaseShouldSetSqlHelperToNull() throws Exception{
+        this.repository.moveDatabase("/sdcard/mounted/0/reyna.db");
+
+        assertNull(Repository.reynaSqlHelper);
+    }
+
+    @Test
+    public void WhenCallingMoveDatabaseShouldDeletePreviousDatabase() throws Exception{
+        File file = mock(File.class);
+        when(this.fileManager.getFile("/data/data/packageName/databases/reyna.db")).thenReturn(file);
+
+        this.repository.moveDatabase("/sdcard/mounted/0/reyna.db");
+        verify(this.fileManager).deleteDatabase("/data/data/packageName/databases/reyna.db");
+    }
+
+    @Test
+    public void WhenCallingMoveDatabaseAndNewLocationIsSameAsPreviousLocationShouldNotCopy() throws Exception{
+
+        this.repository.moveDatabase("/data/data/packageName/databases/reyna.db");
+
+        verify(this.fileManager, never()).copy(anyString(), anyString());
+        verify(this.preferences, never()).saveDbFile(anyString());
+    }
+
+    @Test
+    public void WhenCreatingShouldInitialiseAllRequiredMembers() {
+        Repository repository = new Repository(this.context);
+
+        assertNotNull(repository.fileManager);
+        assertNotNull(repository.preferences);
+        assertEquals(repository.context, this.context);
+    }
+
+    private Message createMessage(){
+        try {
+            return new Message(new URI("http://uri"), "message", new Header[0]);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

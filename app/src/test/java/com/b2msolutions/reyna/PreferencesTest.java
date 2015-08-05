@@ -68,9 +68,25 @@ public class PreferencesTest {
     }
 
     @Test
-    public void whenCallingGetDispatcherServiceNameWithoutSettigDefaultValueIsReturned(){
+    public void whenCallingGetDispatcherServiceNameWithoutSettingDefaultValueIsReturned(){
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         String result = preferences.getDispatcherServiceName();
         assertEquals(null, result);
+    }
+
+    @Test
+    public void canStoreDbFile(){
+        String file = "test/location/reyna.db";
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveDbFile(file);
+        String result = preferences.getDbFile();
+        assertEquals(file, result);
+    }
+
+    @Test
+    public void whenCallingGetDbFileWithoutSettingDefaultValueIsReturned(){
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        String result = preferences.getDbFile();
+        assertEquals("reyna.db", result);
     }
 }

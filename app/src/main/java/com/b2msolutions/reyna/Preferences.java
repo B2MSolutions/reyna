@@ -12,6 +12,8 @@ public class Preferences {
     private final String TO = "CELLULAR_DATA_BLACKOUT_TO";
     private final String TEMPORARY_ERROR_TIMEOUT_SETTING = "TEMPORARY_ERROR_TIMEOUT_SETTING";
     private final String DISPATCHER_SERVICE_NAME = "DISPATCHER_SERVICE_NAME";
+    private final String DB_FILE = "DB_FILE";
+    public final String DEFAULT_DB_FILE = "reyna.db";
 
     protected static final long DEFAULT_TEMPORARY_ERROR_TIMEOUT_SETTING = 300000; // 5 minutes
 
@@ -67,5 +69,15 @@ public class Preferences {
     public String getDispatcherServiceName(){
         SharedPreferences sp = getSharedPreferences();
         return sp.getString(DISPATCHER_SERVICE_NAME, null);
+    }
+
+    public void saveDbFile(String dbLocation){
+        SharedPreferences sp = getSharedPreferences();
+        sp.edit().putString(DB_FILE, dbLocation).apply();
+    }
+
+    public String getDbFile(){
+        SharedPreferences sp = getSharedPreferences();
+        return sp.getString(DB_FILE, DEFAULT_DB_FILE);
     }
 }

@@ -1,155 +1,58 @@
 package com.b2msolutions.reyna;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 
-import java.net.URI;
+import com.b2msolutions.reyna.services.FileManager;
+
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 
-public class Repository extends SQLiteOpenHelper {
+public class Repository {
 
-	public static final String DATABASE_NAME = "reyna.db";
+	protected static ReynaSqlHelper reynaSqlHelper;
+	protected Context context;
+    protected FileManager fileManager;
+    protected Preferences preferences;
 
-	public static final int DATABASE_VERSION = 1;
-	
-	private static final String TAG = "Repository";
-
-	public Repository(Context context) {
-		super(context, DATABASE_NAME, null, DATABASE_VERSION);
-    }
-
-	@Override
-	public void onCreate(SQLiteDatabase db) {
-		Logger.v(TAG, "onCreate");
-		db.execSQL("CREATE TABLE Message (id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT, body TEXT);");
-		db.execSQL("CREATE TABLE Header (id INTEGER PRIMARY KEY AUTOINCREMENT, messageid INTEGER, key TEXT, value TEXT, FOREIGN KEY(messageid) REFERENCES message(id));");
+	public Repository(Context context){
+		this.context = context;
+        this.fileManager = new FileManager();
+        this.preferences = new Preferences(context);
 	}
 
-	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Logger.v(TAG, "onUpgrade");
+    protected synchronized static ReynaSqlHelper getSqlHelper(Context context){
+		if(reynaSqlHelper == null){
+			reynaSqlHelper = new ReynaSqlHelper(context.getApplicationContext());
+		}
+		return reynaSqlHelper;
 	}
 
 	public void insert(Message message) {
-        Logger.v(TAG, "insert");
-		if (message == null)
-			return;
-
-		SQLiteDatabase db = null;
-		try {
-			db = this.getWritableDatabase();
-			db.beginTransaction();
-			ContentValues values = new ContentValues();
-			values.put("url", message.getUrl());
-			values.put("body", message.getBody());
-
-			long messageid = db.insert("Message", null, values);			
-			this.addHeaders(db, messageid, message.getHeaders());
-			db.setTransactionSuccessful();
-
-            Logger.i("reyna", "Repository: inserted message " + messageid);
-		} finally {
-			if (db != null) {
-				db.endTransaction();
-			}
-		}
+		getSqlHelper(this.context).insert(message);
 	}
 
-	public Message getNext() throws URISyntaxException {
-        Logger.v(TAG, "getNext");
-		Cursor messageCursor = null;
-		Cursor headersCursor = null;
-
-		try {
-			SQLiteDatabase db = this.getReadableDatabase();
-			messageCursor = db.query("Message", new String[] { "id", "url",
-					"body" }, null, null, null, null, "id", "1");
-			if (!messageCursor.moveToFirst())
-				return null;
-
-			long messageid = messageCursor.getLong(0);
-			String url = messageCursor.getString(1);
-			String body = messageCursor.getString(2);
-
-			headersCursor = db.query("Header", new String[] { "id", "key",
-					"value" }, "messageid = " + messageid, null, null, null,
-					null);
-
-			ArrayList<Header> headers = new ArrayList<Header>();
-			while (headersCursor.moveToNext()) {
-				headers.add(new Header(headersCursor.getLong(0), headersCursor
-						.getString(1), headersCursor.getString(2)));
-			}
-
-			Header[] headersForMessage = new Header[headers.size()];
-			headers.toArray(headersForMessage);
-
-			return new Message(messageid, new URI(url), body,
-					(Header[]) headersForMessage);
-		} finally {
-			if (messageCursor != null)
-				messageCursor.close();
-			if (headersCursor != null)
-				headersCursor.close();
-		}
-	}
+	public Message getNext()  {
+        try {
+            return getSqlHelper(this.context).getNext();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 	public void delete(Message message) {
-        Logger.v(TAG, "delete");
-		if (message == null)
-			return;
-		if (message.getId() == null)
-			return;
-
-		SQLiteDatabase db = this.getReadableDatabase();
-		if (!this.doesMessageExist(db, message))
-			return;
-
-		this.deleteExistingMessage(db, message);
+		getSqlHelper(this.context).delete(message);
 	}
 
-	private void deleteExistingMessage(SQLiteDatabase db, Message message) {
-        Logger.v(TAG, "deleteExistingMessage");
-		db.beginTransaction();
-		try {
-			String[] args = new String[] { message.getId().toString() };
-			db.delete("Header", "messageid = ?", args);
-			db.delete("Message", "id = ?", args);
-			db.setTransactionSuccessful();
-		} finally {
-			db.endTransaction();
-		}
-	}
+    public void moveDatabase(String path) throws Exception{
+        String originalPath = getSqlHelper(this.context).getReadableDatabase().getPath();
 
-	private boolean doesMessageExist(SQLiteDatabase db, Message message) {
-        Logger.v(TAG, "doesMessageExist");
-		
-		Cursor cursor = null;
-		try {
-			cursor = db.query("Message", new String[] { "id" }, "id = ?",
-					new String[] { message.getId().toString() }, null, null,
-					null);
-			return cursor.moveToFirst();
-		} finally {
-			if (cursor != null)
-				cursor.close();
-		}
-	}
+        if(path.equals(originalPath)){
+            return;
+        }
 
-	private void addHeaders(SQLiteDatabase db, long messageid, Header[] headers) {
-        Logger.v(TAG, "addHeaders");
-		
-		for (Header header : headers) {
-			ContentValues headerValues = new ContentValues();
-			headerValues.put("messageid", messageid);
-			headerValues.put("key", header.getKey());
-			headerValues.put("value", header.getValue());
-
-			db.insert("Header", null, headerValues);
-		}
-	}
+        this.fileManager.copy(originalPath, path);
+        this.preferences.saveDbFile(path);
+        Repository.reynaSqlHelper = null;
+        this.fileManager.deleteDatabase(originalPath);
+    }
 }
