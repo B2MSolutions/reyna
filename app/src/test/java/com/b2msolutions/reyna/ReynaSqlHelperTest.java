@@ -3,6 +3,8 @@ package com.b2msolutions.reyna;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+
+import org.junit.After;
 import org.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,6 +24,11 @@ public class ReynaSqlHelperTest {
 	public void setup() {
 		Context context = Robolectric.application.getApplicationContext();
         this.reynaSqlHelper = new ReynaSqlHelper(context);
+	}
+
+	@After
+	public void tearDown() {
+		this.reynaSqlHelper.getReadableDatabase().execSQL("DELETE FROM Message; VACUUM;");
 	}
 	
 	@Test

@@ -37,10 +37,10 @@ public class FileManagerTest {
 
     @Test
     public void whenCallingGetFileShouldReturnCorrectFile(){
-        File file = this.fileManager.getFile("/somepath");
+        File file = this.fileManager.getFile("somepath/file");
 
         assertNotNull(file);
-        assertEquals("/somepath", file.getPath());
+        assertEquals("somepath" + File.separator + "file", file.getPath());
     }
 
     @Test

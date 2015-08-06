@@ -107,9 +107,13 @@ public class RepositoryTest {
         assertEquals(this.message2, receivedMessage2);
     }
 
+    /* MOVE DATABASE */
+
     @Test
     public void WhenCallingMoveDatabaseShouldMoveDbFileToNewLocation() throws Exception{
-
+        File newDbFile = mock(File.class);
+        when(newDbFile.exists()).thenReturn(false);
+        when(this.fileManager.getFile("/sdcard/mounted/0/reyna.db")).thenReturn(newDbFile);
         this.repository.moveDatabase("/sdcard/mounted/0/reyna.db");
 
         verify(this.fileManager).copy("/data/data/packageName/databases/reyna.db", "/sdcard/mounted/0/reyna.db");
@@ -117,6 +121,9 @@ public class RepositoryTest {
 
     @Test
     public void WhenCallingMoveDatabaseShouldSetNewLocationInPreferences() throws Exception{
+        File newDbFile = mock(File.class);
+        when(newDbFile.exists()).thenReturn(false);
+        when(this.fileManager.getFile("/sdcard/mounted/0/reyna.db")).thenReturn(newDbFile);
         this.repository.moveDatabase("/sdcard/mounted/0/reyna.db");
 
         verify(this.preferences).saveDbFile("/sdcard/mounted/0/reyna.db");
@@ -124,6 +131,9 @@ public class RepositoryTest {
 
     @Test
     public void WhenCallingMoveDatabaseShouldSetSqlHelperToNull() throws Exception{
+        File file = mock(File.class);
+        when(file.exists()).thenReturn(false);
+        when(this.fileManager.getFile("/sdcard/mounted/0/reyna.db")).thenReturn(file);
         this.repository.moveDatabase("/sdcard/mounted/0/reyna.db");
 
         assertNull(Repository.reynaSqlHelper);
@@ -132,6 +142,9 @@ public class RepositoryTest {
     @Test
     public void WhenCallingMoveDatabaseShouldDeletePreviousDatabase() throws Exception{
         File file = mock(File.class);
+        File newDbFile = mock(File.class);
+        when(newDbFile.exists()).thenReturn(false);
+        when(this.fileManager.getFile("/sdcard/mounted/0/reyna.db")).thenReturn(newDbFile);
         when(this.fileManager.getFile("/data/data/packageName/databases/reyna.db")).thenReturn(file);
 
         this.repository.moveDatabase("/sdcard/mounted/0/reyna.db");
@@ -145,6 +158,50 @@ public class RepositoryTest {
 
         verify(this.fileManager, never()).copy(anyString(), anyString());
         verify(this.preferences, never()).saveDbFile(anyString());
+    }
+
+    /* MOVE DATABASE: Database already exists in new location */
+
+    @Test
+    public void WhenCallingMoveDatabaseAndNewDbExistsShouldNotCopyDb() throws Exception{
+        File newDbFile = mock(File.class);
+        when(newDbFile.exists()).thenReturn(true);
+        when(this.fileManager.getFile("/sdcard/mounted/0/reyna.db")).thenReturn(newDbFile);
+        this.repository.moveDatabase("/sdcard/mounted/0/reyna.db");
+
+        verify(this.fileManager, never()).copy(anyString(), anyString());
+    }
+
+    @Test
+    public void WhenCallingMoveDatabaseAndNewDbExistsShouldSetNewLocationInPreferences() throws Exception{
+        File newDbFile = mock(File.class);
+        when(newDbFile.exists()).thenReturn(true);
+        when(this.fileManager.getFile("/sdcard/mounted/0/reyna.db")).thenReturn(newDbFile);
+        this.repository.moveDatabase("/sdcard/mounted/0/reyna.db");
+
+        verify(this.preferences).saveDbFile("/sdcard/mounted/0/reyna.db");
+    }
+
+    @Test
+    public void WhenCallingMoveDatabaseAndNewDbExistsShouldSetSqlHelperToNull() throws Exception{
+        File file = mock(File.class);
+        when(file.exists()).thenReturn(true);
+        when(this.fileManager.getFile("/sdcard/mounted/0/reyna.db")).thenReturn(file);
+        this.repository.moveDatabase("/sdcard/mounted/0/reyna.db");
+
+        assertNull(Repository.reynaSqlHelper);
+    }
+
+    @Test
+    public void WhenCallingMoveDatabaseAndNewDbExistsShouldNotDeletePreviousDatabase() throws Exception{
+        File file = mock(File.class);
+        File newDbFile = mock(File.class);
+        when(newDbFile.exists()).thenReturn(true);
+        when(this.fileManager.getFile("/sdcard/mounted/0/reyna.db")).thenReturn(newDbFile);
+        when(this.fileManager.getFile("/data/data/packageName/databases/reyna.db")).thenReturn(file);
+
+        this.repository.moveDatabase("/sdcard/mounted/0/reyna.db");
+        verify(this.fileManager, never()).deleteDatabase(anyString());
     }
 
     @Test

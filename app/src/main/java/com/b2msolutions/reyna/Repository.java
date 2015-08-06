@@ -50,9 +50,14 @@ public class Repository {
             return;
         }
 
-        this.fileManager.copy(originalPath, path);
-        this.preferences.saveDbFile(path);
-        Repository.reynaSqlHelper = null;
-        this.fileManager.deleteDatabase(originalPath);
+        if(!this.fileManager.getFile(path).exists()){
+            this.fileManager.copy(originalPath, path);
+            this.preferences.saveDbFile(path);
+            Repository.reynaSqlHelper = null;
+            this.fileManager.deleteDatabase(originalPath);
+        } else {
+            this.preferences.saveDbFile(path);
+            Repository.reynaSqlHelper = null;
+        }
     }
 }
