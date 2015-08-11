@@ -164,4 +164,14 @@ public class BlackoutTimeTest {
         Calendar now = new GregorianCalendar();
         assertTrue(blackoutTime.canSubmitOnWlan(now));
     }
+
+    @Test
+    public void canSubmitOnWwanShouldReturnFalseWhenInsideTheRange() throws ParseException {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveWwanRange("01:00-09:00");
+        Calendar now = new GregorianCalendar();
+        now.set(Calendar.HOUR_OF_DAY, 6);
+        now.set(Calendar.MINUTE, 30);
+        assertFalse(blackoutTime.canSubmitOnWwan(now));
+    }
 }

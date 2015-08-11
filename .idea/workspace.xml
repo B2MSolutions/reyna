@@ -102,17 +102,27 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="BlackoutTime.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="BlackoutTime.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/services/BlackoutTime.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="75" max-vertical-offset="840">
-              <caret line="25" column="46" selection-start-line="25" selection-start-column="46" selection-end-line="25" selection-end-column="46" />
+            <state vertical-scroll-proportion="0.30769232" vertical-offset="150" max-vertical-offset="990">
+              <caret line="22" column="37" selection-start-line="22" selection-start-column="37" selection-end-line="22" selection-end-column="37" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#390#391#0" expanded="true" />
                 <element signature="e#428#429#0" expanded="true" />
-                <element signature="e#1221#1227#0" expanded="true" />
+                <element signature="e#1565#1571#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Dispatcher.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/Dispatcher.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="270" max-vertical-offset="2565">
+              <caret line="58" column="37" selection-start-line="58" selection-start-column="37" selection-end-line="58" selection-end-column="37" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -120,7 +130,7 @@
       <file leaf-file-name="BlackoutTimeTest.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/services/BlackoutTimeTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="1785" max-vertical-offset="2595">
+            <state vertical-scroll-proportion="0.0" vertical-offset="2160" max-vertical-offset="2745">
               <caret line="164" column="54" selection-start-line="164" selection-start-column="54" selection-end-line="164" selection-end-column="54" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -132,18 +142,18 @@
       <file leaf-file-name="Preferences.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/Preferences.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="567" max-vertical-offset="1155">
-              <caret line="69" column="34" selection-start-line="69" selection-start-column="34" selection-end-line="69" selection-end-column="34" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="750" max-vertical-offset="1350">
+              <caret line="82" column="34" selection-start-line="82" selection-start-column="34" selection-end-line="82" selection-end-column="34" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PreferencesTest.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="PreferencesTest.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/PreferencesTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.6666667" vertical-offset="525" max-vertical-offset="1155">
-              <caret line="70" column="23" selection-start-line="70" selection-start-column="23" selection-end-line="70" selection-end-column="23" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="750" max-vertical-offset="1350">
+              <caret line="85" column="0" selection-start-line="85" selection-start-column="0" selection-end-line="85" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -176,10 +186,10 @@
         <option value="$PROJECT_DIR$/reyna/AndroidManifest.xml" />
         <option value="$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/Repository.java" />
         <option value="$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/TimeRange.java" />
-        <option value="$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/Preferences.java" />
-        <option value="$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/services/BlackoutTimeTest.java" />
-        <option value="$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/services/BlackoutTime.java" />
         <option value="$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/PreferencesTest.java" />
+        <option value="$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/Preferences.java" />
+        <option value="$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/services/BlackoutTime.java" />
+        <option value="$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/services/BlackoutTimeTest.java" />
       </list>
     </option>
   </component>
@@ -475,7 +485,7 @@
       <recent name="com.b2msolutions.reyna" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.BlackoutTimeTest.canSubmitOnWlanShouldAlwaysReturnTrueWhenNoConfigurationPresent">
+  <component name="RunManager" selected="JUnit.BlackoutTimeTest">
     <configuration default="false" name="BlackoutTimeTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
         <pattern>
@@ -501,68 +511,6 @@
       <envs />
       <patterns />
       <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Run" />
-      <method />
-    </configuration>
-    <configuration default="false" name="BlackoutTimeTest.whenWlanRangeFromIsGreaterThanToShouldReturnFalse" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
-        <pattern>
-          <option name="PATTERN" value="com.b2msolutions.reyna.services.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <module name="reyna-test" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" value="" />
-      <option name="PACKAGE_NAME" value="com.b2msolutions.reyna.services" />
-      <option name="MAIN_CLASS_NAME" value="com.b2msolutions.reyna.services.BlackoutTimeTest" />
-      <option name="METHOD_NAME" value="whenWlanRangeFromIsGreaterThanToShouldReturnFalse" />
-      <option name="TEST_OBJECT" value="method" />
-      <option name="VM_PARAMETERS" value="-ea" />
-      <option name="PARAMETERS" value="" />
-      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/reyna" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="moduleWithDependencies" />
-      </option>
-      <envs />
-      <patterns />
-      <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Run" />
-      <method />
-    </configuration>
-    <configuration default="false" name="BlackoutTimeTest.whenWlanRangeFromIsGreaterThanToAndWeAreOutsideRangeShouldReturnTrue" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
-        <pattern>
-          <option name="PATTERN" value="com.b2msolutions.reyna.services.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <module name="reyna-test" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" value="" />
-      <option name="PACKAGE_NAME" value="com.b2msolutions.reyna.services" />
-      <option name="MAIN_CLASS_NAME" value="com.b2msolutions.reyna.services.BlackoutTimeTest" />
-      <option name="METHOD_NAME" value="whenWlanRangeFromIsGreaterThanToAndWeAreOutsideRangeShouldReturnTrue" />
-      <option name="TEST_OBJECT" value="method" />
-      <option name="VM_PARAMETERS" value="-ea" />
-      <option name="PARAMETERS" value="" />
-      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/reyna" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="moduleWithDependencies" />
-      </option>
-      <envs />
-      <patterns />
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="" />
-        <option name="TRANSPORT" value="0" />
-        <option name="LOCAL" value="true" />
-      </RunnerSettings>
-      <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Debug" />
       <ConfigurationWrapper RunnerId="Run" />
       <method />
     </configuration>
@@ -607,6 +555,62 @@
       <option name="PACKAGE_NAME" value="com.b2msolutions.reyna.services" />
       <option name="MAIN_CLASS_NAME" value="com.b2msolutions.reyna.services.BlackoutTimeTest" />
       <option name="METHOD_NAME" value="canSubmitOnWlanShouldAlwaysReturnTrueWhenNoConfigurationPresent" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/reyna" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <envs />
+      <patterns />
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
+    <configuration default="false" name="PreferencesTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="com.b2msolutions.reyna.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <module name="reyna-test" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" value="" />
+      <option name="PACKAGE_NAME" value="com.b2msolutions.reyna" />
+      <option name="MAIN_CLASS_NAME" value="com.b2msolutions.reyna.PreferencesTest" />
+      <option name="METHOD_NAME" value="" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/reyna" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <envs />
+      <patterns />
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
+    <configuration default="false" name="BlackoutTimeTest.canSubmitOnWwanShouldReturnFalseWhenInsideTheRange" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="com.b2msolutions.reyna.services.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <module name="reyna-test" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" value="" />
+      <option name="PACKAGE_NAME" value="com.b2msolutions.reyna.services" />
+      <option name="MAIN_CLASS_NAME" value="com.b2msolutions.reyna.services.BlackoutTimeTest" />
+      <option name="METHOD_NAME" value="canSubmitOnWwanShouldReturnFalseWhenInsideTheRange" />
       <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" value="-ea" />
       <option name="PARAMETERS" value="" />
@@ -778,18 +782,18 @@
     </configuration>
     <list size="5">
       <item index="0" class="java.lang.String" itemvalue="JUnit.BlackoutTimeTest" />
-      <item index="1" class="java.lang.String" itemvalue="JUnit.BlackoutTimeTest.whenWlanRangeFromIsGreaterThanToShouldReturnFalse" />
-      <item index="2" class="java.lang.String" itemvalue="JUnit.BlackoutTimeTest.whenWlanRangeFromIsGreaterThanToAndWeAreOutsideRangeShouldReturnTrue" />
-      <item index="3" class="java.lang.String" itemvalue="JUnit.BlackoutTimeTest.canSubmitOnWlanShouldAlwaysReturnFalseWhenInTotalBlackout" />
-      <item index="4" class="java.lang.String" itemvalue="JUnit.BlackoutTimeTest.canSubmitOnWlanShouldAlwaysReturnTrueWhenNoConfigurationPresent" />
+      <item index="1" class="java.lang.String" itemvalue="JUnit.BlackoutTimeTest.canSubmitOnWlanShouldAlwaysReturnFalseWhenInTotalBlackout" />
+      <item index="2" class="java.lang.String" itemvalue="JUnit.BlackoutTimeTest.canSubmitOnWlanShouldAlwaysReturnTrueWhenNoConfigurationPresent" />
+      <item index="3" class="java.lang.String" itemvalue="JUnit.PreferencesTest" />
+      <item index="4" class="java.lang.String" itemvalue="JUnit.BlackoutTimeTest.canSubmitOnWwanShouldReturnFalseWhenInsideTheRange" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="JUnit.BlackoutTimeTest.canSubmitOnWlanShouldAlwaysReturnTrueWhenNoConfigurationPresent" />
-        <item index="1" class="java.lang.String" itemvalue="JUnit.BlackoutTimeTest" />
-        <item index="2" class="java.lang.String" itemvalue="JUnit.BlackoutTimeTest.canSubmitOnWlanShouldAlwaysReturnFalseWhenInTotalBlackout" />
-        <item index="3" class="java.lang.String" itemvalue="JUnit.BlackoutTimeTest.whenWlanRangeFromIsGreaterThanToAndWeAreOutsideRangeShouldReturnTrue" />
-        <item index="4" class="java.lang.String" itemvalue="JUnit.BlackoutTimeTest.whenWlanRangeFromIsGreaterThanToShouldReturnFalse" />
+        <item index="0" class="java.lang.String" itemvalue="JUnit.BlackoutTimeTest" />
+        <item index="1" class="java.lang.String" itemvalue="JUnit.BlackoutTimeTest.canSubmitOnWwanShouldReturnFalseWhenInsideTheRange" />
+        <item index="2" class="java.lang.String" itemvalue="JUnit.PreferencesTest" />
+        <item index="3" class="java.lang.String" itemvalue="JUnit.BlackoutTimeTest.canSubmitOnWlanShouldAlwaysReturnTrueWhenNoConfigurationPresent" />
+        <item index="4" class="java.lang.String" itemvalue="JUnit.BlackoutTimeTest.canSubmitOnWlanShouldAlwaysReturnFalseWhenInTotalBlackout" />
       </list>
     </recent_temporary>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
@@ -1080,14 +1084,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/Dispatcher.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="485" max-vertical-offset="2907">
-          <caret line="58" column="37" selection-start-line="58" selection-start-column="37" selection-end-line="58" selection-end-column="37" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar:///usr/local/src/android-sdk-linux/platforms/android-16/android.jar!/android/database/sqlite/SQLiteOpenHelper.class">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-9.52" vertical-offset="85" max-vertical-offset="731">
@@ -1225,14 +1221,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/Preferences.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="567" max-vertical-offset="1155">
-          <caret line="69" column="34" selection-start-line="69" selection-start-column="34" selection-end-line="69" selection-end-column="34" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/TimeTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.3853211" vertical-offset="15" max-vertical-offset="765">
@@ -1276,9 +1264,33 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/Preferences.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="750" max-vertical-offset="1350">
+          <caret line="82" column="34" selection-start-line="82" selection-start-column="34" selection-end-line="82" selection-end-column="34" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/PreferencesTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="750" max-vertical-offset="1350">
+          <caret line="85" column="0" selection-start-line="85" selection-start-column="0" selection-end-line="85" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/reyna/src/com/b2msolutions/reyna/Dispatcher.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="485" max-vertical-offset="2907">
+          <caret line="58" column="37" selection-start-line="58" selection-start-column="37" selection-end-line="58" selection-end-column="37" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/services/BlackoutTimeTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1920" max-vertical-offset="2595">
+        <state vertical-scroll-proportion="0.0" vertical-offset="2160" max-vertical-offset="2745">
           <caret line="164" column="54" selection-start-line="164" selection-start-column="54" selection-end-line="164" selection-end-column="54" />
           <folding>
             <element signature="imports" expanded="true" />
@@ -1288,22 +1300,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/services/BlackoutTime.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="75" max-vertical-offset="840">
-          <caret line="25" column="46" selection-start-line="25" selection-start-column="46" selection-end-line="25" selection-end-column="46" />
+        <state vertical-scroll-proportion="0.30769232" vertical-offset="150" max-vertical-offset="990">
+          <caret line="22" column="37" selection-start-line="22" selection-start-column="37" selection-end-line="22" selection-end-column="37" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#390#391#0" expanded="true" />
             <element signature="e#428#429#0" expanded="true" />
-            <element signature="e#1221#1227#0" expanded="true" />
+            <element signature="e#1565#1571#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/reyna-test/src/com/b2msolutions/reyna/PreferencesTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.6666667" vertical-offset="525" max-vertical-offset="1155">
-          <caret line="70" column="23" selection-start-line="70" selection-start-column="23" selection-end-line="70" selection-end-column="23" />
-          <folding />
         </state>
       </provider>
     </entry>

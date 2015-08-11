@@ -19,10 +19,20 @@ public class BlackoutTime {
 
     public boolean canSubmitOnWlan(Calendar now) throws ParseException {
         Preferences preferences = new Preferences(context);
-        String wlanRange = preferences.getWlanRange();
-        if (wlanRange.length() == 0) return true;
+        String range = preferences.getWlanRange();
+        return canSubmit(now, range);
+    }
 
-        String[] rangesSplit = wlanRange.split(",");
+    public boolean canSubmitOnWwan(Calendar now) throws ParseException {
+        Preferences preferences = new Preferences(context);
+        String range = preferences.getWwanRange();
+        return canSubmit(now, range);
+    }
+
+    private boolean canSubmit(Calendar now, String range) throws ParseException {
+        if (range.length() == 0) return true;
+
+        String[] rangesSplit = range.split(",");
         for (String rangeSplit : rangesSplit) {
             List<Time> times = parseTime(rangeSplit);
             TimeRange timeRange = new TimeRange(times.get(0), times.get(1));

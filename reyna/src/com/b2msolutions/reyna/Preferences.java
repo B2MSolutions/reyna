@@ -10,6 +10,7 @@ public class Preferences {
     private final String TO = "CELLULAR_DATA_BLACKOUT_TO";
     private final String STORAGE_SIZE = "STORAGE_SIZE";
     private final String WLAN_RANGE = "WLAN_RANGE";
+    private final String WWAN_RANGE = "WWAN_RANGE";
 
     public Preferences(Context context) {
         this.context = context;
@@ -70,5 +71,17 @@ public class Preferences {
     public String getWlanRange() {
         SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
         return sp.getString(WLAN_RANGE, "");
+    }
+
+    public void saveWwanRange(String value) {
+        SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
+        SharedPreferences.Editor edit = sp.edit();
+        edit.putString(WWAN_RANGE, value);
+        edit.apply();
+    }
+
+    public String getWwanRange() {
+        SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
+        return sp.getString(WWAN_RANGE, "");
     }
 }

@@ -77,4 +77,17 @@ public class PreferencesTest {
         assertEquals("", preferences.getWlanRange());
     }
 
+    @Test
+    public void getWwanRangeShouldReturnExpectedOnceWwanRangeIsSaved() {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveWwanRange("01:00-09:00");
+        assertEquals("01:00-09:00", preferences.getWwanRange());
+    }
+
+    @Test
+    public void getWwanRangeReturnsEmptyStringIfWwanRangeIsNotSaved() {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        assertEquals("", preferences.getWwanRange());
+    }
+
 }
