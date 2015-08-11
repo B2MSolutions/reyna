@@ -67,8 +67,8 @@ public class PreferencesTest {
     @Test
     public void getWlanRangeShouldReturnExpectedOnceWlanRangeIsSaved() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveWlanRange("1am-9am");
-        assertEquals("1am-9am", preferences.getWlanRange());
+        preferences.saveWlanRange("01:00-09:00");
+        assertEquals("01:00-09:00", preferences.getWlanRange());
     }
 
     @Test
