@@ -102,28 +102,28 @@ public class PreferencesTest {
     }
 
     @Test
-    public void getOnChargeShouldReturnExpected() {
+    public void canSendOnChargeShouldReturnExpected() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.saveOnCharge(true);
-        assertTrue(preferences.isOnCharge());
+        assertTrue(preferences.canSendOnCharge());
     }
 
     @Test
-    public void getOnChargeReturnsTrueIfOnChargeIsNotSaved() {
+    public void canSendOnChargeReturnsTrueIfOnChargeIsNotSaved() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        assertTrue(preferences.isOnCharge());
+        assertTrue(preferences.canSendOnCharge());
     }
 
     @Test
-    public void getOffChargeShouldReturnExpected() {
+    public void canSendOffChargeShouldReturnExpected() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.saveOffCharge(true);
-        assertTrue(preferences.isOffCharge());
+        assertTrue(preferences.canSendOffCharge());
     }
 
     @Test
-    public void getOffChargeReturnsTrueIfOffChargeIsNotSaved() {
+    public void canSendOffChargeReturnsTrueIfOffChargeIsNotSaved() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        assertTrue(preferences.isOffCharge());
+        assertTrue(preferences.canSendOffCharge());
     }
 }

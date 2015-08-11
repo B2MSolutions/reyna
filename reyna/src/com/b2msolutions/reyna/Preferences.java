@@ -107,7 +107,7 @@ public class Preferences {
         edit.apply();
     }
 
-    public boolean isOnCharge() {
+    public boolean canSendOnCharge() {
         SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
         return sp.getBoolean(ON_CHARGE, true);
     }
@@ -119,7 +119,7 @@ public class Preferences {
         edit.apply();
     }
 
-    public boolean isOffCharge() {
+    public boolean canSendOffCharge() {
         SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
         return sp.getBoolean(OFF_CHARGE, true);
     }
