@@ -7,9 +7,7 @@ import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.*;
 
 @RunWith(RobolectricTestRunner.class)
 public class PreferencesTest {
@@ -90,4 +88,42 @@ public class PreferencesTest {
         assertEquals("", preferences.getWwanRange());
     }
 
+    @Test
+    public void getWwanRoamingShouldReturnExpected() {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveWwanRoaming(true);
+        assertTrue(preferences.isWwanRoaming());
+    }
+
+    @Test
+    public void getWwanRoamingReturnsFalseIfWwanRoamingIsNotSaved() {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        assertFalse(preferences.isWwanRoaming());
+    }
+
+    @Test
+    public void getOnChargeShouldReturnExpected() {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveOnCharge(true);
+        assertTrue(preferences.isOnCharge());
+    }
+
+    @Test
+    public void getOnChargeReturnsTrueIfOnChargeIsNotSaved() {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        assertTrue(preferences.isOnCharge());
+    }
+
+    @Test
+    public void getOffChargeShouldReturnExpected() {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveOffCharge(true);
+        assertTrue(preferences.isOffCharge());
+    }
+
+    @Test
+    public void getOffChargeReturnsTrueIfOffChargeIsNotSaved() {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        assertTrue(preferences.isOffCharge());
+    }
 }

@@ -11,6 +11,9 @@ public class Preferences {
     private final String STORAGE_SIZE = "STORAGE_SIZE";
     private final String WLAN_RANGE = "WLAN_RANGE";
     private final String WWAN_RANGE = "WWAN_RANGE";
+    private final String WWAN_ROAMING = "WWAN_ROAMING";
+    private final String ON_CHARGE = "ON_CHARGE";
+    private final String OFF_CHARGE = "OFF_CHARGE";
 
     public Preferences(Context context) {
         this.context = context;
@@ -83,5 +86,41 @@ public class Preferences {
     public String getWwanRange() {
         SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
         return sp.getString(WWAN_RANGE, "");
+    }
+
+    public void saveWwanRoaming(boolean value) {
+        SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
+        SharedPreferences.Editor edit = sp.edit();
+        edit.putBoolean(WWAN_ROAMING, value);
+        edit.apply();
+    }
+
+    public boolean isWwanRoaming() {
+        SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
+        return sp.getBoolean(WWAN_ROAMING, false);
+    }
+
+    public void saveOnCharge(boolean value) {
+        SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
+        SharedPreferences.Editor edit = sp.edit();
+        edit.putBoolean(ON_CHARGE, value);
+        edit.apply();
+    }
+
+    public boolean isOnCharge() {
+        SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
+        return sp.getBoolean(ON_CHARGE, true);
+    }
+
+    public void saveOffCharge(boolean value) {
+        SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
+        SharedPreferences.Editor edit = sp.edit();
+        edit.putBoolean(OFF_CHARGE, value);
+        edit.apply();
+    }
+
+    public boolean isOffCharge() {
+        SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
+        return sp.getBoolean(OFF_CHARGE, true);
     }
 }
