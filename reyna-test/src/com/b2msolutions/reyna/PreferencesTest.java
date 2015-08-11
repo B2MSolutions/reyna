@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
 
 @RunWith(RobolectricTestRunner.class)
 public class PreferencesTest {
@@ -62,4 +63,18 @@ public class PreferencesTest {
         preferences.resetStorageSize();
         assertEquals(-1, preferences.getStorageSize());
     }
+
+    @Test
+    public void getWlanRangeShouldReturnExpectedOnceWlanRangeIsSaved() {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveWlanRange("1am-9am");
+        assertEquals("1am-9am", preferences.getWlanRange());
+    }
+
+    @Test
+    public void getWlanRangeReturnsEmptyStringIfWlanRangeIsNotSaved() {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        assertEquals("", preferences.getWlanRange());
+    }
+
 }
