@@ -17,19 +17,19 @@ public class BlackoutTime {
         this.context = context;
     }
 
-    public boolean canSubmitOnWlan(Calendar now) throws ParseException {
+    public boolean canSendOnWlan(Calendar now) throws ParseException {
         Preferences preferences = new Preferences(context);
         String range = preferences.getWlanRange();
-        return canSubmit(now, range);
+        return canSendAtTime(now, range);
     }
 
-    public boolean canSubmitOnWwan(Calendar now) throws ParseException {
+    public boolean canSendOnWwan(Calendar now) throws ParseException {
         Preferences preferences = new Preferences(context);
         String range = preferences.getWwanRange();
-        return canSubmit(now, range);
+        return canSendAtTime(now, range);
     }
 
-    private boolean canSubmit(Calendar now, String range) throws ParseException {
+    private boolean canSendAtTime(Calendar now, String range) throws ParseException {
         if (range.length() == 0) return true;
 
         String[] rangesSplit = range.split(",");

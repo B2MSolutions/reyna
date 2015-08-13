@@ -34,7 +34,7 @@ public class BlackoutTimeTest {
         Calendar now = new GregorianCalendar();
         now.set(Calendar.HOUR_OF_DAY, 6);
         now.set(Calendar.MINUTE, 30);
-        assertFalse(blackoutTime.canSubmitOnWlan(now));
+        assertFalse(blackoutTime.canSendOnWlan(now));
     }
 
     @Test
@@ -44,7 +44,7 @@ public class BlackoutTimeTest {
         Calendar now = new GregorianCalendar();
         now.set(Calendar.HOUR_OF_DAY, 13);
         now.set(Calendar.MINUTE, 30);
-        assertFalse(blackoutTime.canSubmitOnWlan(now));
+        assertFalse(blackoutTime.canSendOnWlan(now));
     }
 
     @Test
@@ -54,7 +54,7 @@ public class BlackoutTimeTest {
         Calendar now = new GregorianCalendar();
         now.set(Calendar.HOUR_OF_DAY, 9);
         now.set(Calendar.MINUTE, 45);
-        assertTrue(blackoutTime.canSubmitOnWlan(now));
+        assertTrue(blackoutTime.canSendOnWlan(now));
     }
 
     @Test
@@ -92,7 +92,7 @@ public class BlackoutTimeTest {
         Calendar now = new GregorianCalendar();
         now.set(Calendar.HOUR_OF_DAY, 1);
         now.set(Calendar.MINUTE, 0);
-        assertTrue(blackoutTime.canSubmitOnWlan(now));
+        assertTrue(blackoutTime.canSendOnWlan(now));
     }
 
     @Test
@@ -113,7 +113,7 @@ public class BlackoutTimeTest {
         Calendar now = new GregorianCalendar();
         now.set(Calendar.HOUR_OF_DAY, 18);
         now.set(Calendar.MINUTE, 10);
-        assertFalse(blackoutTime.canSubmitOnWlan(now));
+        assertFalse(blackoutTime.canSendOnWlan(now));
     }
 
     @Test
@@ -123,7 +123,7 @@ public class BlackoutTimeTest {
         Calendar now = new GregorianCalendar();
         now.set(Calendar.HOUR_OF_DAY, 10);
         now.set(Calendar.MINUTE, 10);
-        assertTrue(blackoutTime.canSubmitOnWlan(now));
+        assertTrue(blackoutTime.canSendOnWlan(now));
     }
 
     @Test
@@ -133,45 +133,45 @@ public class BlackoutTimeTest {
         Calendar now = new GregorianCalendar();
         now.set(Calendar.HOUR_OF_DAY, 18);
         now.set(Calendar.MINUTE, 10);
-        assertFalse(blackoutTime.canSubmitOnWlan(now));
+        assertFalse(blackoutTime.canSendOnWlan(now));
     }
 
     @Test
-    public void canSubmitOnWlanShouldAlwaysReturnFalseWhenInTotalBlackout() throws ParseException {
+    public void canSendOnWlanShouldAlwaysReturnFalseWhenInTotalBlackout() throws ParseException {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.saveWlanRange("00:00-23:59");
         Calendar now = new GregorianCalendar();
         now.set(Calendar.HOUR_OF_DAY, 0);
         now.set(Calendar.MINUTE, 0);
         now.set(Calendar.SECOND, 0);
-        assertFalse(blackoutTime.canSubmitOnWlan(now));
+        assertFalse(blackoutTime.canSendOnWlan(now));
 
         now = new GregorianCalendar();
         now.set(Calendar.HOUR_OF_DAY, 23);
         now.set(Calendar.MINUTE, 59);
         now.set(Calendar.SECOND, 30);
-        assertFalse(blackoutTime.canSubmitOnWlan(now));
+        assertFalse(blackoutTime.canSendOnWlan(now));
 
         now = new GregorianCalendar();
         now.set(Calendar.HOUR_OF_DAY, 10);
         now.set(Calendar.MINUTE, 0);
         now.set(Calendar.SECOND, 0);
-        assertFalse(blackoutTime.canSubmitOnWlan(now));
+        assertFalse(blackoutTime.canSendOnWlan(now));
     }
 
     @Test
-    public void canSubmitOnWlanShouldAlwaysReturnTrueWhenNoConfigurationPresent() throws ParseException {
+    public void canSendOnWlanShouldAlwaysReturnTrueWhenNoConfigurationPresent() throws ParseException {
         Calendar now = new GregorianCalendar();
-        assertTrue(blackoutTime.canSubmitOnWlan(now));
+        assertTrue(blackoutTime.canSendOnWlan(now));
     }
 
     @Test
-    public void canSubmitOnWwanShouldReturnFalseWhenInsideTheRange() throws ParseException {
+    public void canSendOnWwanShouldReturnFalseWhenInsideTheRange() throws ParseException {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.saveWwanRange("01:00-09:00");
         Calendar now = new GregorianCalendar();
         now.set(Calendar.HOUR_OF_DAY, 6);
         now.set(Calendar.MINUTE, 30);
-        assertFalse(blackoutTime.canSubmitOnWwan(now));
+        assertFalse(blackoutTime.canSendOnWwan(now));
     }
 }
