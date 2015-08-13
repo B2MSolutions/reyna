@@ -95,7 +95,7 @@ public class Preferences {
         edit.apply();
     }
 
-    public boolean isWwanRoaming() {
+    public boolean canSendOnRoaming() {
         SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
         return sp.getBoolean(WWAN_ROAMING, false);
     }

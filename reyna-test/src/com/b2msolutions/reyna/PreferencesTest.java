@@ -89,16 +89,16 @@ public class PreferencesTest {
     }
 
     @Test
-    public void getWwanRoamingShouldReturnExpected() {
+    public void canSendOnRoamingShouldReturnExpected() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.saveWwanRoaming(true);
-        assertTrue(preferences.isWwanRoaming());
+        assertTrue(preferences.canSendOnRoaming());
     }
 
     @Test
-    public void getWwanRoamingReturnsFalseIfWwanRoamingIsNotSaved() {
+    public void canSendOnRoamingReturnsFalseIfWwanRoamingIsNotSaved() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        assertFalse(preferences.isWwanRoaming());
+        assertFalse(preferences.canSendOnRoaming());
     }
 
     @Test
