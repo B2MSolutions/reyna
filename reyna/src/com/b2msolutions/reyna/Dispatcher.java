@@ -5,6 +5,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.http.AndroidHttpClient;
 import com.b2msolutions.reyna.http.HttpPost;
+import com.b2msolutions.reyna.services.BlackoutTime;
+import com.b2msolutions.reyna.services.Power;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.entity.AbstractHttpEntity;
@@ -12,10 +14,13 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.protocol.HTTP;
 
 import java.net.URI;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 
 public class Dispatcher {
 
+    protected static Power power;
     private static final String TAG = "Dispatcher";
 
     public enum Result {
@@ -50,18 +55,37 @@ public class Dispatcher {
     }
 
     public static Result canSend(Context context) {
+        // *****************************
+        // TODO all the checks here should be combined with our window blackout feature
+        // *****************************
+
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info = connectivityManager.getActiveNetworkInfo();
-        if(info == null || !info.isConnectedOrConnecting()) {
+        if (info == null || !info.isConnectedOrConnecting()) {
             return Result.NOTCONNECTED;
         }
+        int type = info.getType();
+        Preferences preferences = new Preferences(context);
 
-        TimeRange range = new Preferences(context).getCellularDataBlackout();
+        BlackoutTime blackoutTime = new BlackoutTime(context);
+        try {
+            if (canSendOnWlanCharging(context, type, preferences, blackoutTime)) return Result.BLACKOUT;
+            if (canSendOnWlanDischarging(context, type, preferences, blackoutTime)) return Result.BLACKOUT;
+            if (type == ConnectivityManager.TYPE_MOBILE) {
+                if (canSendOnRoamingCharging(context, info, preferences)) return Result.BLACKOUT;
+                if (canSendOnWwanCharging(context, preferences, blackoutTime)) return Result.BLACKOUT;
+                if (canSendOnRoamingDischarging(context, info, preferences)) return Result.BLACKOUT;
+                if (canSendOnWwanDischarging(context, preferences, blackoutTime)) return Result.BLACKOUT;
+            }
+        } catch (ParseException e) {
+            // TODO handle exception
+            e.printStackTrace();
+        }
+
+        TimeRange range = preferences.getCellularDataBlackout();
         if (range == null) {
             return Result.OK;
         }
-
-        int type = info.getType();
 
         if (type != ConnectivityManager.TYPE_MOBILE &&
                 type != ConnectivityManager.TYPE_MOBILE_DUN &&
@@ -73,6 +97,50 @@ public class Dispatcher {
         }
 
         return range.contains(new Time()) ? Result.BLACKOUT : Result.OK;
+    }
+
+    private static boolean canSendOnWwanDischarging(Context context, Preferences preferences, BlackoutTime blackoutTime) throws ParseException {
+        return !blackoutTime.canSendOnWwan(new GregorianCalendar()) || !preferences.canSendOffCharge() && !power.isCharging(context);
+    }
+
+    private static boolean canSendOnRoamingDischarging(Context context, NetworkInfo info, Preferences preferences) {
+        if (info.isRoaming() && !power.isCharging(context)) {
+            if (!preferences.canSendOnRoaming() || !preferences.canSendOffCharge()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean canSendOnWwanCharging(Context context, Preferences preferences, BlackoutTime blackoutTime) throws ParseException {
+        return !blackoutTime.canSendOnWwan(new GregorianCalendar()) || !preferences.canSendOnCharge() && power.isCharging(context);
+    }
+
+    private static boolean canSendOnRoamingCharging(Context context, NetworkInfo info, Preferences preferences) {
+        if (info.isRoaming() && power.isCharging(context)) {
+            if (!preferences.canSendOnRoaming() || !preferences.canSendOnCharge()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean canSendOnWlanDischarging(Context context, int type, Preferences preferences, BlackoutTime blackoutTime) throws ParseException {
+        if (type == ConnectivityManager.TYPE_WIFI && !power.isCharging(context)) {
+            if(!blackoutTime.canSendOnWlan(new GregorianCalendar()) || !preferences.canSendOffCharge()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean canSendOnWlanCharging(Context context, int type, Preferences preferences, BlackoutTime blackoutTime) throws ParseException {
+        if (type == ConnectivityManager.TYPE_WIFI && power.isCharging(context)) {
+            if(!blackoutTime.canSendOnWlan(new GregorianCalendar()) || !preferences.canSendOnCharge()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Result parseHttpPost(Message message, HttpPost httpPost, HttpClient httpClient, Context context) {

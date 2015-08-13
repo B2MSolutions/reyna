@@ -1,14 +1,18 @@
 package com.b2msolutions.reyna;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import com.b2msolutions.reyna.Dispatcher.Result;
 import com.b2msolutions.reyna.http.HttpPost;
+import com.b2msolutions.reyna.services.Power;
 import com.b2msolutions.reyna.shadows.ShadowAndroidHttpClient;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
+import com.xtremelabs.robolectric.shadows.ShadowApplication;
 import com.xtremelabs.robolectric.shadows.ShadowConnectivityManager;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -36,6 +40,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.zip.GZIPOutputStream;
 
 import static org.junit.Assert.*;
@@ -45,303 +50,546 @@ import static org.mockito.Mockito.*;
 public class DispatcherTest {
 
     private Context context;
-
-    @Mock
-    NetworkInfo networkInfo;
+    @Mock NetworkInfo networkInfo;
+    @Mock Date now;
+    @Mock Power power;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        this.context = Robolectric.getShadowApplication().getApplicationContext();
+        ShadowApplication shadowApplication = Robolectric.getShadowApplication();
+        context = Robolectric.getShadowApplication().getApplicationContext();
         Robolectric.bindShadowClass(ShadowAndroidHttpClient.class);
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         ShadowConnectivityManager shadowConnectivityManager = Robolectric.shadowOf_(connectivityManager);
-        shadowConnectivityManager.setActiveNetworkInfo(this.networkInfo);
+        shadowConnectivityManager.setActiveNetworkInfo(networkInfo);
+        when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
+        when(networkInfo.isConnectedOrConnecting()).thenReturn(true);
+
+        Intent batteryStatus = new Intent();
+        batteryStatus.setAction(Intent.ACTION_BATTERY_CHANGED);
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_LEVEL, 3);
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_SCALE, 7);
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_STATUS, 4);
+        shadowApplication.sendStickyBroadcast(batteryStatus);
+    }
+
+//    @Test
+//    public void sendMessageHappyPathShouldSetExecuteCorrectHttpPostAndReturnOK() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+//        Message message = RepositoryTest.getMessageWithHeaders();
+//
+//        StatusLine statusLine = mock(StatusLine.class);
+//        when(statusLine.getStatusCode()).thenReturn(200);
+//        HttpResponse httpResponse = mock(HttpResponse.class);
+//        when(httpResponse.getStatusLine()).thenReturn(statusLine);
+//
+//        HttpPost httpPost = mock(HttpPost.class);
+//        HttpClient httpClient = mock(HttpClient.class);
+//        when(httpClient.execute(httpPost)).thenReturn(httpResponse);
+//
+//        assertEquals(Result.OK, new Dispatcher().sendMessage(message, httpPost, httpClient, this.context));
+//
+//        this.verifyHttpPost(message, httpPost);
+//
+//        ArgumentCaptor<StringEntity> stringEntityCaptor = ArgumentCaptor.forClass(StringEntity.class);
+//        verify(httpPost).setEntity(stringEntityCaptor.capture());
+//        StringEntity stringEntity = stringEntityCaptor.getValue();
+//        assertEquals(stringEntity.getContentType().getValue(), "text/plain; charset=UTF-8");
+//        assertEquals(EntityUtils.toString(stringEntity), "body");
+//    }
+//
+//    @Test
+//    public void sendMessageHappyPathWithChineseCharactersShouldSetExecuteCorrectHttpPostAndReturnOK() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+//        Message message = RepositoryTest.getMessageWithHeaders("谷歌拼音输入法");
+//
+//        StatusLine statusLine = mock(StatusLine.class);
+//        when(statusLine.getStatusCode()).thenReturn(200);
+//        HttpResponse httpResponse = mock(HttpResponse.class);
+//        when(httpResponse.getStatusLine()).thenReturn(statusLine);
+//
+//        HttpPost httpPost = mock(HttpPost.class);
+//        HttpClient httpClient = mock(HttpClient.class);
+//        when(httpClient.execute(httpPost)).thenReturn(httpResponse);
+//
+//        assertEquals(Result.OK, new Dispatcher().sendMessage(message, httpPost, httpClient, this.context));
+//
+//        this.verifyHttpPost(message, httpPost);
+//
+//        ArgumentCaptor<StringEntity> stringEntityCaptor = ArgumentCaptor.forClass(StringEntity.class);
+//        verify(httpPost).setEntity(stringEntityCaptor.capture());
+//        StringEntity stringEntity = stringEntityCaptor.getValue();
+//        assertEquals(stringEntity.getContentType().getValue(), "text/plain; charset=UTF-8");
+//        assertEquals(EntityUtils.toString(stringEntity), "谷歌拼音输入法");
+//    }
+//
+//    @Test
+//    public void sendMessageHappyPathWithPortShouldSetPort() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+//        Message message = new Message(new URI("https://www.google.com:9008/a/b"), "body", null);
+//
+//        StatusLine statusLine = mock(StatusLine.class);
+//        when(statusLine.getStatusCode()).thenReturn(200);
+//        HttpResponse httpResponse = mock(HttpResponse.class);
+//        when(httpResponse.getStatusLine()).thenReturn(statusLine);
+//
+//        HttpPost httpPost = mock(HttpPost.class);
+//        HttpClient httpClient = mock(HttpClient.class);
+//        when(httpClient.execute(httpPost)).thenReturn(httpResponse);
+//
+//        assertEquals(Result.OK, new Dispatcher().sendMessage(message, httpPost, httpClient, this.context));
+//
+//        ArgumentCaptor<StringEntity> stringEntityCaptor = ArgumentCaptor.forClass(StringEntity.class);
+//        verify(httpPost).setEntity(stringEntityCaptor.capture());
+//        StringEntity stringEntity = stringEntityCaptor.getValue();
+//        assertEquals(stringEntity.getContentType().getValue(), "text/plain; charset=UTF-8");
+//        assertEquals(EntityUtils.toString(stringEntity), "body");
+//    }
+//
+//    @Test
+//    public void sendMessageShouldReturnBlackoutWhenInBlackout() {
+//        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+//
+//        Calendar now = Calendar.getInstance();
+//        int hourOfDay = now.get(Calendar.HOUR_OF_DAY);
+//        TimeRange range = new TimeRange(new Time(hourOfDay - 1, 0), new Time(hourOfDay + 1, 0));
+//        new Preferences(this.context).saveCellularDataBlackout(range);
+//
+//        assertEquals(Result.BLACKOUT, new Dispatcher().sendMessage(null, null, null, this.context));
+//    }
+//
+//    @Test
+//    public void sendMessageShouldReturnNotConnectedWhenNotConnected() {
+//        when(this.networkInfo.isConnectedOrConnecting()).thenReturn(false);
+//        assertEquals(Result.NOTCONNECTED, new Dispatcher().sendMessage(null, null, null, this.context));
+//    }
+//
+//    @Test
+//    public void whenExecuteThrowsReturnTemporaryError() throws URISyntaxException, ClientProtocolException, IOException {
+//        Message message = RepositoryTest.getMessageWithHeaders();
+//
+//        HttpPost httpPost = mock(HttpPost.class);
+//        HttpClient httpClient = mock(HttpClient.class);
+//        when(httpClient.execute(httpPost)).thenThrow(new RuntimeException(""));
+//
+//        assertEquals(Result.TEMPORARY_ERROR, new Dispatcher().sendMessage(message, httpPost, httpClient, this.context));
+//
+//        this.verifyHttpPost(message, httpPost);
+//    }
+//
+//    @Test
+//    public void getResultShouldReturnExpected() {
+//        assertEquals(Result.PERMANENT_ERROR, Dispatcher.getResult(100));
+//        assertEquals(Result.OK, Dispatcher.getResult(200));
+//        assertEquals(Result.PERMANENT_ERROR, Dispatcher.getResult(300));
+//        assertEquals(Result.PERMANENT_ERROR, Dispatcher.getResult(400));
+//        assertEquals(Result.TEMPORARY_ERROR, Dispatcher.getResult(500));
+//        assertEquals(Result.PERMANENT_ERROR, Dispatcher.getResult(600));
+//    }
+//
+//    @Test
+//    public void sendMessageWithGzipAndContentIsLessThanMinGzipLengthShouldRemoveGzipHeaderAndSendMessageAsString() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException, Exception {
+//        Message message = RepositoryTest.getMessageWithGzipHeaders("body");
+//
+//        StatusLine statusLine = mock(StatusLine.class);
+//        when(statusLine.getStatusCode()).thenReturn(200);
+//        HttpResponse httpResponse = mock(HttpResponse.class);
+//        when(httpResponse.getStatusLine()).thenReturn(statusLine);
+//
+//        HttpPost httpPost = mock(HttpPost.class);
+//        HttpClient httpClient = mock(HttpClient.class);
+//        when(httpClient.execute(httpPost)).thenReturn(httpResponse);
+//        when(httpClient.execute(httpPost)).thenReturn(httpResponse);
+//
+//        assertEquals(Result.OK, new Dispatcher().sendMessage(message, httpPost, httpClient, this.context));
+//
+//        this.verifyHttpPost(message, httpPost);
+//
+//        ArgumentCaptor<ByteArrayEntity> byteArrayEntityCaptor = ArgumentCaptor.forClass(ByteArrayEntity.class);
+//        verify(httpPost).setEntity(byteArrayEntityCaptor.capture());
+//        ByteArrayEntity entity = byteArrayEntityCaptor.getValue();
+//        assertNull(entity.getContentEncoding());
+//        assertEquals(EntityUtils.toString(entity, "utf-8"), "body");
+//    }
+//
+//    @Test
+//    public void sendMessageWithGzipHeaderShouldCompressContentAndReturnOK() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+//        Message message = RepositoryTest.getMessageWithGzipHeaders("this any message body more than 10 bytes length");
+//        byte[] data = new String("this any message body more than 10 bytes length").getBytes("utf-8");
+//
+//        StatusLine statusLine = mock(StatusLine.class);
+//        when(statusLine.getStatusCode()).thenReturn(200);
+//        HttpResponse httpResponse = mock(HttpResponse.class);
+//        when(httpResponse.getStatusLine()).thenReturn(statusLine);
+//
+//        HttpPost httpPost = mock(HttpPost.class);
+//        HttpClient httpClient = mock(HttpClient.class);
+//        when(httpClient.execute(httpPost)).thenReturn(httpResponse);
+//
+//        Result actual = new Dispatcher().sendMessage(message, httpPost, httpClient, this.context);
+//
+//        assertEquals(Result.OK, actual);
+//
+//        this.verifyHttpPost(message, httpPost);
+//
+//        ArgumentCaptor<ByteArrayEntity> entityCaptor = ArgumentCaptor.forClass(ByteArrayEntity.class);
+//        verify(httpPost).setEntity(entityCaptor.capture());
+//        AbstractHttpEntity byteArrayEntity = entityCaptor.getValue();
+//        assertEquals(byteArrayEntity.getContentEncoding().getValue(), "gzip");
+//
+//        byte[] expected = gzip(data);
+//        assertArrayEquals(EntityUtils.toByteArray(byteArrayEntity), expected);
+//    }
+//
+//    @Test
+//    public void canSendShouldReturnNOTCONNECTEDIfNoActiveNetwork() {
+//        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+//        ShadowConnectivityManager shadowConnectivityManager = Robolectric.shadowOf_(connectivityManager);
+//        shadowConnectivityManager.setActiveNetworkInfo(null);
+//        assertEquals(Result.NOTCONNECTED, Dispatcher.canSend(this.context));
+//    }
+//
+//    @Test
+//    public void canSendShouldReturnOKIfNonCellularAndConnected() {
+//        canSendShouldReturnOKIfNonCellularAndConnected(7); // BLUETOOTH
+//        canSendShouldReturnOKIfNonCellularAndConnected(ConnectivityManager.TYPE_WIFI);
+//        canSendShouldReturnOKIfNonCellularAndConnected(8); // DUMMY
+//        canSendShouldReturnOKIfNonCellularAndConnected(9); // ETHERNET
+//    }
+//
+//    @Test
+//    public void canSendShouldReturnOKIfMobileAndHasNoPreferences() {
+//        canSendShouldReturnOKIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_MOBILE);
+//        canSendShouldReturnOKIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_MOBILE_DUN);
+//        canSendShouldReturnOKIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_MOBILE_HIPRI);
+//        canSendShouldReturnOKIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_MOBILE_MMS);
+//        canSendShouldReturnOKIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_MOBILE_SUPL);
+//        canSendShouldReturnOKIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_WIMAX);
+//    }
+//
+//    @Test
+//    public void canSendShouldReturnBlackoutIfMobileAndInBlackout() {
+//        canSendShouldReturnBlackoutIfCellularAndInBlackout(ConnectivityManager.TYPE_MOBILE);
+//        canSendShouldReturnBlackoutIfCellularAndInBlackout(ConnectivityManager.TYPE_MOBILE_DUN);
+//        canSendShouldReturnBlackoutIfCellularAndInBlackout(ConnectivityManager.TYPE_MOBILE_HIPRI);
+//        canSendShouldReturnBlackoutIfCellularAndInBlackout(ConnectivityManager.TYPE_MOBILE_MMS);
+//        canSendShouldReturnBlackoutIfCellularAndInBlackout(ConnectivityManager.TYPE_MOBILE_SUPL);
+//        canSendShouldReturnBlackoutIfCellularAndInBlackout(ConnectivityManager.TYPE_WIMAX);
+//    }
+//
+//    @Test
+//    public void canSendShouldReturnOKIfMobileAndOutsideOfBlackout() {
+//        canSendShouldReturnOKIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE);
+//        canSendShouldReturnOKIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE_DUN);
+//        canSendShouldReturnOKIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE_HIPRI);
+//        canSendShouldReturnOKIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE_MMS);
+//        canSendShouldReturnOKIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE_SUPL);
+//        canSendShouldReturnOKIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_WIMAX);
+//    }
+//
+//    @Test
+//    public void canSendShouldReturnNoConnectionIfActiveConnectionIsNotConnectedOrConnecting() {
+//        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+//        ShadowConnectivityManager shadowConnectivityManager = Robolectric.shadowOf_(connectivityManager);
+//        when(this.networkInfo.isConnectedOrConnecting()).thenReturn(false);
+//        shadowConnectivityManager.setActiveNetworkInfo(this.networkInfo);
+//
+//        assertEquals(Result.NOTCONNECTED, Dispatcher.canSend(this.context));
+//
+//    }
+//
+//    private void canSendShouldReturnOKIfMobileAndOutsideOfBlackout(int type) {
+//        when(this.networkInfo.getType()).thenReturn(type);
+//
+//        Calendar now = Calendar.getInstance();
+//        int hourOfDay = now.get(Calendar.HOUR_OF_DAY);
+//
+//        TimeRange range = new TimeRange(new Time(hourOfDay - 2, 0), new Time(hourOfDay - 1, 0));
+//        new Preferences(this.context).saveCellularDataBlackout(range);
+//
+//        assertEquals(Result.OK, Dispatcher.canSend(this.context));
+//    }
+//
+//    private void canSendShouldReturnOKIfCellularAndHasNoPreferences(int type) {
+//        when(this.networkInfo.getType()).thenReturn(type);
+//        SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
+//        SharedPreferences.Editor editor = sp.edit();
+//        editor.clear();
+//        editor.commit();
+//        assertEquals(Result.OK, Dispatcher.canSend(this.context));
+//    }
+//
+//    private void canSendShouldReturnBlackoutIfCellularAndInBlackout(int type) {
+//        when(this.networkInfo.getType()).thenReturn(type);
+//
+//        Calendar now = Calendar.getInstance();
+//        int hourOfDay = now.get(Calendar.HOUR_OF_DAY);
+//
+//        TimeRange range = new TimeRange(new Time(hourOfDay - 1, 0), new Time(hourOfDay + 1, 0));
+//        new Preferences(this.context).saveCellularDataBlackout(range);
+//
+//        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+//    }
+//
+//    private void canSendShouldReturnOKIfNonCellularAndConnected(int type) {
+//        when(this.networkInfo.getType()).thenReturn(type);
+//
+//        Calendar now = Calendar.getInstance();
+//        int hourOfDay = now.get(Calendar.HOUR_OF_DAY);
+//        TimeRange range = new TimeRange(new Time(hourOfDay - 1, 0), new Time(hourOfDay + 1, 0));
+//        new Preferences(this.context).saveCellularDataBlackout(range);
+//
+//        assertEquals(Result.OK, Dispatcher.canSend(this.context));
+//    }
+//
+//    private void verifyHttpPost(Message message, HttpPost httpPost) {
+//        ArgumentCaptor<URI> argument = ArgumentCaptor.forClass(URI.class);
+//        verify(httpPost).setURI(argument.capture());
+//        assertEquals(message.getUrl(), argument.getValue().toString());
+//
+//        verify(httpPost).setHeader(message.getHeaders()[0].getKey(), message.getHeaders()[0].getValue());
+//        verify(httpPost).setHeader(message.getHeaders()[1].getKey(), message.getHeaders()[1].getValue());
+//        verify(httpPost, times(2)).setHeader(anyString(), anyString());
+//    }
+//
+//    private byte[] gzip(byte[] data) throws IOException {
+//        ByteArrayOutputStream arr = new ByteArrayOutputStream();
+//        OutputStream zipper = new GZIPOutputStream(arr);
+//        zipper.write(data);
+//        zipper.close();
+//        return arr.toByteArray();
+//    }
+
+    @Test
+    // device wlan oncharge
+    // configuration
+    //   wlan true
+    public void shouldSendBlackoutTimeScenarioA() {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
-        when(this.networkInfo.isConnectedOrConnecting()).thenReturn(true);
-    }
+        when(power.isCharging(context)).thenReturn(true);
+        Dispatcher.power = power;
 
-    @Test
-    public void sendMessageHappyPathShouldSetExecuteCorrectHttpPostAndReturnOK() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
-        Message message = RepositoryTest.getMessageWithHeaders();
-
-        StatusLine statusLine = mock(StatusLine.class);
-        when(statusLine.getStatusCode()).thenReturn(200);
-        HttpResponse httpResponse = mock(HttpResponse.class);
-        when(httpResponse.getStatusLine()).thenReturn(statusLine);
-
-        HttpPost httpPost = mock(HttpPost.class);
-        HttpClient httpClient = mock(HttpClient.class);
-        when(httpClient.execute(httpPost)).thenReturn(httpResponse);
-
-        assertEquals(Result.OK, new Dispatcher().sendMessage(message, httpPost, httpClient, this.context));
-
-        this.verifyHttpPost(message, httpPost);
-
-        ArgumentCaptor<StringEntity> stringEntityCaptor = ArgumentCaptor.forClass(StringEntity.class);
-        verify(httpPost).setEntity(stringEntityCaptor.capture());
-        StringEntity stringEntity = stringEntityCaptor.getValue();
-        assertEquals(stringEntity.getContentType().getValue(), "text/plain; charset=UTF-8");
-        assertEquals(EntityUtils.toString(stringEntity), "body");
-    }
-
-    @Test
-    public void sendMessageHappyPathWithChineseCharactersShouldSetExecuteCorrectHttpPostAndReturnOK() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
-        Message message = RepositoryTest.getMessageWithHeaders("谷歌拼音输入法");
-
-        StatusLine statusLine = mock(StatusLine.class);
-        when(statusLine.getStatusCode()).thenReturn(200);
-        HttpResponse httpResponse = mock(HttpResponse.class);
-        when(httpResponse.getStatusLine()).thenReturn(statusLine);
-
-        HttpPost httpPost = mock(HttpPost.class);
-        HttpClient httpClient = mock(HttpClient.class);
-        when(httpClient.execute(httpPost)).thenReturn(httpResponse);
-
-        assertEquals(Result.OK, new Dispatcher().sendMessage(message, httpPost, httpClient, this.context));
-
-        this.verifyHttpPost(message, httpPost);
-
-        ArgumentCaptor<StringEntity> stringEntityCaptor = ArgumentCaptor.forClass(StringEntity.class);
-        verify(httpPost).setEntity(stringEntityCaptor.capture());
-        StringEntity stringEntity = stringEntityCaptor.getValue();
-        assertEquals(stringEntity.getContentType().getValue(), "text/plain; charset=UTF-8");
-        assertEquals(EntityUtils.toString(stringEntity), "谷歌拼音输入法");
-    }
-
-    @Test
-    public void sendMessageHappyPathWithPortShouldSetPort() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
-        Message message = new Message(new URI("https://www.google.com:9008/a/b"), "body", null);
-
-        StatusLine statusLine = mock(StatusLine.class);
-        when(statusLine.getStatusCode()).thenReturn(200);
-        HttpResponse httpResponse = mock(HttpResponse.class);
-        when(httpResponse.getStatusLine()).thenReturn(statusLine);
-
-        HttpPost httpPost = mock(HttpPost.class);
-        HttpClient httpClient = mock(HttpClient.class);
-        when(httpClient.execute(httpPost)).thenReturn(httpResponse);
-
-        assertEquals(Result.OK, new Dispatcher().sendMessage(message, httpPost, httpClient, this.context));
-
-        ArgumentCaptor<StringEntity> stringEntityCaptor = ArgumentCaptor.forClass(StringEntity.class);
-        verify(httpPost).setEntity(stringEntityCaptor.capture());
-        StringEntity stringEntity = stringEntityCaptor.getValue();
-        assertEquals(stringEntity.getContentType().getValue(), "text/plain; charset=UTF-8");
-        assertEquals(EntityUtils.toString(stringEntity), "body");
-    }
-
-    @Test
-    public void sendMessageShouldReturnBlackoutWhenInBlackout() {
-        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
-
-        Calendar now = Calendar.getInstance();
-        int hourOfDay = now.get(Calendar.HOUR_OF_DAY);
-        TimeRange range = new TimeRange(new Time(hourOfDay - 1, 0), new Time(hourOfDay + 1, 0));
-        new Preferences(this.context).saveCellularDataBlackout(range);
-
-        assertEquals(Result.BLACKOUT, new Dispatcher().sendMessage(null, null, null, this.context));
-    }
-
-    @Test
-    public void sendMessageShouldReturnNotConnectedWhenNotConnected() {
-        when(this.networkInfo.isConnectedOrConnecting()).thenReturn(false);
-        assertEquals(Result.NOTCONNECTED, new Dispatcher().sendMessage(null, null, null, this.context));
-    }
-
-    @Test
-    public void whenExecuteThrowsReturnTemporaryError() throws URISyntaxException, ClientProtocolException, IOException {
-        Message message = RepositoryTest.getMessageWithHeaders();
-
-        HttpPost httpPost = mock(HttpPost.class);
-        HttpClient httpClient = mock(HttpClient.class);
-        when(httpClient.execute(httpPost)).thenThrow(new RuntimeException(""));
-
-        assertEquals(Result.TEMPORARY_ERROR, new Dispatcher().sendMessage(message, httpPost, httpClient, this.context));
-
-        this.verifyHttpPost(message, httpPost);
-    }
-
-    @Test
-    public void getResultShouldReturnExpected() {
-        assertEquals(Result.PERMANENT_ERROR, Dispatcher.getResult(100));
-        assertEquals(Result.OK, Dispatcher.getResult(200));
-        assertEquals(Result.PERMANENT_ERROR, Dispatcher.getResult(300));
-        assertEquals(Result.PERMANENT_ERROR, Dispatcher.getResult(400));
-        assertEquals(Result.TEMPORARY_ERROR, Dispatcher.getResult(500));
-        assertEquals(Result.PERMANENT_ERROR, Dispatcher.getResult(600));
-    }
-
-    @Test
-    public void sendMessageWithGzipAndContentIsLessThanMinGzipLengthShouldRemoveGzipHeaderAndSendMessageAsString() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException, Exception {
-        Message message = RepositoryTest.getMessageWithGzipHeaders("body");
-
-        StatusLine statusLine = mock(StatusLine.class);
-        when(statusLine.getStatusCode()).thenReturn(200);
-        HttpResponse httpResponse = mock(HttpResponse.class);
-        when(httpResponse.getStatusLine()).thenReturn(statusLine);
-
-        HttpPost httpPost = mock(HttpPost.class);
-        HttpClient httpClient = mock(HttpClient.class);
-        when(httpClient.execute(httpPost)).thenReturn(httpResponse);
-        when(httpClient.execute(httpPost)).thenReturn(httpResponse);
-
-        assertEquals(Result.OK, new Dispatcher().sendMessage(message, httpPost, httpClient, this.context));
-
-        this.verifyHttpPost(message, httpPost);
-
-        ArgumentCaptor<ByteArrayEntity> byteArrayEntityCaptor = ArgumentCaptor.forClass(ByteArrayEntity.class);
-        verify(httpPost).setEntity(byteArrayEntityCaptor.capture());
-        ByteArrayEntity entity = byteArrayEntityCaptor.getValue();
-        assertNull(entity.getContentEncoding());
-        assertEquals(EntityUtils.toString(entity, "utf-8"), "body");
-    }
-
-    @Test
-    public void sendMessageWithGzipHeaderShouldCompressContentAndReturnOK() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
-        Message message = RepositoryTest.getMessageWithGzipHeaders("this any message body more than 10 bytes length");
-        byte[] data = new String("this any message body more than 10 bytes length").getBytes("utf-8");
-
-        StatusLine statusLine = mock(StatusLine.class);
-        when(statusLine.getStatusCode()).thenReturn(200);
-        HttpResponse httpResponse = mock(HttpResponse.class);
-        when(httpResponse.getStatusLine()).thenReturn(statusLine);
-
-        HttpPost httpPost = mock(HttpPost.class);
-        HttpClient httpClient = mock(HttpClient.class);
-        when(httpClient.execute(httpPost)).thenReturn(httpResponse);
-
-        Result actual = new Dispatcher().sendMessage(message, httpPost, httpClient, this.context);
-
-        assertEquals(Result.OK, actual);
-
-        this.verifyHttpPost(message, httpPost);
-
-        ArgumentCaptor<ByteArrayEntity> entityCaptor = ArgumentCaptor.forClass(ByteArrayEntity.class);
-        verify(httpPost).setEntity(entityCaptor.capture());
-        AbstractHttpEntity byteArrayEntity = entityCaptor.getValue();
-        assertEquals(byteArrayEntity.getContentEncoding().getValue(), "gzip");
-
-        byte[] expected = gzip(data);
-        assertArrayEquals(EntityUtils.toByteArray(byteArrayEntity), expected);
-    }
-
-    @Test
-    public void canSendShouldReturnNOTCONNECTEDIfNoActiveNetwork() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        ShadowConnectivityManager shadowConnectivityManager = Robolectric.shadowOf_(connectivityManager);
-        shadowConnectivityManager.setActiveNetworkInfo(null);
-        assertEquals(Result.NOTCONNECTED, Dispatcher.canSend(this.context));
-    }
-
-    @Test
-    public void canSendShouldReturnOKIfNonCellularAndConnected() {
-        canSendShouldReturnOKIfNonCellularAndConnected(7); // BLUETOOTH
-        canSendShouldReturnOKIfNonCellularAndConnected(ConnectivityManager.TYPE_WIFI);
-        canSendShouldReturnOKIfNonCellularAndConnected(8); // DUMMY
-        canSendShouldReturnOKIfNonCellularAndConnected(9); // ETHERNET
-    }
-
-    @Test
-    public void canSendShouldReturnOKIfMobileAndHasNoPreferences() {
-        canSendShouldReturnOKIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_MOBILE);
-        canSendShouldReturnOKIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_MOBILE_DUN);
-        canSendShouldReturnOKIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_MOBILE_HIPRI);
-        canSendShouldReturnOKIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_MOBILE_MMS);
-        canSendShouldReturnOKIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_MOBILE_SUPL);
-        canSendShouldReturnOKIfCellularAndHasNoPreferences(ConnectivityManager.TYPE_WIMAX);
-    }
-
-    @Test
-    public void canSendShouldReturnBlackoutIfMobileAndInBlackout() {
-        canSendShouldReturnBlackoutIfCellularAndInBlackout(ConnectivityManager.TYPE_MOBILE);
-        canSendShouldReturnBlackoutIfCellularAndInBlackout(ConnectivityManager.TYPE_MOBILE_DUN);
-        canSendShouldReturnBlackoutIfCellularAndInBlackout(ConnectivityManager.TYPE_MOBILE_HIPRI);
-        canSendShouldReturnBlackoutIfCellularAndInBlackout(ConnectivityManager.TYPE_MOBILE_MMS);
-        canSendShouldReturnBlackoutIfCellularAndInBlackout(ConnectivityManager.TYPE_MOBILE_SUPL);
-        canSendShouldReturnBlackoutIfCellularAndInBlackout(ConnectivityManager.TYPE_WIMAX);
-    }
-
-    @Test
-    public void canSendShouldReturnOKIfMobileAndOutsideOfBlackout() {
-        canSendShouldReturnOKIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE);
-        canSendShouldReturnOKIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE_DUN);
-        canSendShouldReturnOKIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE_HIPRI);
-        canSendShouldReturnOKIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE_MMS);
-        canSendShouldReturnOKIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_MOBILE_SUPL);
-        canSendShouldReturnOKIfMobileAndOutsideOfBlackout(ConnectivityManager.TYPE_WIMAX);
-    }
-
-    @Test
-    public void canSendShouldReturnNoConnectionIfActiveConnectionIsNotConnectedOrConnecting() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        ShadowConnectivityManager shadowConnectivityManager = Robolectric.shadowOf_(connectivityManager);
-        when(this.networkInfo.isConnectedOrConnecting()).thenReturn(false);
-        shadowConnectivityManager.setActiveNetworkInfo(this.networkInfo);
-
-        assertEquals(Result.NOTCONNECTED, Dispatcher.canSend(this.context));
-
-    }
-
-    private void canSendShouldReturnOKIfMobileAndOutsideOfBlackout(int type) {
-        when(this.networkInfo.getType()).thenReturn(type);
-
-        Calendar now = Calendar.getInstance();
-        int hourOfDay = now.get(Calendar.HOUR_OF_DAY);
-
-        TimeRange range = new TimeRange(new Time(hourOfDay - 2, 0), new Time(hourOfDay - 1, 0));
-        new Preferences(this.context).saveCellularDataBlackout(range);
-
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveWlanRange("02:00-02:01");
+        preferences.saveOnCharge(true);
         assertEquals(Result.OK, Dispatcher.canSend(this.context));
-    }
 
-    private void canSendShouldReturnOKIfCellularAndHasNoPreferences(int type) {
-        when(this.networkInfo.getType()).thenReturn(type);
-        SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
-        editor.clear();
-        editor.commit();
-        assertEquals(Result.OK, Dispatcher.canSend(this.context));
-    }
-
-    private void canSendShouldReturnBlackoutIfCellularAndInBlackout(int type) {
-        when(this.networkInfo.getType()).thenReturn(type);
-
-        Calendar now = Calendar.getInstance();
-        int hourOfDay = now.get(Calendar.HOUR_OF_DAY);
-
-        TimeRange range = new TimeRange(new Time(hourOfDay - 1, 0), new Time(hourOfDay + 1, 0));
-        new Preferences(this.context).saveCellularDataBlackout(range);
-
+        preferences.saveOnCharge(false);
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
     }
 
-    private void canSendShouldReturnOKIfNonCellularAndConnected(int type) {
-        when(this.networkInfo.getType()).thenReturn(type);
+    @Test
+    // device wlan oncharge
+    // configuration
+    //   wlan false
+    public void shouldNotSendBlackoutTimeScenarioB() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
+        when(power.isCharging(context)).thenReturn(true);
+        Dispatcher.power = power;
 
-        Calendar now = Calendar.getInstance();
-        int hourOfDay = now.get(Calendar.HOUR_OF_DAY);
-        TimeRange range = new TimeRange(new Time(hourOfDay - 1, 0), new Time(hourOfDay + 1, 0));
-        new Preferences(this.context).saveCellularDataBlackout(range);
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveWlanRange("00:00-23:59");
+        preferences.saveOnCharge(true);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+
+        preferences.saveOnCharge(false);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+    }
+
+    @Test
+    // device wlan offcharge
+    // configuration
+    //   wlan true
+    public void blackoutTimeScenarioC() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
+        when(power.isCharging(context)).thenReturn(false);
+        Dispatcher.power = power;
+
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveWlanRange("02:00-02:01");
+        preferences.saveOffCharge(true);
 
         assertEquals(Result.OK, Dispatcher.canSend(this.context));
+
+        preferences.saveOffCharge(false);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
     }
 
-    private void verifyHttpPost(Message message, HttpPost httpPost) {
-        ArgumentCaptor<URI> argument = ArgumentCaptor.forClass(URI.class);
-        verify(httpPost).setURI(argument.capture());
-        assertEquals(message.getUrl(), argument.getValue().toString());
+    @Test
+    // device wlan offcharge
+    // configuration
+    //   wlan false
+    public void blackoutTimeScenarioD() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
+        when(power.isCharging(context)).thenReturn(false);
+        Dispatcher.power = power;
 
-        verify(httpPost).setHeader(message.getHeaders()[0].getKey(), message.getHeaders()[0].getValue());
-        verify(httpPost).setHeader(message.getHeaders()[1].getKey(), message.getHeaders()[1].getValue());
-        verify(httpPost, times(2)).setHeader(anyString(), anyString());
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveWlanRange("00:00-23:59");
+        preferences.saveOffCharge(true);
+
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+
+        preferences.saveOffCharge(false);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
     }
 
-    private byte[] gzip(byte[] data) throws IOException {
-        ByteArrayOutputStream arr = new ByteArrayOutputStream();
-        OutputStream zipper = new GZIPOutputStream(arr);
-        zipper.write(data);
-        zipper.close();
-        return arr.toByteArray();
+    @Test
+    // device wwan oncharge
+    // configuration
+    //   wwan true
+    public void blackoutTimeScenarioE() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        when(power.isCharging(context)).thenReturn(true);
+        Dispatcher.power = power;
+
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveWwanRange("02:00-02:01");
+        preferences.saveOnCharge(true);
+
+        assertEquals(Result.OK, Dispatcher.canSend(this.context));
+
+        preferences.saveOnCharge(false);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
     }
+
+    @Test
+    // device wwan oncharge
+    // configuration
+    //   wwan false
+    public void blackoutTimeScenarioF() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        when(power.isCharging(context)).thenReturn(true);
+        Dispatcher.power = power;
+
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveWwanRange("00:00-23:59");
+        preferences.saveOnCharge(true);
+
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+
+        preferences.saveOnCharge(false);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+    }
+
+    @Test
+    // device wwan offcharge
+    // configuration
+    //   wwan true
+    public void blackoutTimeScenarioG() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        when(power.isCharging(context)).thenReturn(false);
+        Dispatcher.power = power;
+
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveWwanRange("02:00-02:01");
+        preferences.saveOffCharge(true);
+
+        assertEquals(Result.OK, Dispatcher.canSend(this.context));
+
+        preferences.saveOffCharge(false);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+    }
+
+    @Test
+    // device wwan offcharge
+    // configuration
+    //   wwan false
+    public void blackoutTimeScenarioH() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        when(power.isCharging(context)).thenReturn(false);
+        Dispatcher.power = power;
+
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveWwanRange("00:00-23:59");
+        preferences.saveOffCharge(true);
+
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+
+        preferences.saveOffCharge(false);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+    }
+
+    @SuppressLint("NewApi")
+    @Test
+    // device roaming oncharge
+    // configuration
+    //   roaming false
+    public void blackoutTimeScenarioI() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        when(this.networkInfo.isRoaming()).thenReturn(true);
+        when(power.isCharging(context)).thenReturn(true);
+        Dispatcher.power = power;
+
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveOnCharge(true);
+        preferences.saveWwanRoaming(false);
+
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+
+        preferences.saveOnCharge(false);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+    }
+
+    @SuppressLint("NewApi")
+    @Test
+    // device roaming oncharge
+    // configuration
+    //   roaming true
+    public void blackoutTimeScenarioJ() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        when(this.networkInfo.isRoaming()).thenReturn(true);
+        when(power.isCharging(context)).thenReturn(true);
+        Dispatcher.power = power;
+
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveOnCharge(true);
+        preferences.saveWwanRoaming(true);
+
+        assertEquals(Result.OK, Dispatcher.canSend(this.context));
+
+        preferences.saveOnCharge(false);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+    }
+
+    @SuppressLint("NewApi")
+    @Test
+    // device roaming offcharge
+    // configuration
+    //   roaming true
+    public void blackoutTimeScenarioK() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        when(this.networkInfo.isRoaming()).thenReturn(true);
+        when(power.isCharging(context)).thenReturn(false);
+        Dispatcher.power = power;
+
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveOffCharge(true);
+        preferences.saveWwanRoaming(true);
+
+        assertEquals(Result.OK, Dispatcher.canSend(this.context));
+
+        preferences.saveOffCharge(false);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+    }
+
+    @SuppressLint("NewApi")
+    @Test
+    // device roaming offcharge
+    // configuration
+    //   roaming false
+    public void blackoutTimeScenarioL() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        when(this.networkInfo.isRoaming()).thenReturn(true);
+        when(power.isCharging(context)).thenReturn(false);
+        Dispatcher.power = power;
+
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveOffCharge(true);
+        preferences.saveWwanRoaming(false);
+
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+
+        preferences.saveOffCharge(false);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+    }
+
 }
