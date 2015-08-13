@@ -27,6 +27,10 @@ public class Dispatcher {
         OK, PERMANENT_ERROR, TEMPORARY_ERROR, BLACKOUT, NOTCONNECTED
     }
 
+    public Dispatcher() {
+        power = new Power();
+    }
+
     public Result sendMessage(Context context, Message message) {
         Logger.v(TAG, "sendMessage");
 
@@ -54,7 +58,7 @@ public class Dispatcher {
         return this.tryToExecute(httpPost, httpClient);
     }
 
-    public static Result canSend(Context context) {
+    public static Result canSend(Context context) throws ParseException {
         // *****************************
         // TODO all the checks here should be combined with our window blackout feature
         // *****************************
@@ -68,18 +72,13 @@ public class Dispatcher {
         Preferences preferences = new Preferences(context);
 
         BlackoutTime blackoutTime = new BlackoutTime(context);
-        try {
-            if (canSendOnWlanCharging(context, type, preferences, blackoutTime)) return Result.BLACKOUT;
-            if (canSendOnWlanDischarging(context, type, preferences, blackoutTime)) return Result.BLACKOUT;
-            if (type == ConnectivityManager.TYPE_MOBILE) {
-                if (canSendOnRoamingCharging(context, info, preferences)) return Result.BLACKOUT;
-                if (canSendOnWwanCharging(context, preferences, blackoutTime)) return Result.BLACKOUT;
-                if (canSendOnRoamingDischarging(context, info, preferences)) return Result.BLACKOUT;
-                if (canSendOnWwanDischarging(context, preferences, blackoutTime)) return Result.BLACKOUT;
-            }
-        } catch (ParseException e) {
-            // TODO handle exception
-            e.printStackTrace();
+        if (canSendOnWlanCharging(context, type, preferences, blackoutTime)) return Result.BLACKOUT;
+        if (canSendOnWlanDischarging(context, type, preferences, blackoutTime)) return Result.BLACKOUT;
+        if (type == ConnectivityManager.TYPE_MOBILE) {
+            if (canSendOnRoamingCharging(context, info, preferences)) return Result.BLACKOUT;
+            if (canSendOnWwanCharging(context, preferences, blackoutTime)) return Result.BLACKOUT;
+            if (canSendOnRoamingDischarging(context, info, preferences)) return Result.BLACKOUT;
+            if (canSendOnWwanDischarging(context, preferences, blackoutTime)) return Result.BLACKOUT;
         }
 
         TimeRange range = preferences.getCellularDataBlackout();
