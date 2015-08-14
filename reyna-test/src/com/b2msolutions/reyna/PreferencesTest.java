@@ -83,6 +83,20 @@ public class PreferencesTest {
     }
 
     @Test
+    public void whenSavingWlanRangeShouldValidateInput() {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveWlanRange("01:00");
+        assertEquals("", preferences.getWlanRange());
+    }
+
+    @Test
+    public void whenSavingWwanRangeShouldValidateInput() {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveWwanRange("01:00");
+        assertEquals("", preferences.getWwanRange());
+    }
+
+    @Test
     public void getWwanRangeReturnsEmptyStringIfWwanRangeIsNotSaved() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         assertEquals("", preferences.getWwanRange());
@@ -125,5 +139,22 @@ public class PreferencesTest {
     public void canSendOffChargeReturnsTrueIfOffChargeIsNotSaved() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         assertTrue(preferences.canSendOffCharge());
+    }
+
+    @Test
+    public void isBlackoutRangeValidShouldReturnBoolean() {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        assertTrue(preferences.isBlackoutRangeValid("00:00-02:30"));
+        assertTrue(preferences.isBlackoutRangeValid("00:00-02:30,01:30-06:00"));
+        assertTrue(preferences.isBlackoutRangeValid("00:00-02:30,03:30-06:00,07:00-07:01"));
+
+        assertFalse(preferences.isBlackoutRangeValid(""));
+        assertFalse(preferences.isBlackoutRangeValid("00:00"));
+        assertFalse(preferences.isBlackoutRangeValid("1:00"));
+        assertFalse(preferences.isBlackoutRangeValid("1:0002:00"));
+        assertFalse(preferences.isBlackoutRangeValid("1"));
+        assertFalse(preferences.isBlackoutRangeValid("00:10-"));
+        assertFalse(preferences.isBlackoutRangeValid("00:10-1"));
+        assertFalse(preferences.isBlackoutRangeValid("00:00-02:30-15:42"));
     }
 }

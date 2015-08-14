@@ -3,6 +3,8 @@ package com.b2msolutions.reyna;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.text.SimpleDateFormat;
+
 public class Preferences {
 
     private final Context context;
@@ -65,10 +67,12 @@ public class Preferences {
     }
 
     public void saveWlanRange(String value) {
-        SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
-        SharedPreferences.Editor edit = sp.edit();
-        edit.putString(WLAN_RANGE, value);
-        edit.apply();
+        if (isBlackoutRangeValid(value)) {
+            SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
+            SharedPreferences.Editor edit = sp.edit();
+            edit.putString(WLAN_RANGE, value);
+            edit.apply();
+        }
     }
 
     public String getWlanRange() {
@@ -77,10 +81,12 @@ public class Preferences {
     }
 
     public void saveWwanRange(String value) {
-        SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
-        SharedPreferences.Editor edit = sp.edit();
-        edit.putString(WWAN_RANGE, value);
-        edit.apply();
+        if(isBlackoutRangeValid(value)) {
+            SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
+            SharedPreferences.Editor edit = sp.edit();
+            edit.putString(WWAN_RANGE, value);
+            edit.apply();
+        }
     }
 
     public String getWwanRange() {
@@ -122,5 +128,15 @@ public class Preferences {
     public boolean canSendOffCharge() {
         SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
         return sp.getBoolean(OFF_CHARGE, true);
+    }
+
+    public boolean isBlackoutRangeValid(String value) {
+        String[] splitRanges = value.split(",");
+        for(String range : splitRanges) {
+            if(!range.matches("[0-9][0-9]:[0-9][0-9]-[0-9][0-9]:[0-9][0-9]")) {
+                return false;
+            }
+        }
+        return true;
     }
 }
