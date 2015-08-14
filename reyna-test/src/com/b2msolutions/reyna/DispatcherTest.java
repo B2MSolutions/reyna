@@ -99,7 +99,7 @@ public class DispatcherTest {
     }
 
     @Test
-    public void sendMessageHappyPathWithChineseCharactersShouldSetExecuteCorrectHttpPostAndReturnOK() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+    public void sendMessageHappyPathWithChineseCharactersShouldSetExecuteCorrectHttpPostAndReturnOK() throws URISyntaxException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
         Message message = RepositoryTest.getMessageWithHeaders("谷歌拼音输入法");
 
         StatusLine statusLine = mock(StatusLine.class);
@@ -211,7 +211,7 @@ public class DispatcherTest {
     }
 
     @Test
-    public void sendMessageWithGzipHeaderShouldCompressContentAndReturnOK() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+    public void sendMessageWithGzipHeaderShouldCompressContentAndReturnOK() throws URISyntaxException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
         Message message = RepositoryTest.getMessageWithGzipHeaders("this any message body more than 10 bytes length");
         byte[] data = new String("this any message body more than 10 bytes length").getBytes("utf-8");
 
@@ -591,5 +591,4 @@ public class DispatcherTest {
         preferences.saveOffCharge(false);
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
     }
-
 }
