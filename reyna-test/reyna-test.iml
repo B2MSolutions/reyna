@@ -6,7 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
     </content>
     <orderEntry type="library" name="libs" level="project" />
-    <orderEntry type="jdk" jdkName="Android API 16 Platform" jdkType="Android SDK" />
+    <orderEntry type="inheritedJdk" />
     <orderEntry type="module" module-name="reyna" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="artifacts" level="project" />
