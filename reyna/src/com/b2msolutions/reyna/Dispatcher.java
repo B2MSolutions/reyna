@@ -58,11 +58,7 @@ public class Dispatcher {
         return this.tryToExecute(httpPost, httpClient);
     }
 
-    public static Result canSend(Context context) throws ParseException {
-        // *****************************
-        // TODO all the checks here should be combined with our window blackout feature
-        // *****************************
-
+    public static Result canSend(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info = connectivityManager.getActiveNetworkInfo();
         if (info == null || !info.isConnectedOrConnecting()) {
@@ -71,14 +67,19 @@ public class Dispatcher {
         int type = info.getType();
         Preferences preferences = new Preferences(context);
 
-        BlackoutTime blackoutTime = new BlackoutTime(context);
-        if (canSendOnWlanCharging(context, type, preferences, blackoutTime)) return Result.BLACKOUT;
-        if (canSendOnWlanDischarging(context, type, preferences, blackoutTime)) return Result.BLACKOUT;
-        if (type == ConnectivityManager.TYPE_MOBILE) {
-            if (canSendOnRoamingCharging(context, info, preferences)) return Result.BLACKOUT;
-            if (canSendOnWwanCharging(context, preferences, blackoutTime)) return Result.BLACKOUT;
-            if (canSendOnRoamingDischarging(context, info, preferences)) return Result.BLACKOUT;
-            if (canSendOnWwanDischarging(context, preferences, blackoutTime)) return Result.BLACKOUT;
+        try {
+            BlackoutTime blackoutTime = new BlackoutTime(context);
+            if (cantSendOnWlanCharging(context, type, preferences, blackoutTime)) return Result.BLACKOUT;
+            if (cantSendOnWlanDischarging(context, type, preferences, blackoutTime)) return Result.BLACKOUT;
+            if (type == ConnectivityManager.TYPE_MOBILE) {
+                if (cantSendOnRoamingCharging(context, info, preferences)) return Result.BLACKOUT;
+                if (cantSendOnWwanCharging(context, preferences, blackoutTime)) return Result.BLACKOUT;
+                if (cantSendOnRoamingDischarging(context, info, preferences)) return Result.BLACKOUT;
+                if (cantSendOnWwanDischarging(context, preferences, blackoutTime)) return Result.BLACKOUT;
+            }
+        } catch (ParseException e) {
+            Logger.w(TAG, "canSend", e);
+            return Result.TEMPORARY_ERROR;
         }
 
         TimeRange range = preferences.getCellularDataBlackout();
@@ -98,11 +99,11 @@ public class Dispatcher {
         return range.contains(new Time()) ? Result.BLACKOUT : Result.OK;
     }
 
-    private static boolean canSendOnWwanDischarging(Context context, Preferences preferences, BlackoutTime blackoutTime) throws ParseException {
-        return !blackoutTime.canSendOnWwan(new GregorianCalendar()) || !preferences.canSendOffCharge() && !power.isCharging(context);
+    private static boolean cantSendOnWwanDischarging(Context context, Preferences preferences, BlackoutTime blackoutTime) throws ParseException {
+        return !blackoutTime.canSendOnWwan(new GregorianCalendar()) || (!preferences.canSendOffCharge() && !power.isCharging(context));
     }
 
-    private static boolean canSendOnRoamingDischarging(Context context, NetworkInfo info, Preferences preferences) {
+    private static boolean cantSendOnRoamingDischarging(Context context, NetworkInfo info, Preferences preferences) {
         if (info.isRoaming() && !power.isCharging(context)) {
             if (!preferences.canSendOnRoaming() || !preferences.canSendOffCharge()) {
                 return true;
@@ -111,11 +112,11 @@ public class Dispatcher {
         return false;
     }
 
-    private static boolean canSendOnWwanCharging(Context context, Preferences preferences, BlackoutTime blackoutTime) throws ParseException {
+    private static boolean cantSendOnWwanCharging(Context context, Preferences preferences, BlackoutTime blackoutTime) throws ParseException {
         return !blackoutTime.canSendOnWwan(new GregorianCalendar()) || !preferences.canSendOnCharge() && power.isCharging(context);
     }
 
-    private static boolean canSendOnRoamingCharging(Context context, NetworkInfo info, Preferences preferences) {
+    private static boolean cantSendOnRoamingCharging(Context context, NetworkInfo info, Preferences preferences) {
         if (info.isRoaming() && power.isCharging(context)) {
             if (!preferences.canSendOnRoaming() || !preferences.canSendOnCharge()) {
                 return true;
@@ -124,7 +125,7 @@ public class Dispatcher {
         return false;
     }
 
-    private static boolean canSendOnWlanDischarging(Context context, int type, Preferences preferences, BlackoutTime blackoutTime) throws ParseException {
+    private static boolean cantSendOnWlanDischarging(Context context, int type, Preferences preferences, BlackoutTime blackoutTime) throws ParseException {
         if (type == ConnectivityManager.TYPE_WIFI && !power.isCharging(context)) {
             if(!blackoutTime.canSendOnWlan(new GregorianCalendar()) || !preferences.canSendOffCharge()) {
                 return true;
@@ -133,7 +134,7 @@ public class Dispatcher {
         return false;
     }
 
-    private static boolean canSendOnWlanCharging(Context context, int type, Preferences preferences, BlackoutTime blackoutTime) throws ParseException {
+    private static boolean cantSendOnWlanCharging(Context context, int type, Preferences preferences, BlackoutTime blackoutTime) throws ParseException {
         if (type == ConnectivityManager.TYPE_WIFI && power.isCharging(context)) {
             if(!blackoutTime.canSendOnWlan(new GregorianCalendar()) || !preferences.canSendOnCharge()) {
                 return true;
