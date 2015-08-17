@@ -16,9 +16,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.net.URISyntaxException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.verify;
 
 @RunWith(RobolectricTestRunner.class)
@@ -123,6 +121,50 @@ public class StoreServiceTest {
         TimeRange saved = preferences.getCellularDataBlackout();
         assertEquals(range.getFrom().getMinuteOfDay(), saved.getFrom().getMinuteOfDay());
         assertEquals(range.getTo().getMinuteOfDay(), saved.getTo().getMinuteOfDay());
+    }
+
+    @Test
+    public void setWlanBlackoutShouldSave() {
+        String ranges = "06:00-07:00,08:30-10:00,12:19-13:50";
+        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        StoreService.setWlanBlackout(context, ranges);
+        Preferences preferences = new Preferences(context);
+        String saved = preferences.getWlanBlackout();
+        assertEquals(saved, ranges);
+    }
+
+    @Test
+    public void setWwanBlackoutShouldSave() {
+        String ranges = "06:00-07:00,08:30-10:00,12:19-13:50";
+        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        StoreService.setWwanBlackout(context, ranges);
+        Preferences preferences = new Preferences(context);
+        String saved = preferences.getWwanBlackout();
+        assertEquals(saved, ranges);
+    }
+
+    @Test
+    public void setWwanRoamingBlackoutShouldSave() {
+        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        StoreService.setWwanRoamingBlackout(context, false);
+        Preferences preferences = new Preferences(context);
+        assertFalse(preferences.canSendOnRoaming());
+    }
+
+    @Test
+    public void setOnChargeBlackoutShouldSave() {
+        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        StoreService.setOnChargeBlackout(context, false);
+        Preferences preferences = new Preferences(context);
+        assertFalse(preferences.canSendOnCharge());
+    }
+
+    @Test
+    public void setOffChargeBlackoutShouldSave() {
+        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        StoreService.setOffChargeBlackout(context, false);
+        Preferences preferences = new Preferences(context);
+        assertFalse(preferences.canSendOffCharge());
     }
 
     @Test
