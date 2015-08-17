@@ -71,7 +71,7 @@ public class Dispatcher {
             BlackoutTime blackoutTime = new BlackoutTime(context);
             if (cantSendOnWlanCharging(context, type, preferences, blackoutTime)) return Result.BLACKOUT;
             if (cantSendOnWlanDischarging(context, type, preferences, blackoutTime)) return Result.BLACKOUT;
-            if (type == ConnectivityManager.TYPE_MOBILE) {
+            if (isTypeMobile(type)) {
                 if (cantSendOnRoamingCharging(context, info, preferences)) return Result.BLACKOUT;
                 if (cantSendOnWwanCharging(context, preferences, blackoutTime)) return Result.BLACKOUT;
                 if (cantSendOnRoamingDischarging(context, info, preferences)) return Result.BLACKOUT;
@@ -87,16 +87,20 @@ public class Dispatcher {
             return Result.OK;
         }
 
-        if (type != ConnectivityManager.TYPE_MOBILE &&
-                type != ConnectivityManager.TYPE_MOBILE_DUN &&
-                type != ConnectivityManager.TYPE_MOBILE_HIPRI &&
-                type != ConnectivityManager.TYPE_MOBILE_MMS &&
-                type != ConnectivityManager.TYPE_MOBILE_SUPL &&
-                type != ConnectivityManager.TYPE_WIMAX) {
+        if (!isTypeMobile(type)) {
             return Result.OK;
         }
 
         return range.contains(new Time()) ? Result.BLACKOUT : Result.OK;
+    }
+
+    private static boolean isTypeMobile(int type) {
+        return type == ConnectivityManager.TYPE_MOBILE ||
+            type == ConnectivityManager.TYPE_MOBILE_DUN ||
+            type == ConnectivityManager.TYPE_MOBILE_HIPRI ||
+            type == ConnectivityManager.TYPE_MOBILE_MMS ||
+            type == ConnectivityManager.TYPE_MOBILE_SUPL ||
+            type == ConnectivityManager.TYPE_WIMAX;
     }
 
     private static boolean cantSendOnWwanDischarging(Context context, Preferences preferences, BlackoutTime blackoutTime) throws ParseException {

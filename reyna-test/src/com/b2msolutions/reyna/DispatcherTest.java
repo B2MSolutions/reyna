@@ -432,12 +432,8 @@ public class DispatcherTest {
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
     }
 
-    @Test
-    // device wwan oncharge
-    // configuration
-    //   wwan true
-    public void blackoutTimeScenarioE() {
-        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+    private void testBlackoutMobileScenario(int type) {
+        when(this.networkInfo.getType()).thenReturn(type);
         when(power.isCharging(context)).thenReturn(true);
         Dispatcher.power = power;
 
@@ -449,6 +445,19 @@ public class DispatcherTest {
 
         preferences.saveOnChargeBlackout(false);
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+    }
+
+    @Test
+    // device wwan oncharge
+    // configuration
+    //   wwan true
+    public void blackoutTimeScenarioE() {
+        testBlackoutMobileScenario(ConnectivityManager.TYPE_MOBILE);
+        testBlackoutMobileScenario(ConnectivityManager.TYPE_MOBILE_DUN);
+        testBlackoutMobileScenario(ConnectivityManager.TYPE_MOBILE_HIPRI);
+        testBlackoutMobileScenario(ConnectivityManager.TYPE_MOBILE_MMS);
+        testBlackoutMobileScenario(ConnectivityManager.TYPE_MOBILE_SUPL);
+        testBlackoutMobileScenario(ConnectivityManager.TYPE_WIMAX);
     }
 
     @Test
