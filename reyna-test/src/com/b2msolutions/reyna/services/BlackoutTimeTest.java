@@ -1,7 +1,6 @@
 package com.b2msolutions.reyna.services;
 
 import android.content.Context;
-import com.b2msolutions.reyna.Preferences;
 import com.b2msolutions.reyna.Time;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
@@ -28,33 +27,27 @@ public class BlackoutTimeTest {
     }
 
     @Test
-    public void whenWlanRangeStoredShouldReturnFalseIfInsideRange() throws ParseException {
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveWlanBlackout("01:00-09:00");
+    public void whenRangeStoredShouldReturnFalseIfInsideRange() throws ParseException {
         Calendar now = new GregorianCalendar();
         now.set(Calendar.HOUR_OF_DAY, 6);
         now.set(Calendar.MINUTE, 30);
-        assertFalse(blackoutTime.canSendOnWlan(now));
+        assertFalse(blackoutTime.canSendAtTime(now, "01:00-09:00"));
     }
 
     @Test
-    public void whenWlanRangeStoredShouldReturnFalseIfInsideRangeForPM() throws ParseException {
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveWlanBlackout("13:00-14:00");
+    public void whenRangeStoredShouldReturnFalseIfInsideRangeForPM() throws ParseException {
         Calendar now = new GregorianCalendar();
         now.set(Calendar.HOUR_OF_DAY, 13);
         now.set(Calendar.MINUTE, 30);
-        assertFalse(blackoutTime.canSendOnWlan(now));
+        assertFalse(blackoutTime.canSendAtTime(now, "13:00-14:00"));
     }
 
     @Test
-    public void whenWlanRangeStoredShouldReturnTrueIfOutsideRange() throws ParseException {
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveWlanBlackout("01:00-09:00");
+    public void whenRangeStoredShouldReturnTrueIfOutsideRange() throws ParseException {
         Calendar now = new GregorianCalendar();
         now.set(Calendar.HOUR_OF_DAY, 9);
         now.set(Calendar.MINUTE, 45);
-        assertTrue(blackoutTime.canSendOnWlan(now));
+        assertTrue(blackoutTime.canSendAtTime(now, "01:00-09:00"));
     }
 
     @Test
@@ -86,13 +79,11 @@ public class BlackoutTimeTest {
     }
 
     @Test
-    public void whenWlanTimeRangeHasSameTimesShouldReturnTrue() throws ParseException {
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveWlanBlackout("01:00-01:00");
+    public void whenTimeRangeHasSameTimesShouldReturnTrue() throws ParseException {
         Calendar now = new GregorianCalendar();
         now.set(Calendar.HOUR_OF_DAY, 1);
         now.set(Calendar.MINUTE, 0);
-        assertTrue(blackoutTime.canSendOnWlan(now));
+        assertTrue(blackoutTime.canSendAtTime(now, "01:00-01:00"));
     }
 
     @Test
@@ -107,71 +98,53 @@ public class BlackoutTimeTest {
     }
 
     @Test
-    public void whenWlanRangeFromIsGreaterThanToShouldReturnFalse() throws ParseException {
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveWlanBlackout("17:30-09:00");
+    public void whenRangeFromIsGreaterThanToShouldReturnFalse() throws ParseException {
         Calendar now = new GregorianCalendar();
         now.set(Calendar.HOUR_OF_DAY, 18);
         now.set(Calendar.MINUTE, 10);
-        assertFalse(blackoutTime.canSendOnWlan(now));
+        assertFalse(blackoutTime.canSendAtTime(now, "17:30-09:00"));
     }
 
     @Test
-    public void whenWlanRangeFromIsGreaterThanToAndWeAreOutsideRangeShouldReturnTrue() throws ParseException {
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveWlanBlackout("17:30-09:00");
+    public void whenRangeFromIsGreaterThanToAndWeAreOutsideRangeShouldReturnTrue() throws ParseException {
         Calendar now = new GregorianCalendar();
         now.set(Calendar.HOUR_OF_DAY, 10);
         now.set(Calendar.MINUTE, 10);
-        assertTrue(blackoutTime.canSendOnWlan(now));
+        assertTrue(blackoutTime.canSendAtTime(now, "17:30-09:00"));
     }
 
     @Test
-    public void whenWlanRangeStoredShouldReturnFalseIfInsideMultipleRanges() throws ParseException {
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveWlanBlackout("02:00-03:00,05:00-07:30,18:00-18:15");
+    public void whenRangeStoredShouldReturnFalseIfInsideMultipleRanges() throws ParseException {
         Calendar now = new GregorianCalendar();
         now.set(Calendar.HOUR_OF_DAY, 18);
         now.set(Calendar.MINUTE, 10);
-        assertFalse(blackoutTime.canSendOnWlan(now));
+        assertFalse(blackoutTime.canSendAtTime(now, "02:00-03:00,05:00-07:30,18:00-18:15"));
     }
 
     @Test
-    public void canSendOnWlanShouldAlwaysReturnFalseWhenInTotalBlackout() throws ParseException {
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveWlanBlackout("00:00-23:59");
+    public void canSendOnShouldAlwaysReturnFalseWhenInTotalBlackout() throws ParseException {
         Calendar now = new GregorianCalendar();
         now.set(Calendar.HOUR_OF_DAY, 0);
         now.set(Calendar.MINUTE, 0);
         now.set(Calendar.SECOND, 0);
-        assertFalse(blackoutTime.canSendOnWlan(now));
+        assertFalse(blackoutTime.canSendAtTime(now, "00:00-23:59"));
 
         now = new GregorianCalendar();
         now.set(Calendar.HOUR_OF_DAY, 23);
         now.set(Calendar.MINUTE, 59);
         now.set(Calendar.SECOND, 30);
-        assertFalse(blackoutTime.canSendOnWlan(now));
+        assertFalse(blackoutTime.canSendAtTime(now, "00:00-23:59"));
 
         now = new GregorianCalendar();
         now.set(Calendar.HOUR_OF_DAY, 10);
         now.set(Calendar.MINUTE, 0);
         now.set(Calendar.SECOND, 0);
-        assertFalse(blackoutTime.canSendOnWlan(now));
+        assertFalse(blackoutTime.canSendAtTime(now, "00:00-23:59"));
     }
 
     @Test
-    public void canSendOnWlanShouldAlwaysReturnTrueWhenNoConfigurationPresent() throws ParseException {
+    public void canSendOnShouldAlwaysReturnTrueWhenNoConfigurationPresent() throws ParseException {
         Calendar now = new GregorianCalendar();
-        assertTrue(blackoutTime.canSendOnWlan(now));
-    }
-
-    @Test
-    public void canSendOnWwanShouldReturnFalseWhenInsideTheRange() throws ParseException {
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveWwanBlackout("01:00-09:00");
-        Calendar now = new GregorianCalendar();
-        now.set(Calendar.HOUR_OF_DAY, 6);
-        now.set(Calendar.MINUTE, 30);
-        assertFalse(blackoutTime.canSendOnWwan(now));
+        assertTrue(blackoutTime.canSendAtTime(now, ""));
     }
 }

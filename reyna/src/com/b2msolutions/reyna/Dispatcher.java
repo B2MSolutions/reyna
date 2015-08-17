@@ -71,8 +71,8 @@ public class Dispatcher {
             BlackoutTime blackoutTime = new BlackoutTime(context);
             if (power.isCharging(context) && !preferences.canSendOnCharge()) return Result.BLACKOUT;
             if (!power.isCharging(context) && !preferences.canSendOffCharge()) return Result.BLACKOUT;
-            if (type == ConnectivityManager.TYPE_WIFI && !blackoutTime.canSendOnWlan(new GregorianCalendar())) return Result.BLACKOUT;
-            if (isTypeMobile(type) && !blackoutTime.canSendOnWwan(new GregorianCalendar())) return Result.BLACKOUT;
+            if (type == ConnectivityManager.TYPE_WIFI && !blackoutTime.canSendAtTime(new GregorianCalendar(), preferences.getWlanBlackout())) return Result.BLACKOUT;
+            if (isTypeMobile(type) && !blackoutTime.canSendAtTime(new GregorianCalendar(), preferences.getWwanBlackout())) return Result.BLACKOUT;
             if (info.isRoaming() && !preferences.canSendOnRoaming()) return Result.BLACKOUT;
         } catch (ParseException e) {
             Logger.w(TAG, "canSend", e);
