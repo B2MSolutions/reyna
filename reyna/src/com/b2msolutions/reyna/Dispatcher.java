@@ -113,7 +113,7 @@ public class Dispatcher {
     }
 
     private static boolean cantSendOnWwanCharging(Context context, Preferences preferences, BlackoutTime blackoutTime) throws ParseException {
-        return !blackoutTime.canSendOnWwan(new GregorianCalendar()) || !preferences.canSendOnCharge() && power.isCharging(context);
+        return !blackoutTime.canSendOnWwan(new GregorianCalendar()) || (!preferences.canSendOnCharge() && power.isCharging(context));
     }
 
     private static boolean cantSendOnRoamingCharging(Context context, NetworkInfo info, Preferences preferences) {
