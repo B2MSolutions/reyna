@@ -67,16 +67,16 @@ public class Dispatcher {
         int type = info.getType();
         Preferences preferences = new Preferences(context);
 
+        if (power.isCharging(context) && !preferences.canSendOnCharge()) return Result.BLACKOUT;
+        if (!power.isCharging(context) && !preferences.canSendOffCharge()) return Result.BLACKOUT;
+        if (info.isRoaming() && !preferences.canSendOnRoaming()) return Result.BLACKOUT;
         try {
-            BlackoutTime blackoutTime = new BlackoutTime(context);
-            if (power.isCharging(context) && !preferences.canSendOnCharge()) return Result.BLACKOUT;
-            if (!power.isCharging(context) && !preferences.canSendOffCharge()) return Result.BLACKOUT;
+            BlackoutTime blackoutTime = new BlackoutTime();
             if (type == ConnectivityManager.TYPE_WIFI && !blackoutTime.canSendAtTime(new GregorianCalendar(), preferences.getWlanBlackout())) return Result.BLACKOUT;
             if (isTypeMobile(type) && !blackoutTime.canSendAtTime(new GregorianCalendar(), preferences.getWwanBlackout())) return Result.BLACKOUT;
-            if (info.isRoaming() && !preferences.canSendOnRoaming()) return Result.BLACKOUT;
         } catch (ParseException e) {
             Logger.w(TAG, "canSend", e);
-            return Result.TEMPORARY_ERROR;
+            return Result.OK;
         }
 
         TimeRange range = preferences.getCellularDataBlackout();

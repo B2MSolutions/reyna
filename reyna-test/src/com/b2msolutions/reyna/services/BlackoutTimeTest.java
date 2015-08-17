@@ -1,8 +1,6 @@
 package com.b2msolutions.reyna.services;
 
-import android.content.Context;
 import com.b2msolutions.reyna.Time;
-import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,8 +20,7 @@ public class BlackoutTimeTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        Context context = Robolectric.getShadowApplication().getApplicationContext();
-        blackoutTime = new BlackoutTime(context);
+        blackoutTime = new BlackoutTime();
     }
 
     @Test

@@ -1,7 +1,5 @@
 package com.b2msolutions.reyna.services;
 
-import android.content.Context;
-import com.b2msolutions.reyna.Preferences;
 import com.b2msolutions.reyna.Time;
 import com.b2msolutions.reyna.TimeRange;
 
@@ -10,12 +8,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class BlackoutTime {
-
-    private final Context context;
-
-    public BlackoutTime(Context context) {
-        this.context = context;
-    }
 
     public boolean canSendAtTime(Calendar now, String range) throws ParseException {
         if (range.length() == 0) return true;
