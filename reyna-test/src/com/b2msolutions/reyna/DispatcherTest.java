@@ -8,7 +8,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import com.b2msolutions.reyna.Dispatcher.Result;
 import com.b2msolutions.reyna.http.HttpPost;
-import com.b2msolutions.reyna.services.Power;
 import com.b2msolutions.reyna.shadows.ShadowAndroidHttpClient;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
@@ -42,6 +41,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.zip.GZIPOutputStream;
 
+import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -49,28 +49,22 @@ import static org.mockito.Mockito.*;
 public class DispatcherTest {
 
     private Context context;
+    private ShadowApplication shadowApplication;
+    private Intent batteryStatus;
     @Mock NetworkInfo networkInfo;
     @Mock Date now;
-    @Mock Power power;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        ShadowApplication shadowApplication = Robolectric.getShadowApplication();
-        context = Robolectric.getShadowApplication().getApplicationContext();
+        shadowApplication = Robolectric.getShadowApplication();
+        context = shadowApplication.getApplicationContext();
         Robolectric.bindShadowClass(ShadowAndroidHttpClient.class);
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         ShadowConnectivityManager shadowConnectivityManager = Robolectric.shadowOf_(connectivityManager);
         shadowConnectivityManager.setActiveNetworkInfo(networkInfo);
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
         when(networkInfo.isConnectedOrConnecting()).thenReturn(true);
-
-        Intent batteryStatus = new Intent();
-        batteryStatus.setAction(Intent.ACTION_BATTERY_CHANGED);
-        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_LEVEL, 3);
-        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_SCALE, 7);
-        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_STATUS, 4);
-        shadowApplication.sendStickyBroadcast(batteryStatus);
     }
 
     @Test
@@ -363,8 +357,8 @@ public class DispatcherTest {
     //   wlan true
     public void shouldSendBlackoutTimeScenarioA() {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
-        when(power.isCharging(context)).thenReturn(true);
-        Dispatcher.power = power;
+        initBatteryChanged();
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, android.os.BatteryManager.BATTERY_PLUGGED_AC);
 
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.saveWlanBlackout("02:00-02:01");
@@ -381,8 +375,8 @@ public class DispatcherTest {
     //   wlan false
     public void shouldNotSendBlackoutTimeScenarioB() {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
-        when(power.isCharging(context)).thenReturn(true);
-        Dispatcher.power = power;
+        initBatteryChanged();
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, android.os.BatteryManager.BATTERY_PLUGGED_AC);
 
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.saveWlanBlackout("00:00-23:59");
@@ -399,8 +393,7 @@ public class DispatcherTest {
     //   wlan true
     public void blackoutTimeScenarioC() {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
-        when(power.isCharging(context)).thenReturn(false);
-        Dispatcher.power = power;
+        initBatteryChanged();
 
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.saveWlanBlackout("02:00-02:01");
@@ -418,8 +411,7 @@ public class DispatcherTest {
     //   wlan false
     public void blackoutTimeScenarioD() {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
-        when(power.isCharging(context)).thenReturn(false);
-        Dispatcher.power = power;
+        initBatteryChanged();
 
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.saveWlanBlackout("00:00-23:59");
@@ -433,8 +425,8 @@ public class DispatcherTest {
 
     private void testBlackoutMobileScenario(int type) {
         when(this.networkInfo.getType()).thenReturn(type);
-        when(power.isCharging(context)).thenReturn(true);
-        Dispatcher.power = power;
+        initBatteryChanged();
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, android.os.BatteryManager.BATTERY_PLUGGED_AC);
 
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.saveWwanBlackout("02:00-02:01");
@@ -465,8 +457,8 @@ public class DispatcherTest {
     //   wwan false
     public void blackoutTimeScenarioF() {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
-        when(power.isCharging(context)).thenReturn(true);
-        Dispatcher.power = power;
+        initBatteryChanged();
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, android.os.BatteryManager.BATTERY_PLUGGED_AC);
 
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.saveWwanBlackout("00:00-23:59");
@@ -484,8 +476,7 @@ public class DispatcherTest {
     //   wwan true
     public void blackoutTimeScenarioG() {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
-        when(power.isCharging(context)).thenReturn(false);
-        Dispatcher.power = power;
+        initBatteryChanged();
 
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.saveWwanBlackout("02:00-02:01");
@@ -503,8 +494,7 @@ public class DispatcherTest {
     //   wwan false
     public void blackoutTimeScenarioH() {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
-        when(power.isCharging(context)).thenReturn(false);
-        Dispatcher.power = power;
+        initBatteryChanged();
 
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.saveWwanBlackout("00:00-23:59");
@@ -524,8 +514,8 @@ public class DispatcherTest {
     public void blackoutTimeScenarioI() {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         when(this.networkInfo.isRoaming()).thenReturn(true);
-        when(power.isCharging(context)).thenReturn(true);
-        Dispatcher.power = power;
+        initBatteryChanged();
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, android.os.BatteryManager.BATTERY_PLUGGED_AC);
 
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.saveOnChargeBlackout(true);
@@ -545,8 +535,8 @@ public class DispatcherTest {
     public void blackoutTimeScenarioJ() {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         when(this.networkInfo.isRoaming()).thenReturn(true);
-        when(power.isCharging(context)).thenReturn(true);
-        Dispatcher.power = power;
+        initBatteryChanged();
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, android.os.BatteryManager.BATTERY_PLUGGED_AC);
 
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.saveOnChargeBlackout(true);
@@ -566,8 +556,7 @@ public class DispatcherTest {
     public void blackoutTimeScenarioK() {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         when(this.networkInfo.isRoaming()).thenReturn(true);
-        when(power.isCharging(context)).thenReturn(false);
-        Dispatcher.power = power;
+        initBatteryChanged();
 
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.saveOffChargeBlackout(true);
@@ -587,8 +576,7 @@ public class DispatcherTest {
     public void blackoutTimeScenarioL() {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         when(this.networkInfo.isRoaming()).thenReturn(true);
-        when(power.isCharging(context)).thenReturn(false);
-        Dispatcher.power = power;
+        initBatteryChanged();
 
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.saveOffChargeBlackout(true);
@@ -608,8 +596,7 @@ public class DispatcherTest {
     public void blackoutTimeScenarioM() {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         when(this.networkInfo.isRoaming()).thenReturn(true);
-        when(power.isCharging(context)).thenReturn(false);
-        Dispatcher.power = power;
+        initBatteryChanged();
 
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.saveOffChargeBlackout(true);
@@ -619,5 +606,57 @@ public class DispatcherTest {
 
         preferences.saveOffChargeBlackout(false);
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+    }
+
+    @Test
+    public void whenCallingIsChargingAndCouldNotGetBatteryStatusShouldReturnFalse() {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_AIRPLANE_MODE_CHANGED);
+        shadowApplication.sendStickyBroadcast(intent);
+        assertFalse(Dispatcher.isBatteryCharging(context));
+    }
+
+    private void initBatteryChanged() {
+        batteryStatus = new Intent();
+        batteryStatus.setAction(Intent.ACTION_BATTERY_CHANGED);
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_LEVEL, 3);
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_SCALE, 7);
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_STATUS, 4);
+        shadowApplication.sendStickyBroadcast(batteryStatus);
+    }
+
+    @Test
+    public void whenCallingIsChargingShouldReturnExpected() {
+        initBatteryChanged();
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, android.os.BatteryManager.BATTERY_PLUGGED_AC);
+        assertTrue(Dispatcher.isBatteryCharging(context));
+    }
+
+    @Test
+    public void whenCallingIsChargingUsbShouldReturnExpected() {
+        initBatteryChanged();
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, android.os.BatteryManager.BATTERY_PLUGGED_USB);
+        assertTrue(Dispatcher.isBatteryCharging(context));
+    }
+
+    @Test
+    public void whenCallingIsChargingWirelessShouldReturnExpected() {
+        initBatteryChanged();
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, 4);
+        assertTrue(Dispatcher.isBatteryCharging(context));
+    }
+
+    @Test
+    public void whenCallingIsChargingUnknownShouldReturnExpected() {
+        initBatteryChanged();
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, 3);
+        assertTrue(Dispatcher.isBatteryCharging(context));
+    }
+
+    @Test
+    public void whenCallingGetBatteryChargingOnAndNotChargingShouldReturnExpected() {
+        initBatteryChanged();
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, -1);
+        assertFalse(Dispatcher.isBatteryCharging(context));
     }
 }

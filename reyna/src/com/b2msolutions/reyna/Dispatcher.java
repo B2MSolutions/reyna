@@ -1,12 +1,13 @@
 package com.b2msolutions.reyna;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.http.AndroidHttpClient;
 import com.b2msolutions.reyna.http.HttpPost;
 import com.b2msolutions.reyna.services.BlackoutTime;
-import com.b2msolutions.reyna.services.Power;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.entity.AbstractHttpEntity;
@@ -20,15 +21,10 @@ import java.util.GregorianCalendar;
 
 public class Dispatcher {
 
-    protected static Power power;
     private static final String TAG = "Dispatcher";
 
     public enum Result {
         OK, PERMANENT_ERROR, TEMPORARY_ERROR, BLACKOUT, NOTCONNECTED
-    }
-
-    public Dispatcher() {
-        power = new Power();
     }
 
     public Result sendMessage(Context context, Message message) {
@@ -67,8 +63,8 @@ public class Dispatcher {
         int type = info.getType();
         Preferences preferences = new Preferences(context);
 
-        if (power.isCharging(context) && !preferences.canSendOnCharge()) return Result.BLACKOUT;
-        if (!power.isCharging(context) && !preferences.canSendOffCharge()) return Result.BLACKOUT;
+        if (Dispatcher.isBatteryCharging(context) && !preferences.canSendOnCharge()) return Result.BLACKOUT;
+        if (!Dispatcher.isBatteryCharging(context) && !preferences.canSendOffCharge()) return Result.BLACKOUT;
         if (info.isRoaming() && !preferences.canSendOnRoaming()) return Result.BLACKOUT;
         try {
             BlackoutTime blackoutTime = new BlackoutTime();
@@ -194,5 +190,17 @@ public class Dispatcher {
         }
 
         return entity;
+    }
+
+    public static boolean isBatteryCharging(Context context) {
+        Intent batteryStatus = context.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        if(batteryStatus == null) return false;
+        Integer plugged = batteryStatus.getIntExtra(android.os.BatteryManager.EXTRA_PLUGGED, -1);
+        return plugged == android.os.BatteryManager.BATTERY_PLUGGED_AC ||
+                plugged == android.os.BatteryManager.BATTERY_PLUGGED_USB ||
+                // wireless!
+                plugged == 4 ||
+                // unknown
+                plugged == 3;
     }
 }
