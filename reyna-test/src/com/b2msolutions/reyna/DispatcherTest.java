@@ -368,11 +368,11 @@ public class DispatcherTest {
         Dispatcher.power = power;
 
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveWlanRange("02:00-02:01");
-        preferences.saveOnCharge(true);
+        preferences.saveWlanBlackout("02:00-02:01");
+        preferences.saveOnChargeBlackout(true);
         assertEquals(Result.OK, Dispatcher.canSend(this.context));
 
-        preferences.saveOnCharge(false);
+        preferences.saveOnChargeBlackout(false);
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
     }
 
@@ -386,11 +386,11 @@ public class DispatcherTest {
         Dispatcher.power = power;
 
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveWlanRange("00:00-23:59");
-        preferences.saveOnCharge(true);
+        preferences.saveWlanBlackout("00:00-23:59");
+        preferences.saveOnChargeBlackout(true);
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
 
-        preferences.saveOnCharge(false);
+        preferences.saveOnChargeBlackout(false);
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
     }
 
@@ -404,12 +404,12 @@ public class DispatcherTest {
         Dispatcher.power = power;
 
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveWlanRange("02:00-02:01");
-        preferences.saveOffCharge(true);
+        preferences.saveWlanBlackout("02:00-02:01");
+        preferences.saveOffChargeBlackout(true);
 
         assertEquals(Result.OK, Dispatcher.canSend(this.context));
 
-        preferences.saveOffCharge(false);
+        preferences.saveOffChargeBlackout(false);
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
     }
 
@@ -423,12 +423,12 @@ public class DispatcherTest {
         Dispatcher.power = power;
 
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveWlanRange("00:00-23:59");
-        preferences.saveOffCharge(true);
+        preferences.saveWlanBlackout("00:00-23:59");
+        preferences.saveOffChargeBlackout(true);
 
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
 
-        preferences.saveOffCharge(false);
+        preferences.saveOffChargeBlackout(false);
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
     }
 
@@ -442,12 +442,12 @@ public class DispatcherTest {
         Dispatcher.power = power;
 
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveWwanRange("02:00-02:01");
-        preferences.saveOnCharge(true);
+        preferences.saveWwanBlackout("02:00-02:01");
+        preferences.saveOnChargeBlackout(true);
 
         assertEquals(Result.OK, Dispatcher.canSend(this.context));
 
-        preferences.saveOnCharge(false);
+        preferences.saveOnChargeBlackout(false);
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
     }
 
@@ -461,12 +461,12 @@ public class DispatcherTest {
         Dispatcher.power = power;
 
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveWwanRange("00:00-23:59");
-        preferences.saveOnCharge(true);
+        preferences.saveWwanBlackout("00:00-23:59");
+        preferences.saveOnChargeBlackout(true);
 
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
 
-        preferences.saveOnCharge(false);
+        preferences.saveOnChargeBlackout(false);
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
     }
 
@@ -480,12 +480,12 @@ public class DispatcherTest {
         Dispatcher.power = power;
 
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveWwanRange("02:00-02:01");
-        preferences.saveOffCharge(true);
+        preferences.saveWwanBlackout("02:00-02:01");
+        preferences.saveOffChargeBlackout(true);
 
         assertEquals(Result.OK, Dispatcher.canSend(this.context));
 
-        preferences.saveOffCharge(false);
+        preferences.saveOffChargeBlackout(false);
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
     }
 
@@ -499,12 +499,12 @@ public class DispatcherTest {
         Dispatcher.power = power;
 
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveWwanRange("00:00-23:59");
-        preferences.saveOffCharge(true);
+        preferences.saveWwanBlackout("00:00-23:59");
+        preferences.saveOffChargeBlackout(true);
 
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
 
-        preferences.saveOffCharge(false);
+        preferences.saveOffChargeBlackout(false);
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
     }
 
@@ -520,12 +520,12 @@ public class DispatcherTest {
         Dispatcher.power = power;
 
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveOnCharge(true);
-        preferences.saveWwanRoaming(false);
+        preferences.saveOnChargeBlackout(true);
+        preferences.saveWwanRoamingBlackout(false);
 
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
 
-        preferences.saveOnCharge(false);
+        preferences.saveOnChargeBlackout(false);
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
     }
 
@@ -541,12 +541,12 @@ public class DispatcherTest {
         Dispatcher.power = power;
 
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveOnCharge(true);
-        preferences.saveWwanRoaming(true);
+        preferences.saveOnChargeBlackout(true);
+        preferences.saveWwanRoamingBlackout(true);
 
         assertEquals(Result.OK, Dispatcher.canSend(this.context));
 
-        preferences.saveOnCharge(false);
+        preferences.saveOnChargeBlackout(false);
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
     }
 
@@ -562,12 +562,12 @@ public class DispatcherTest {
         Dispatcher.power = power;
 
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveOffCharge(true);
-        preferences.saveWwanRoaming(true);
+        preferences.saveOffChargeBlackout(true);
+        preferences.saveWwanRoamingBlackout(true);
 
         assertEquals(Result.OK, Dispatcher.canSend(this.context));
 
-        preferences.saveOffCharge(false);
+        preferences.saveOffChargeBlackout(false);
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
     }
 
@@ -583,12 +583,12 @@ public class DispatcherTest {
         Dispatcher.power = power;
 
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveOffCharge(true);
-        preferences.saveWwanRoaming(false);
+        preferences.saveOffChargeBlackout(true);
+        preferences.saveWwanRoamingBlackout(false);
 
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
 
-        preferences.saveOffCharge(false);
+        preferences.saveOffChargeBlackout(false);
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
     }
 }

@@ -65,47 +65,47 @@ public class PreferencesTest {
     @Test
     public void getWlanRangeShouldReturnExpectedOnceWlanRangeIsSaved() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveWlanRange("01:00-09:00");
-        assertEquals("01:00-09:00", preferences.getWlanRange());
+        preferences.saveWlanBlackout("01:00-09:00");
+        assertEquals("01:00-09:00", preferences.getWlanBlackout());
     }
 
     @Test
     public void getWlanRangeReturnsEmptyStringIfWlanRangeIsNotSaved() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        assertEquals("", preferences.getWlanRange());
+        assertEquals("", preferences.getWlanBlackout());
     }
 
     @Test
     public void getWwanRangeShouldReturnExpectedOnceWwanRangeIsSaved() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveWwanRange("01:00-09:00");
-        assertEquals("01:00-09:00", preferences.getWwanRange());
+        preferences.saveWwanBlackout("01:00-09:00");
+        assertEquals("01:00-09:00", preferences.getWwanBlackout());
     }
 
     @Test
     public void whenSavingWlanRangeShouldValidateInput() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveWlanRange("01:00");
-        assertEquals("", preferences.getWlanRange());
+        preferences.saveWlanBlackout("01:00");
+        assertEquals("", preferences.getWlanBlackout());
     }
 
     @Test
     public void whenSavingWwanRangeShouldValidateInput() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveWwanRange("01:00");
-        assertEquals("", preferences.getWwanRange());
+        preferences.saveWwanBlackout("01:00");
+        assertEquals("", preferences.getWwanBlackout());
     }
 
     @Test
     public void getWwanRangeReturnsEmptyStringIfWwanRangeIsNotSaved() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        assertEquals("", preferences.getWwanRange());
+        assertEquals("", preferences.getWwanBlackout());
     }
 
     @Test
     public void canSendOnRoamingShouldReturnExpected() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveWwanRoaming(true);
+        preferences.saveWwanRoamingBlackout(true);
         assertTrue(preferences.canSendOnRoaming());
     }
 
@@ -118,7 +118,7 @@ public class PreferencesTest {
     @Test
     public void canSendOnChargeShouldReturnExpected() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveOnCharge(true);
+        preferences.saveOnChargeBlackout(true);
         assertTrue(preferences.canSendOnCharge());
     }
 
@@ -131,7 +131,7 @@ public class PreferencesTest {
     @Test
     public void canSendOffChargeShouldReturnExpected() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveOffCharge(true);
+        preferences.saveOffChargeBlackout(true);
         assertTrue(preferences.canSendOffCharge());
     }
 

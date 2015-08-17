@@ -66,7 +66,7 @@ public class Preferences {
         edit.apply();
     }
 
-    public void saveWlanRange(String value) {
+    public void saveWlanBlackout(String value) {
         if (isBlackoutRangeValid(value)) {
             SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
             SharedPreferences.Editor edit = sp.edit();
@@ -75,12 +75,12 @@ public class Preferences {
         }
     }
 
-    public String getWlanRange() {
+    public String getWlanBlackout() {
         SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
         return sp.getString(WLAN_RANGE, "");
     }
 
-    public void saveWwanRange(String value) {
+    public void saveWwanBlackout(String value) {
         if(isBlackoutRangeValid(value)) {
             SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
             SharedPreferences.Editor edit = sp.edit();
@@ -89,12 +89,12 @@ public class Preferences {
         }
     }
 
-    public String getWwanRange() {
+    public String getWwanBlackout() {
         SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
         return sp.getString(WWAN_RANGE, "");
     }
 
-    public void saveWwanRoaming(boolean value) {
+    public void saveWwanRoamingBlackout(boolean value) {
         SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
         SharedPreferences.Editor edit = sp.edit();
         edit.putBoolean(WWAN_ROAMING, value);
@@ -106,7 +106,7 @@ public class Preferences {
         return sp.getBoolean(WWAN_ROAMING, false);
     }
 
-    public void saveOnCharge(boolean value) {
+    public void saveOnChargeBlackout(boolean value) {
         SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
         SharedPreferences.Editor edit = sp.edit();
         edit.putBoolean(ON_CHARGE, value);
@@ -118,7 +118,7 @@ public class Preferences {
         return sp.getBoolean(ON_CHARGE, true);
     }
 
-    public void saveOffCharge(boolean value) {
+    public void saveOffChargeBlackout(boolean value) {
         SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
         SharedPreferences.Editor edit = sp.edit();
         edit.putBoolean(OFF_CHARGE, value);

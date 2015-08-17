@@ -19,13 +19,13 @@ public class BlackoutTime {
 
     public boolean canSendOnWlan(Calendar now) throws ParseException {
         Preferences preferences = new Preferences(context);
-        String range = preferences.getWlanRange();
+        String range = preferences.getWlanBlackout();
         return canSendAtTime(now, range);
     }
 
     public boolean canSendOnWwan(Calendar now) throws ParseException {
         Preferences preferences = new Preferences(context);
-        String range = preferences.getWwanRange();
+        String range = preferences.getWwanBlackout();
         return canSendAtTime(now, range);
     }
 
