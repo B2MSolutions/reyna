@@ -50,7 +50,7 @@ public class Dispatcher {
             return result;
         }
 
-        result = this.parseHttpPost(message, httpPost, httpClient, context);
+        result = this.parseHttpPost(message, httpPost, context);
         if (result != Result.OK) {
             return result;
         }
@@ -69,14 +69,11 @@ public class Dispatcher {
 
         try {
             BlackoutTime blackoutTime = new BlackoutTime(context);
-            if (cantSendOnWlanCharging(context, type, preferences, blackoutTime)) return Result.BLACKOUT;
-            if (cantSendOnWlanDischarging(context, type, preferences, blackoutTime)) return Result.BLACKOUT;
-            if (isTypeMobile(type)) {
-                if (cantSendOnRoamingCharging(context, info, preferences)) return Result.BLACKOUT;
-                if (cantSendOnWwanCharging(context, preferences, blackoutTime)) return Result.BLACKOUT;
-                if (cantSendOnRoamingDischarging(context, info, preferences)) return Result.BLACKOUT;
-                if (cantSendOnWwanDischarging(context, preferences, blackoutTime)) return Result.BLACKOUT;
-            }
+            if (power.isCharging(context) && !preferences.canSendOnCharge()) return Result.BLACKOUT;
+            if (!power.isCharging(context) && !preferences.canSendOffCharge()) return Result.BLACKOUT;
+            if (type == ConnectivityManager.TYPE_WIFI && !blackoutTime.canSendOnWlan(new GregorianCalendar())) return Result.BLACKOUT;
+            if (isTypeMobile(type) && !blackoutTime.canSendOnWwan(new GregorianCalendar())) return Result.BLACKOUT;
+            if (info.isRoaming() && !preferences.canSendOnRoaming()) return Result.BLACKOUT;
         } catch (ParseException e) {
             Logger.w(TAG, "canSend", e);
             return Result.TEMPORARY_ERROR;
@@ -103,51 +100,7 @@ public class Dispatcher {
             type == ConnectivityManager.TYPE_WIMAX;
     }
 
-    private static boolean cantSendOnWwanDischarging(Context context, Preferences preferences, BlackoutTime blackoutTime) throws ParseException {
-        return !blackoutTime.canSendOnWwan(new GregorianCalendar()) || (!preferences.canSendOffCharge() && !power.isCharging(context));
-    }
-
-    private static boolean cantSendOnRoamingDischarging(Context context, NetworkInfo info, Preferences preferences) {
-        if (info.isRoaming() && !power.isCharging(context)) {
-            if (!preferences.canSendOnRoaming() || !preferences.canSendOffCharge()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static boolean cantSendOnWwanCharging(Context context, Preferences preferences, BlackoutTime blackoutTime) throws ParseException {
-        return !blackoutTime.canSendOnWwan(new GregorianCalendar()) || (!preferences.canSendOnCharge() && power.isCharging(context));
-    }
-
-    private static boolean cantSendOnRoamingCharging(Context context, NetworkInfo info, Preferences preferences) {
-        if (info.isRoaming() && power.isCharging(context)) {
-            if (!preferences.canSendOnRoaming() || !preferences.canSendOnCharge()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static boolean cantSendOnWlanDischarging(Context context, int type, Preferences preferences, BlackoutTime blackoutTime) throws ParseException {
-        if (type == ConnectivityManager.TYPE_WIFI && !power.isCharging(context)) {
-            if(!blackoutTime.canSendOnWlan(new GregorianCalendar()) || !preferences.canSendOffCharge()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static boolean cantSendOnWlanCharging(Context context, int type, Preferences preferences, BlackoutTime blackoutTime) throws ParseException {
-        if (type == ConnectivityManager.TYPE_WIFI && power.isCharging(context)) {
-            if(!blackoutTime.canSendOnWlan(new GregorianCalendar()) || !preferences.canSendOnCharge()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private Result parseHttpPost(Message message, HttpPost httpPost, HttpClient httpClient, Context context) {
+    private Result parseHttpPost(Message message, HttpPost httpPost, Context context) {
         Logger.v(TAG, "parseHttpPost");
 
         try {
@@ -193,9 +146,7 @@ public class Dispatcher {
     }
 
     private static boolean shouldGzip(Header[] headers) {
-        for (int i = 0; i < headers.length; i++) {
-            Header header = headers[i];
-
+        for (Header header : headers) {
             if (header.getKey().equalsIgnoreCase("content-encoding")
                     && header.getValue().equalsIgnoreCase("gzip")) {
                 return true;
@@ -208,9 +159,7 @@ public class Dispatcher {
     private static Header[] removeGzipEncodingHeader(Header[] headers) {
         ArrayList<Header> filteredHeaders = new ArrayList<Header>();
 
-        for (int i = 0; i < headers.length; i++) {
-            Header header = headers[i];
-
+        for (Header header : headers) {
             if (header.getKey().equalsIgnoreCase("content-encoding")
                     && header.getValue().equalsIgnoreCase("gzip")) {
                 continue;
