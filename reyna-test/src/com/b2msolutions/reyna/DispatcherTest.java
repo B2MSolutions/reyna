@@ -16,7 +16,6 @@ import com.xtremelabs.robolectric.shadows.ShadowApplication;
 import com.xtremelabs.robolectric.shadows.ShadowConnectivityManager;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
@@ -75,7 +74,7 @@ public class DispatcherTest {
     }
 
     @Test
-    public void sendMessageHappyPathShouldSetExecuteCorrectHttpPostAndReturnOK() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+    public void sendMessageHappyPathShouldSetExecuteCorrectHttpPostAndReturnOK() throws URISyntaxException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
         Message message = RepositoryTest.getMessageWithHeaders();
 
         StatusLine statusLine = mock(StatusLine.class);
@@ -123,7 +122,7 @@ public class DispatcherTest {
     }
 
     @Test
-    public void sendMessageHappyPathWithPortShouldSetPort() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+    public void sendMessageHappyPathWithPortShouldSetPort() throws URISyntaxException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
         Message message = new Message(new URI("https://www.google.com:9008/a/b"), "body", null);
 
         StatusLine statusLine = mock(StatusLine.class);
@@ -163,7 +162,7 @@ public class DispatcherTest {
     }
 
     @Test
-    public void whenExecuteThrowsReturnTemporaryError() throws URISyntaxException, ClientProtocolException, IOException {
+    public void whenExecuteThrowsReturnTemporaryError() throws URISyntaxException, IOException {
         Message message = RepositoryTest.getMessageWithHeaders();
 
         HttpPost httpPost = mock(HttpPost.class);
@@ -186,7 +185,7 @@ public class DispatcherTest {
     }
 
     @Test
-    public void sendMessageWithGzipAndContentIsLessThanMinGzipLengthShouldRemoveGzipHeaderAndSendMessageAsString() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException, Exception {
+    public void sendMessageWithGzipAndContentIsLessThanMinGzipLengthShouldRemoveGzipHeaderAndSendMessageAsString() throws Exception {
         Message message = RepositoryTest.getMessageWithGzipHeaders("body");
 
         StatusLine statusLine = mock(StatusLine.class);
@@ -213,7 +212,7 @@ public class DispatcherTest {
     @Test
     public void sendMessageWithGzipHeaderShouldCompressContentAndReturnOK() throws URISyntaxException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
         Message message = RepositoryTest.getMessageWithGzipHeaders("this any message body more than 10 bytes length");
-        byte[] data = new String("this any message body more than 10 bytes length").getBytes("utf-8");
+        byte[] data = "this any message body more than 10 bytes length".getBytes("utf-8");
 
         StatusLine statusLine = mock(StatusLine.class);
         when(statusLine.getStatusCode()).thenReturn(200);
@@ -586,6 +585,27 @@ public class DispatcherTest {
     // configuration
     //   roaming false
     public void blackoutTimeScenarioL() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        when(this.networkInfo.isRoaming()).thenReturn(true);
+        when(power.isCharging(context)).thenReturn(false);
+        Dispatcher.power = power;
+
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveOffChargeBlackout(true);
+        preferences.saveWwanRoamingBlackout(false);
+
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+
+        preferences.saveOffChargeBlackout(false);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+    }
+
+    @SuppressLint("NewApi")
+    @Test
+    // device wwan and wlan oncharge
+    // configuration
+    //   wwan true
+    public void blackoutTimeScenarioM() {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         when(this.networkInfo.isRoaming()).thenReturn(true);
         when(power.isCharging(context)).thenReturn(false);
