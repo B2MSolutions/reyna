@@ -28,42 +28,56 @@ public class GivenAPower {
         shadowApplication = Robolectric.getShadowApplication();
         context = shadowApplication.getApplicationContext();
         power = new Power();
+    }
 
+    private void initBatteryChanged() {
         batteryStatus = new Intent();
         batteryStatus.setAction(Intent.ACTION_BATTERY_CHANGED);
         batteryStatus.putExtra(android.os.BatteryManager.EXTRA_LEVEL, 3);
         batteryStatus.putExtra(android.os.BatteryManager.EXTRA_SCALE, 7);
         batteryStatus.putExtra(android.os.BatteryManager.EXTRA_STATUS, 4);
-
         shadowApplication.sendStickyBroadcast(batteryStatus);
     }
 
     @Test
+    public void whenCallingIsChargingAndCouldNotGetBatteryStatusShouldReturnFalse() {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_AIRPLANE_MODE_CHANGED);
+        shadowApplication.sendStickyBroadcast(intent);
+        assertFalse(power.isCharging(context));
+    }
+
+    @Test
     public void whenCallingIsChargingShouldReturnExpected() {
+        initBatteryChanged();
         batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, android.os.BatteryManager.BATTERY_PLUGGED_AC);
         assertTrue(power.isCharging(context));
     }
 
     @Test
     public void whenCallingIsChargingUsbShouldReturnExpected() {
+        initBatteryChanged();
         batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, android.os.BatteryManager.BATTERY_PLUGGED_USB);
         assertTrue(power.isCharging(context));
     }
 
     @Test
     public void whenCallingIsChargingWirelessShouldReturnExpected() {
+        initBatteryChanged();
         batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, 4);
         assertTrue(power.isCharging(context));
     }
 
     @Test
     public void whenCallingIsChargingUnknownShouldReturnExpected() {
+        initBatteryChanged();
         batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, 3);
         assertTrue(power.isCharging(context));
     }
 
     @Test
-    public void whenCallinggetBatteryChargingOnAndNotChargingShouldReturnExpected() {
+    public void whenCallingGetBatteryChargingOnAndNotChargingShouldReturnExpected() {
+        initBatteryChanged();
         batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, -1);
         assertFalse(power.isCharging(context));
     }
