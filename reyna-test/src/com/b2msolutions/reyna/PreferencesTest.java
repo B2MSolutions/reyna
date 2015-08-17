@@ -76,6 +76,22 @@ public class PreferencesTest {
     }
 
     @Test
+    public void getWlanRangeReturnsEmptyStringIfNewWlanRangeIsNotValid() {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveWwanBlackout("01:00-09:00");//existing preference to overwrite
+        preferences.saveWlanBlackout("");
+        assertEquals("", preferences.getWlanBlackout());
+    }
+
+    @Test
+    public void getWwanRangeReturnsEmptyStringIfNewWwanRangeIsNotValid() {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveWwanBlackout("01:00-09:00");//existing preference to overwrite
+        preferences.saveWwanBlackout("");
+        assertEquals("", preferences.getWwanBlackout());
+    }
+
+    @Test
     public void getWwanRangeShouldReturnExpectedOnceWwanRangeIsSaved() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.saveWwanBlackout("01:00-09:00");

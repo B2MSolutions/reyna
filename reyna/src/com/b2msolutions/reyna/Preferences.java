@@ -67,12 +67,14 @@ public class Preferences {
     }
 
     public void saveWlanBlackout(String value) {
+        SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
+        SharedPreferences.Editor edit = sp.edit();
         if (isBlackoutRangeValid(value)) {
-            SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
-            SharedPreferences.Editor edit = sp.edit();
             edit.putString(WLAN_RANGE, value);
-            edit.apply();
+        } else {
+            edit.putString(WLAN_RANGE, "");
         }
+        edit.apply();
     }
 
     public String getWlanBlackout() {
@@ -81,12 +83,14 @@ public class Preferences {
     }
 
     public void saveWwanBlackout(String value) {
+        SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
+        SharedPreferences.Editor edit = sp.edit();
         if(isBlackoutRangeValid(value)) {
-            SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
-            SharedPreferences.Editor edit = sp.edit();
             edit.putString(WWAN_RANGE, value);
-            edit.apply();
+        } else {
+            edit.putString(WWAN_RANGE, "");
         }
+        edit.apply();
     }
 
     public String getWwanBlackout() {
