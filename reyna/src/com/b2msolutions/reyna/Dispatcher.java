@@ -6,6 +6,7 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.http.AndroidHttpClient;
+import android.text.TextUtils;
 import com.b2msolutions.reyna.http.HttpPost;
 import com.b2msolutions.reyna.services.BlackoutTime;
 import org.apache.http.HttpResponse;
@@ -60,34 +61,62 @@ public class Dispatcher {
         if (info == null || !info.isConnectedOrConnecting()) {
             return Result.NOTCONNECTED;
         }
-        int type = info.getType();
+
         Preferences preferences = new Preferences(context);
+        BlackoutTime blackoutTime = new BlackoutTime();
+
+        if (TextUtils.isEmpty(preferences.getWwanBlackout())) {
+            saveCellularDataAsWwanForBackwardCompatibility(preferences);
+        }
 
         if (Dispatcher.isBatteryCharging(context) && !preferences.canSendOnCharge()) return Result.BLACKOUT;
         if (!Dispatcher.isBatteryCharging(context) && !preferences.canSendOffCharge()) return Result.BLACKOUT;
-        if (info.isRoaming() && !preferences.canSendOnRoaming()) return Result.BLACKOUT;
+        if (isRoaming(info) && !preferences.canSendOnRoaming()) return Result.BLACKOUT;
         try {
-            BlackoutTime blackoutTime = new BlackoutTime();
-            if (type == ConnectivityManager.TYPE_WIFI && !blackoutTime.canSendAtTime(new GregorianCalendar(), preferences.getWlanBlackout())) return Result.BLACKOUT;
-            if (isTypeMobile(type) && !blackoutTime.canSendAtTime(new GregorianCalendar(), preferences.getWwanBlackout())) return Result.BLACKOUT;
+            if (isWifi(info) && !canSendNow(blackoutTime, preferences.getWlanBlackout())) return Result.BLACKOUT;
+            if (isMobile(info) && !canSendNow(blackoutTime, preferences.getWwanBlackout())) return Result.BLACKOUT;
         } catch (ParseException e) {
             Logger.w(TAG, "canSend", e);
             return Result.OK;
         }
 
-        TimeRange range = preferences.getCellularDataBlackout();
-        if (range == null) {
-            return Result.OK;
-        }
-
-        if (!isTypeMobile(type)) {
-            return Result.OK;
-        }
-
-        return range.contains(new Time()) ? Result.BLACKOUT : Result.OK;
+        return Result.OK;
     }
 
-    private static boolean isTypeMobile(int type) {
+    private static boolean canSendNow(BlackoutTime blackoutTime, String window) throws ParseException {
+        return blackoutTime.canSendAtTime(new GregorianCalendar(), window);
+    }
+
+    private static void saveCellularDataAsWwanForBackwardCompatibility(Preferences preferences) {
+        TimeRange timeRange = preferences.getCellularDataBlackout();
+        if(timeRange != null) {
+
+            int hourFrom = (int) Math.floor(timeRange.getFrom().getMinuteOfDay() / 60);
+            int minuteFrom = timeRange.getFrom().getMinuteOfDay() % 60;
+            String blackoutFrom = zeroPad(hourFrom) + ":" + zeroPad(minuteFrom);
+
+            int hourTo = (int) Math.floor(timeRange.getTo().getMinuteOfDay() / 60);
+            int minuteTo = timeRange.getTo().getMinuteOfDay() % 60;
+
+            String blackoutTo = zeroPad(hourTo) + ":" + zeroPad(minuteTo);
+            preferences.saveWwanBlackout(blackoutFrom + "-" + blackoutTo);
+        }
+    }
+
+    private static String zeroPad(int toBePadded) {
+        return String.format("%02d", toBePadded);
+    }
+
+    private static boolean isRoaming(NetworkInfo info) {
+        return info.isRoaming();
+    }
+
+    private static boolean isWifi(NetworkInfo info) {
+        return info.getType() == ConnectivityManager.TYPE_WIFI;
+    }
+
+    private static boolean isMobile(NetworkInfo info) {
+        int type = info.getType();
         return type == ConnectivityManager.TYPE_MOBILE ||
             type == ConnectivityManager.TYPE_MOBILE_DUN ||
             type == ConnectivityManager.TYPE_MOBILE_HIPRI ||

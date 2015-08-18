@@ -39,6 +39,7 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.zip.GZIPOutputStream;
 
 import static junit.framework.Assert.assertFalse;
@@ -658,5 +659,30 @@ public class DispatcherTest {
         initBatteryChanged();
         batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, -1);
         assertFalse(Dispatcher.isBatteryCharging(context));
+    }
+
+    @Test
+    public void whenOldAndNewConfigurationPresentPreferNewConfiguration() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        Calendar now = new GregorianCalendar();
+        Time oldTo = new Time(now.get(Calendar.HOUR_OF_DAY) + 1, now.get(Calendar.MINUTE));
+        preferences.saveCellularDataBlackout(new TimeRange(new Time(0,0), oldTo));
+
+        String newTo = (now.get(Calendar.HOUR_OF_DAY) - 1) + ":" + now.get(Calendar.MINUTE);
+        preferences.saveWwanBlackout("00:00-" + newTo);
+
+        assertEquals(Result.OK, Dispatcher.canSend(context));
+    }
+
+    @Test
+    public void whenOldConfigurationPresentAndNewNotPresentDontUseNewConfDefaultValue() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        Calendar now = new GregorianCalendar();
+        Time oldTo = new Time(now.get(Calendar.HOUR_OF_DAY) + 1, now.get(Calendar.MINUTE));
+        preferences.saveCellularDataBlackout(new TimeRange(new Time(0,0), oldTo));
+
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(context));
     }
 }
