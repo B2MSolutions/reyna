@@ -1,5 +1,6 @@
 package com.b2msolutions.reyna.services;
 
+import android.text.TextUtils;
 import com.b2msolutions.reyna.Time;
 import com.b2msolutions.reyna.TimeRange;
 
@@ -10,7 +11,7 @@ import java.util.*;
 public class BlackoutTime {
 
     public boolean canSendAtTime(Calendar now, String range) throws ParseException {
-        if (range.length() == 0) return true;
+        if (TextUtils.isEmpty(range)) return true;
 
         String[] rangesSplit = range.split(",");
         for (String rangeSplit : rangesSplit) {
