@@ -1,6 +1,8 @@
 package com.b2msolutions.reyna;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -9,10 +11,10 @@ import com.b2msolutions.reyna.http.HttpPost;
 import com.b2msolutions.reyna.shadows.ShadowAndroidHttpClient;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
+import com.xtremelabs.robolectric.shadows.ShadowApplication;
 import com.xtremelabs.robolectric.shadows.ShadowConnectivityManager;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
@@ -36,8 +38,11 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.zip.GZIPOutputStream;
 
+import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -45,24 +50,26 @@ import static org.mockito.Mockito.*;
 public class DispatcherTest {
 
     private Context context;
-
-    @Mock
-    NetworkInfo networkInfo;
+    private ShadowApplication shadowApplication;
+    private Intent batteryStatus;
+    @Mock NetworkInfo networkInfo;
+    @Mock Date now;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        this.context = Robolectric.getShadowApplication().getApplicationContext();
+        shadowApplication = Robolectric.getShadowApplication();
+        context = shadowApplication.getApplicationContext();
         Robolectric.bindShadowClass(ShadowAndroidHttpClient.class);
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         ShadowConnectivityManager shadowConnectivityManager = Robolectric.shadowOf_(connectivityManager);
-        shadowConnectivityManager.setActiveNetworkInfo(this.networkInfo);
-        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
-        when(this.networkInfo.isConnectedOrConnecting()).thenReturn(true);
+        shadowConnectivityManager.setActiveNetworkInfo(networkInfo);
+        when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
+        when(networkInfo.isConnectedOrConnecting()).thenReturn(true);
     }
 
     @Test
-    public void sendMessageHappyPathShouldSetExecuteCorrectHttpPostAndReturnOK() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+    public void sendMessageHappyPathShouldSetExecuteCorrectHttpPostAndReturnOK() throws URISyntaxException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
         Message message = RepositoryTest.getMessageWithHeaders();
 
         StatusLine statusLine = mock(StatusLine.class);
@@ -86,7 +93,7 @@ public class DispatcherTest {
     }
 
     @Test
-    public void sendMessageHappyPathWithChineseCharactersShouldSetExecuteCorrectHttpPostAndReturnOK() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+    public void sendMessageHappyPathWithChineseCharactersShouldSetExecuteCorrectHttpPostAndReturnOK() throws URISyntaxException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
         Message message = RepositoryTest.getMessageWithHeaders("谷歌拼音输入法");
 
         StatusLine statusLine = mock(StatusLine.class);
@@ -110,7 +117,7 @@ public class DispatcherTest {
     }
 
     @Test
-    public void sendMessageHappyPathWithPortShouldSetPort() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+    public void sendMessageHappyPathWithPortShouldSetPort() throws URISyntaxException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
         Message message = new Message(new URI("https://www.google.com:9008/a/b"), "body", null);
 
         StatusLine statusLine = mock(StatusLine.class);
@@ -150,7 +157,7 @@ public class DispatcherTest {
     }
 
     @Test
-    public void whenExecuteThrowsReturnTemporaryError() throws URISyntaxException, ClientProtocolException, IOException {
+    public void whenExecuteThrowsReturnTemporaryError() throws URISyntaxException, IOException {
         Message message = RepositoryTest.getMessageWithHeaders();
 
         HttpPost httpPost = mock(HttpPost.class);
@@ -173,7 +180,7 @@ public class DispatcherTest {
     }
 
     @Test
-    public void sendMessageWithGzipAndContentIsLessThanMinGzipLengthShouldRemoveGzipHeaderAndSendMessageAsString() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException, Exception {
+    public void sendMessageWithGzipAndContentIsLessThanMinGzipLengthShouldRemoveGzipHeaderAndSendMessageAsString() throws Exception {
         Message message = RepositoryTest.getMessageWithGzipHeaders("body");
 
         StatusLine statusLine = mock(StatusLine.class);
@@ -198,9 +205,9 @@ public class DispatcherTest {
     }
 
     @Test
-    public void sendMessageWithGzipHeaderShouldCompressContentAndReturnOK() throws URISyntaxException, ClientProtocolException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+    public void sendMessageWithGzipHeaderShouldCompressContentAndReturnOK() throws URISyntaxException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
         Message message = RepositoryTest.getMessageWithGzipHeaders("this any message body more than 10 bytes length");
-        byte[] data = new String("this any message body more than 10 bytes length").getBytes("utf-8");
+        byte[] data = "this any message body more than 10 bytes length".getBytes("utf-8");
 
         StatusLine statusLine = mock(StatusLine.class);
         when(statusLine.getStatusCode()).thenReturn(200);
@@ -343,5 +350,348 @@ public class DispatcherTest {
         zipper.write(data);
         zipper.close();
         return arr.toByteArray();
+    }
+
+    @Test
+    // device wlan oncharge
+    // configuration
+    //   wlan true
+    public void shouldSendBlackoutTimeScenarioA() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
+        initBatteryChanged();
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, android.os.BatteryManager.BATTERY_PLUGGED_AC);
+
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveWlanBlackout("02:00-02:01");
+        preferences.saveOnChargeBlackout(true);
+        assertEquals(Result.OK, Dispatcher.canSend(this.context));
+
+        preferences.saveOnChargeBlackout(false);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+    }
+
+    @Test
+    // device wlan oncharge
+    // configuration
+    //   wlan false
+    public void shouldNotSendBlackoutTimeScenarioB() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
+        initBatteryChanged();
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, android.os.BatteryManager.BATTERY_PLUGGED_AC);
+
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveWlanBlackout("00:00-23:59");
+        preferences.saveOnChargeBlackout(true);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+
+        preferences.saveOnChargeBlackout(false);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+    }
+
+    @Test
+    // device wlan offcharge
+    // configuration
+    //   wlan true
+    public void blackoutTimeScenarioC() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
+        initBatteryChanged();
+
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveWlanBlackout("02:00-02:01");
+        preferences.saveOffChargeBlackout(true);
+
+        assertEquals(Result.OK, Dispatcher.canSend(this.context));
+
+        preferences.saveOffChargeBlackout(false);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+    }
+
+    @Test
+    // device wlan offcharge
+    // configuration
+    //   wlan false
+    public void blackoutTimeScenarioD() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
+        initBatteryChanged();
+
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveWlanBlackout("00:00-23:59");
+        preferences.saveOffChargeBlackout(true);
+
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+
+        preferences.saveOffChargeBlackout(false);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+    }
+
+    private void testBlackoutMobileScenario(int type) {
+        when(this.networkInfo.getType()).thenReturn(type);
+        initBatteryChanged();
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, android.os.BatteryManager.BATTERY_PLUGGED_AC);
+
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveWwanBlackout("02:00-02:01");
+        preferences.saveOnChargeBlackout(true);
+
+        assertEquals(Result.OK, Dispatcher.canSend(this.context));
+
+        preferences.saveOnChargeBlackout(false);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+    }
+
+    @Test
+    // device wwan oncharge
+    // configuration
+    //   wwan true
+    public void blackoutTimeScenarioE() {
+        testBlackoutMobileScenario(ConnectivityManager.TYPE_MOBILE);
+        testBlackoutMobileScenario(ConnectivityManager.TYPE_MOBILE_DUN);
+        testBlackoutMobileScenario(ConnectivityManager.TYPE_MOBILE_HIPRI);
+        testBlackoutMobileScenario(ConnectivityManager.TYPE_MOBILE_MMS);
+        testBlackoutMobileScenario(ConnectivityManager.TYPE_MOBILE_SUPL);
+        testBlackoutMobileScenario(ConnectivityManager.TYPE_WIMAX);
+    }
+
+    @Test
+    // device wwan oncharge
+    // configuration
+    //   wwan false
+    public void blackoutTimeScenarioF() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        initBatteryChanged();
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, android.os.BatteryManager.BATTERY_PLUGGED_AC);
+
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveWwanBlackout("00:00-23:59");
+        preferences.saveOnChargeBlackout(true);
+
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+
+        preferences.saveOnChargeBlackout(false);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+    }
+
+    @Test
+    // device wwan offcharge
+    // configuration
+    //   wwan true
+    public void blackoutTimeScenarioG() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        initBatteryChanged();
+
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveWwanBlackout("02:00-02:01");
+        preferences.saveOffChargeBlackout(true);
+
+        assertEquals(Result.OK, Dispatcher.canSend(this.context));
+
+        preferences.saveOffChargeBlackout(false);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+    }
+
+    @Test
+    // device wwan offcharge
+    // configuration
+    //   wwan false
+    public void blackoutTimeScenarioH() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        initBatteryChanged();
+
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveWwanBlackout("00:00-23:59");
+        preferences.saveOffChargeBlackout(true);
+
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+
+        preferences.saveOffChargeBlackout(false);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+    }
+
+    @SuppressLint("NewApi")
+    @Test
+    // device roaming oncharge
+    // configuration
+    //   roaming false
+    public void blackoutTimeScenarioI() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        when(this.networkInfo.isRoaming()).thenReturn(true);
+        initBatteryChanged();
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, android.os.BatteryManager.BATTERY_PLUGGED_AC);
+
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveOnChargeBlackout(true);
+        preferences.saveWwanRoamingBlackout(false);
+
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+
+        preferences.saveOnChargeBlackout(false);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+    }
+
+    @SuppressLint("NewApi")
+    @Test
+    // device roaming oncharge
+    // configuration
+    //   roaming true
+    public void blackoutTimeScenarioJ() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        when(this.networkInfo.isRoaming()).thenReturn(true);
+        initBatteryChanged();
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, android.os.BatteryManager.BATTERY_PLUGGED_AC);
+
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveOnChargeBlackout(true);
+        preferences.saveWwanRoamingBlackout(true);
+
+        assertEquals(Result.OK, Dispatcher.canSend(this.context));
+
+        preferences.saveOnChargeBlackout(false);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+    }
+
+    @SuppressLint("NewApi")
+    @Test
+    // device roaming offcharge
+    // configuration
+    //   roaming true
+    public void blackoutTimeScenarioK() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        when(this.networkInfo.isRoaming()).thenReturn(true);
+        initBatteryChanged();
+
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveOffChargeBlackout(true);
+        preferences.saveWwanRoamingBlackout(true);
+
+        assertEquals(Result.OK, Dispatcher.canSend(this.context));
+
+        preferences.saveOffChargeBlackout(false);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+    }
+
+    @SuppressLint("NewApi")
+    @Test
+    // device roaming offcharge
+    // configuration
+    //   roaming false
+    public void blackoutTimeScenarioL() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        when(this.networkInfo.isRoaming()).thenReturn(true);
+        initBatteryChanged();
+
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveOffChargeBlackout(true);
+        preferences.saveWwanRoamingBlackout(false);
+
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+
+        preferences.saveOffChargeBlackout(false);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+    }
+
+    @SuppressLint("NewApi")
+    @Test
+    // device wwan and wlan oncharge
+    // configuration
+    //   wwan true
+    public void blackoutTimeScenarioM() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        when(this.networkInfo.isRoaming()).thenReturn(true);
+        initBatteryChanged();
+
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveOffChargeBlackout(true);
+        preferences.saveWwanRoamingBlackout(false);
+
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+
+        preferences.saveOffChargeBlackout(false);
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+    }
+
+    @Test
+    public void whenCallingIsChargingAndCouldNotGetBatteryStatusShouldReturnFalse() {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_AIRPLANE_MODE_CHANGED);
+        shadowApplication.sendStickyBroadcast(intent);
+        assertFalse(Dispatcher.isBatteryCharging(context));
+    }
+
+    private void initBatteryChanged() {
+        batteryStatus = new Intent();
+        batteryStatus.setAction(Intent.ACTION_BATTERY_CHANGED);
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_LEVEL, 3);
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_SCALE, 7);
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_STATUS, 4);
+        shadowApplication.sendStickyBroadcast(batteryStatus);
+    }
+
+    @Test
+    public void whenCallingIsChargingShouldReturnExpected() {
+        initBatteryChanged();
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, android.os.BatteryManager.BATTERY_PLUGGED_AC);
+        assertTrue(Dispatcher.isBatteryCharging(context));
+    }
+
+    @Test
+    public void whenCallingIsChargingUsbShouldReturnExpected() {
+        initBatteryChanged();
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, android.os.BatteryManager.BATTERY_PLUGGED_USB);
+        assertTrue(Dispatcher.isBatteryCharging(context));
+    }
+
+    @Test
+    public void whenCallingIsChargingWirelessShouldReturnExpected() {
+        initBatteryChanged();
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, 4);
+        assertTrue(Dispatcher.isBatteryCharging(context));
+    }
+
+    @Test
+    public void whenCallingIsChargingUnknownShouldReturnExpected() {
+        initBatteryChanged();
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, 3);
+        assertTrue(Dispatcher.isBatteryCharging(context));
+    }
+
+    @Test
+    public void whenCallingGetBatteryChargingOnAndNotChargingShouldReturnExpected() {
+        initBatteryChanged();
+        batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, -1);
+        assertFalse(Dispatcher.isBatteryCharging(context));
+    }
+
+    @Test
+    public void whenOldAndNewConfigurationPresentPreferNewConfiguration() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        Calendar now = new GregorianCalendar();
+        Time oldTo = new Time(now.get(Calendar.HOUR_OF_DAY) + 1, now.get(Calendar.MINUTE));
+        preferences.saveCellularDataBlackout(new TimeRange(new Time(0,0), oldTo));
+
+        String newTo = (now.get(Calendar.HOUR_OF_DAY) - 1) + ":" + now.get(Calendar.MINUTE);
+        preferences.saveWwanBlackout("00:00-" + newTo);
+
+        assertEquals(Result.OK, Dispatcher.canSend(context));
+    }
+
+    @Test
+    public void whenOldConfigurationPresentAndNewNotPresentDontUseNewConfDefaultValue() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        Calendar now = new GregorianCalendar();
+        Time oldTo = new Time(now.get(Calendar.HOUR_OF_DAY) + 1, now.get(Calendar.MINUTE));
+        preferences.saveCellularDataBlackout(new TimeRange(new Time(0,0), oldTo));
+
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(context));
+    }
+
+    @Test
+    public void whenOldConfigurationIsFromZeroAndToZeroAllowSending() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveCellularDataBlackout(new TimeRange(new Time(0,0), new Time(0,0)));
+
+        assertEquals(Result.OK, Dispatcher.canSend(context));
     }
 }

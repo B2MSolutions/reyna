@@ -1,10 +1,14 @@
 package com.b2msolutions.reyna;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.http.AndroidHttpClient;
+import android.text.TextUtils;
 import com.b2msolutions.reyna.http.HttpPost;
+import com.b2msolutions.reyna.services.BlackoutTime;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.entity.AbstractHttpEntity;
@@ -12,7 +16,9 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.protocol.HTTP;
 
 import java.net.URI;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 
 public class Dispatcher {
 
@@ -41,7 +47,7 @@ public class Dispatcher {
             return result;
         }
 
-        result = this.parseHttpPost(message, httpPost, httpClient, context);
+        result = this.parseHttpPost(message, httpPost, context);
         if (result != Result.OK) {
             return result;
         }
@@ -52,30 +58,74 @@ public class Dispatcher {
     public static Result canSend(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info = connectivityManager.getActiveNetworkInfo();
-        if(info == null || !info.isConnectedOrConnecting()) {
+        if (info == null || !info.isConnectedOrConnecting()) {
             return Result.NOTCONNECTED;
         }
 
-        TimeRange range = new Preferences(context).getCellularDataBlackout();
-        if (range == null) {
+        Preferences preferences = new Preferences(context);
+        BlackoutTime blackoutTime = new BlackoutTime();
+
+        if (TextUtils.isEmpty(preferences.getWwanBlackout())) {
+            saveCellularDataAsWwanForBackwardCompatibility(preferences);
+        }
+
+        if (Dispatcher.isBatteryCharging(context) && !preferences.canSendOnCharge()) return Result.BLACKOUT;
+        if (!Dispatcher.isBatteryCharging(context) && !preferences.canSendOffCharge()) return Result.BLACKOUT;
+        if (isRoaming(info) && !preferences.canSendOnRoaming()) return Result.BLACKOUT;
+        try {
+            if (isWifi(info) && !canSendNow(blackoutTime, preferences.getWlanBlackout())) return Result.BLACKOUT;
+            if (isMobile(info) && !canSendNow(blackoutTime, preferences.getWwanBlackout())) return Result.BLACKOUT;
+        } catch (ParseException e) {
+            Logger.w(TAG, "canSend", e);
             return Result.OK;
         }
 
-        int type = info.getType();
-
-        if (type != ConnectivityManager.TYPE_MOBILE &&
-                type != ConnectivityManager.TYPE_MOBILE_DUN &&
-                type != ConnectivityManager.TYPE_MOBILE_HIPRI &&
-                type != ConnectivityManager.TYPE_MOBILE_MMS &&
-                type != ConnectivityManager.TYPE_MOBILE_SUPL &&
-                type != ConnectivityManager.TYPE_WIMAX) {
-            return Result.OK;
-        }
-
-        return range.contains(new Time()) ? Result.BLACKOUT : Result.OK;
+        return Result.OK;
     }
 
-    private Result parseHttpPost(Message message, HttpPost httpPost, HttpClient httpClient, Context context) {
+    private static boolean canSendNow(BlackoutTime blackoutTime, String window) throws ParseException {
+        return blackoutTime.canSendAtTime(new GregorianCalendar(), window);
+    }
+
+    private static void saveCellularDataAsWwanForBackwardCompatibility(Preferences preferences) {
+        TimeRange timeRange = preferences.getCellularDataBlackout();
+        if(timeRange != null) {
+
+            int hourFrom = (int) Math.floor(timeRange.getFrom().getMinuteOfDay() / 60);
+            int minuteFrom = timeRange.getFrom().getMinuteOfDay() % 60;
+            String blackoutFrom = zeroPad(hourFrom) + ":" + zeroPad(minuteFrom);
+
+            int hourTo = (int) Math.floor(timeRange.getTo().getMinuteOfDay() / 60);
+            int minuteTo = timeRange.getTo().getMinuteOfDay() % 60;
+
+            String blackoutTo = zeroPad(hourTo) + ":" + zeroPad(minuteTo);
+            preferences.saveWwanBlackout(blackoutFrom + "-" + blackoutTo);
+        }
+    }
+
+    private static String zeroPad(int toBePadded) {
+        return String.format("%02d", toBePadded);
+    }
+
+    private static boolean isRoaming(NetworkInfo info) {
+        return info.isRoaming();
+    }
+
+    private static boolean isWifi(NetworkInfo info) {
+        return info.getType() == ConnectivityManager.TYPE_WIFI;
+    }
+
+    private static boolean isMobile(NetworkInfo info) {
+        int type = info.getType();
+        return type == ConnectivityManager.TYPE_MOBILE ||
+            type == ConnectivityManager.TYPE_MOBILE_DUN ||
+            type == ConnectivityManager.TYPE_MOBILE_HIPRI ||
+            type == ConnectivityManager.TYPE_MOBILE_MMS ||
+            type == ConnectivityManager.TYPE_MOBILE_SUPL ||
+            type == ConnectivityManager.TYPE_WIMAX;
+    }
+
+    private Result parseHttpPost(Message message, HttpPost httpPost, Context context) {
         Logger.v(TAG, "parseHttpPost");
 
         try {
@@ -121,9 +171,7 @@ public class Dispatcher {
     }
 
     private static boolean shouldGzip(Header[] headers) {
-        for (int i = 0; i < headers.length; i++) {
-            Header header = headers[i];
-
+        for (Header header : headers) {
             if (header.getKey().equalsIgnoreCase("content-encoding")
                     && header.getValue().equalsIgnoreCase("gzip")) {
                 return true;
@@ -136,9 +184,7 @@ public class Dispatcher {
     private static Header[] removeGzipEncodingHeader(Header[] headers) {
         ArrayList<Header> filteredHeaders = new ArrayList<Header>();
 
-        for (int i = 0; i < headers.length; i++) {
-            Header header = headers[i];
-
+        for (Header header : headers) {
             if (header.getKey().equalsIgnoreCase("content-encoding")
                     && header.getValue().equalsIgnoreCase("gzip")) {
                 continue;
@@ -173,5 +219,17 @@ public class Dispatcher {
         }
 
         return entity;
+    }
+
+    public static boolean isBatteryCharging(Context context) {
+        Intent batteryStatus = context.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        if(batteryStatus == null) return false;
+        Integer plugged = batteryStatus.getIntExtra(android.os.BatteryManager.EXTRA_PLUGGED, -1);
+        return plugged == android.os.BatteryManager.BATTERY_PLUGGED_AC ||
+                plugged == android.os.BatteryManager.BATTERY_PLUGGED_USB ||
+                // wireless!
+                plugged == 4 ||
+                // unknown
+                plugged == 3;
     }
 }

@@ -63,7 +63,13 @@ You will need to add the following entries into your AndroidManifest.xml in orde
 	// set Reyna logging level, same constant values as android.util.log (ERROR, WARN, INFO, DEBUG, VERBOSE)
 	StoreService.setLogLevel(level);
 ```
-## Latest version is 2.7.3
+
+## Building jar
+
+From the Reyna root folder
+
+ * run `./hooks/pre-commit
+ * inside `reyna/bin` you will find classes.jar, rename it according to semver
 
 ## Contributors
 Pair programmed by [Roy Lines](http://roylines.co.uk) and [James Bloomer](https://github.com/jamesbloomer).

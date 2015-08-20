@@ -37,6 +37,31 @@ public class StoreService extends RepositoryService {
         new Preferences(context).saveCellularDataBlackout(range);
     }
 
+    public static void setWlanBlackout(Context context, String range) {
+        Logger.v(TAG, "setWlanBlackout: " + range);
+        new Preferences(context).saveWlanBlackout(range);
+    }
+
+    public static void setWwanBlackout(Context context, String range) {
+        Logger.v(TAG, "setWwanBlackout: " + range);
+        new Preferences(context).saveWwanBlackout(range);
+    }
+
+    public static void setWwanRoamingBlackout(Context context, boolean value) {
+        Logger.v(TAG, "setWwanRoamingBlackout: " + value);
+        new Preferences(context).saveWwanRoamingBlackout(value);
+    }
+
+    public static void setOnChargeBlackout(Context context, boolean value) {
+        Logger.v(TAG, "setOnChargeBlackout: " + value);
+        new Preferences(context).saveOnChargeBlackout(value);
+    }
+
+    public static void setOffChargeBlackout(Context context, boolean value) {
+        Logger.v(TAG, "setOffChargeBlackout: " + value);
+        new Preferences(context).saveOffChargeBlackout(value);
+    }
+
     public static void setStorageSizeLimit(Context context, long limit) {
         Logger.v(TAG, "setStorageSizeLimit, limit: " + limit);
         limit = limit < MINIMUM_STORAGE_LIMIT ? MINIMUM_STORAGE_LIMIT : limit;

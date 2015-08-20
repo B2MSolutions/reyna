@@ -1,0 +1,17 @@
+<component name="libraryTable">
+  <library name="artifacts">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/artifacts/reyna-2.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/artifacts/reyna-2.8.jar!/" />
+      <root url="jar://$PROJECT_DIR$/artifacts/reyna-2.7.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/artifacts/reyna-2.7.jar!/" />
+      <root url="jar://$PROJECT_DIR$/artifacts/reyna-2.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/artifacts/reyna-2.7.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/artifacts/reyna-2.7.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/artifacts/reyna-2.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/artifacts/reyna-2.8.0.41.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

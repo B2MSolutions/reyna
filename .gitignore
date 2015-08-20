@@ -29,3 +29,4 @@ reports/
 .metadata
 lint.xml
 .checkstyle
+.idea/workspace.xml
