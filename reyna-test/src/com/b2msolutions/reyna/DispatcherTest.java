@@ -669,7 +669,7 @@ public class DispatcherTest {
         Time oldTo = new Time(now.get(Calendar.HOUR_OF_DAY) + 1, now.get(Calendar.MINUTE));
         preferences.saveCellularDataBlackout(new TimeRange(new Time(0,0), oldTo));
 
-        String newTo = (now.get(Calendar.HOUR_OF_DAY) - 1) + ":" + now.get(Calendar.MINUTE);
+        String newTo = (String.format("%02d", now.get(Calendar.HOUR_OF_DAY) - 1)) + ":" + String.format("%02d", now.get(Calendar.MINUTE));
         preferences.saveWwanBlackout("00:00-" + newTo);
 
         assertEquals(Result.OK, Dispatcher.canSend(context));
