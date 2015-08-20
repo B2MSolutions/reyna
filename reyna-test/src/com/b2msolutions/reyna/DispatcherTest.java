@@ -685,4 +685,13 @@ public class DispatcherTest {
 
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(context));
     }
+
+    @Test
+    public void whenOldConfigurationIsFromZeroAndToZeroAllowSending() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveCellularDataBlackout(new TimeRange(new Time(0,0), new Time(0,0)));
+
+        assertEquals(Result.OK, Dispatcher.canSend(context));
+    }
 }
