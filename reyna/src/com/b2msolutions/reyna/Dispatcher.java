@@ -56,9 +56,11 @@ public class Dispatcher {
     }
 
     public static Result canSend(Context context) {
+        Logger.v(TAG, "canSend start");
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info = connectivityManager.getActiveNetworkInfo();
         if (info == null || !info.isConnectedOrConnecting()) {
+            Logger.v(TAG, "not connected");
             return Result.NOTCONNECTED;
         }
 
@@ -66,20 +68,37 @@ public class Dispatcher {
         BlackoutTime blackoutTime = new BlackoutTime();
 
         if (TextUtils.isEmpty(preferences.getWwanBlackout())) {
+            Logger.v(TAG, "save cellular data backward compatibility");
             saveCellularDataAsWwanForBackwardCompatibility(preferences);
         }
 
-        if (Dispatcher.isBatteryCharging(context) && !preferences.canSendOnCharge()) return Result.BLACKOUT;
-        if (!Dispatcher.isBatteryCharging(context) && !preferences.canSendOffCharge()) return Result.BLACKOUT;
-        if (isRoaming(info) && !preferences.canSendOnRoaming()) return Result.BLACKOUT;
+        if (Dispatcher.isBatteryCharging(context) && !preferences.canSendOnCharge()) {
+            Logger.v(TAG, "blackout because charging and cant send on charge");
+            return Result.BLACKOUT;
+        }
+        if (!Dispatcher.isBatteryCharging(context) && !preferences.canSendOffCharge()) {
+            Logger.v(TAG, "blackout because not charging and cant send off charge");
+            return Result.BLACKOUT;
+        }
+        if (isRoaming(info) && !preferences.canSendOnRoaming()) {
+            Logger.v(TAG, "blackout because roaming and cant send on roaming");
+            return Result.BLACKOUT;
+        }
         try {
-            if (isWifi(info) && !canSendNow(blackoutTime, preferences.getWlanBlackout())) return Result.BLACKOUT;
-            if (isMobile(info) && !canSendNow(blackoutTime, preferences.getWwanBlackout())) return Result.BLACKOUT;
+            if (isWifi(info) && !canSendNow(blackoutTime, preferences.getWlanBlackout())) {
+                Logger.v(TAG, "blackout because wifi and cant send at " + preferences.getWlanBlackout());
+                return Result.BLACKOUT;
+            }
+            if (isMobile(info) && !canSendNow(blackoutTime, preferences.getWwanBlackout())) {
+                Logger.v(TAG, "blackout because mobile and cant send at " + preferences.getWwanBlackout());
+                return Result.BLACKOUT;
+            }
         } catch (ParseException e) {
             Logger.w(TAG, "canSend", e);
             return Result.OK;
         }
 
+        Logger.v(TAG, "canSend ok");
         return Result.OK;
     }
 
