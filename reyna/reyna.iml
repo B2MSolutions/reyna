@@ -6,7 +6,9 @@
         <option name="LIBRARY_PROJECT" value="true" />
         <option name="RUN_PROGUARD" value="true" />
         <proGuardCfgFiles>
-          <file>file://%MODULE_SDK_HOME%/tools/proguard/proguard-android.txt</file>
+          <file>file:///usr/lib/jvm/java-6-oracle/tools/proguard/proguard-android.txt</file>
+          <file>file://$MODULE_DIR$/proguard-project.txt</file>
+          <file>file:///usr/lib/jvm/java-6-oracle/tools/proguard/proguard-android.txt</file>
           <file>file://$MODULE_DIR$/proguard-project.txt</file>
         </proGuardCfgFiles>
       </configuration>
@@ -18,7 +20,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/gen" isTestSource="false" generated="true" />
     </content>
-    <orderEntry type="jdk" jdkName="Android API 16 Platform" jdkType="Android SDK" />
+    <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
