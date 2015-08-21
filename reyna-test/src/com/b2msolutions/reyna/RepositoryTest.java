@@ -119,6 +119,7 @@ public class RepositoryTest {
 
         //get page count
         Cursor cursor = mock(Cursor.class);
+        doReturn(true).when(cursor).moveToFirst();
         when(cursor.getLong(0))
                 .thenReturn(10l)
                 .thenReturn(1l);
@@ -126,11 +127,13 @@ public class RepositoryTest {
 
         //get number of messages
         Cursor numberOfMessagesCursor = mock(Cursor.class);
+        doReturn(true).when(numberOfMessagesCursor).moveToFirst();
         when(numberOfMessagesCursor.getLong(0)).thenReturn(42l);
         when(db.rawQuery("select count(*) from Message", null)).thenReturn(numberOfMessagesCursor);
 
         //get message id to which to shrink
         Cursor idToShrinkCursor = mock(Cursor.class);
+        doReturn(true).when(idToShrinkCursor).moveToFirst();
         when(idToShrinkCursor.getLong(0)).thenReturn(101l);
         when(db.rawQuery("select id from Message limit 1 offset 32", null)).thenReturn(idToShrinkCursor);
 
@@ -153,6 +156,7 @@ public class RepositoryTest {
 
         //get page count
         Cursor cursor = mock(Cursor.class);
+        doReturn(true).when(cursor).moveToFirst();
         when(cursor.getLong(0))
                 .thenReturn(300l)
                 .thenReturn(5l)
@@ -161,11 +165,13 @@ public class RepositoryTest {
 
         //get number of messages
         Cursor numberOfMessagesCursor = mock(Cursor.class);
+        doReturn(true).when(numberOfMessagesCursor).moveToFirst();
         when(numberOfMessagesCursor.getLong(0)).thenReturn(42l);
         when(db.rawQuery("select count(*) from Message", null)).thenReturn(numberOfMessagesCursor);
 
         //get message id to which to shrink
         Cursor idToShrinkCursor = mock(Cursor.class);
+        doReturn(true).when(idToShrinkCursor).moveToFirst();
         when(idToShrinkCursor.getLong(0)).thenReturn(101l).thenReturn(32l);
         when(db.rawQuery("select id from Message limit 1 offset 42", null)).thenReturn(idToShrinkCursor);
         when(db.rawQuery("select id from Message limit 1 offset 21", null)).thenReturn(idToShrinkCursor);

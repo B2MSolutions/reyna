@@ -297,32 +297,65 @@ public class Repository extends SQLiteOpenHelper {
 
     private long getMessageIdToWhichShrink(SQLiteDatabase db, long numberOfMessagesToRemove) {
         Logger.v(TAG, "getMessageIdToWhichShrink");
-        Cursor cursor = db.rawQuery("select id from Message limit 1 offset " + numberOfMessagesToRemove, null);
-        cursor.moveToFirst();
-        long id = cursor.getLong(0);
-        cursor.close();
 
-        Logger.v(TAG, "getMessageIdToWhichShrink, id: " + id);
-        return id;
+        Cursor cursor = null;
+        try {
+            cursor = db.rawQuery("select id from Message limit 1 offset " + numberOfMessagesToRemove, null);
+            if (cursor.moveToFirst()) {
+                long id = cursor.getLong(0);
+                Logger.v(TAG, "getMessageIdToWhichShrink, id: " + id);
+                return id;
+            }
+
+            return 0;
+        }
+        finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
     }
 
     private long getNumberOfMessages(SQLiteDatabase db) {
         Logger.v(TAG, "getNumberOfMessages");
-        Cursor cursor = db.rawQuery("select count(*) from Message", null);
-        cursor.moveToFirst();
-        long numberOfMessages = cursor.getLong(0);
-        cursor.close();
 
-        Logger.v(TAG, "getNumberOfMessages, numberOfMessages: " + numberOfMessages);
-        return numberOfMessages;
+        Cursor cursor = null;
+        try {
+            cursor = db.rawQuery("select count(*) from Message", null);
+            if(cursor.moveToFirst()) {
+                long numberOfMessages = cursor.getLong(0);
+                Logger.v(TAG, "getNumberOfMessages, numberOfMessages: " + numberOfMessages);
+                return numberOfMessages;
+            }
+
+            return 0;
+        }
+        finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
     }
 
     private long getDbSize(SQLiteDatabase db) {
-        Cursor cursor = db.rawQuery("pragma page_count", null);
-        cursor.moveToNext();
-        long pageCount = cursor.getLong(0);
-        cursor.close();
+        Logger.v(TAG, "getDbSize");
 
-        return pageCount * db.getPageSize();
+        Cursor cursor = null;
+
+        try {
+            cursor = db.rawQuery("pragma page_count", null);
+
+            if (cursor.moveToFirst()) {
+                long pageCount = cursor.getLong(0);
+                return pageCount * db.getPageSize();
+            }
+
+            return 0;
+        }
+        finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
     }
 }
