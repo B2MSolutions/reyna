@@ -15,22 +15,17 @@ public class BlackoutTime {
 
         String[] rangesSplit = range.split(",");
         for (String rangeSplit : rangesSplit) {
-            List<Time> times = parseTime(rangeSplit);
-            TimeRange timeRange = new TimeRange(times.get(0), times.get(1));
-            if (timeRange.contains(new Time(now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE))) && !isAtSameTime(times)) {
+            TimeRange timeRange = parseTime(rangeSplit);
+            Time timeNow = new Time(now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE));
+            if (timeRange.contains(timeNow) && !timeRange.isEmpty()) {
                 return false;
             }
         }
         return true;
     }
 
-    private boolean isAtSameTime(List<Time> times) {
-        return times.get(0).getMinuteOfDay() == times.get(1).getMinuteOfDay();
-    }
-
-    public List<Time> parseTime(String time) throws ParseException {
+    public TimeRange parseTime(String time) throws ParseException {
         String[] rangeSplit = time.split("-");
-        List<Time> times = new ArrayList<Time>();
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
 
         Calendar from = new GregorianCalendar();
@@ -38,8 +33,9 @@ public class BlackoutTime {
         Calendar to = new GregorianCalendar();
         to.setTime(dateFormat.parse(rangeSplit[1]));
 
-        times.add(new Time(from.get(Calendar.HOUR_OF_DAY), from.get(Calendar.MINUTE)));
-        times.add(new Time(to.get(Calendar.HOUR_OF_DAY), to.get(Calendar.MINUTE)));
-        return times;
+
+        Time toTime = new Time(from.get(Calendar.HOUR_OF_DAY), from.get(Calendar.MINUTE));
+        Time fromTime = new Time(to.get(Calendar.HOUR_OF_DAY), to.get(Calendar.MINUTE));
+        return new TimeRange(toTime, fromTime);
     }
 }

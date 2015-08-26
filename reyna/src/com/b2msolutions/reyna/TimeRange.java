@@ -26,4 +26,8 @@ public class TimeRange {
             return time.isAfterOrEqualTo(this.from) || time.isBeforeOrEqualTo(this.to);
         }
     }
+
+    public boolean isEmpty() {
+        return from.getMinuteOfDay() == to.getMinuteOfDay();
+    }
 }
