@@ -17,11 +17,15 @@ public class BlackoutTime {
         for (String rangeSplit : rangesSplit) {
             List<Time> times = parseTime(rangeSplit);
             TimeRange timeRange = new TimeRange(times.get(0), times.get(1));
-            if (timeRange.contains(new Time(now.get(Calendar.HOUR_OF_DAY),1))) {
+            if (timeRange.contains(new Time(now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE))) && !isAtSameTime(times)) {
                 return false;
             }
         }
         return true;
+    }
+
+    private boolean isAtSameTime(List<Time> times) {
+        return times.get(0).getMinuteOfDay() == times.get(1).getMinuteOfDay();
     }
 
     public List<Time> parseTime(String time) throws ParseException {

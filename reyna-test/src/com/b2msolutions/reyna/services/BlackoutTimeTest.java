@@ -119,6 +119,14 @@ public class BlackoutTimeTest {
     }
 
     @Test
+    public void whenRangeStoredHasMinutesAndCurrentMinutesIsPastMinutesOfRangeShouldReturnTrue() throws ParseException {
+        Calendar now = new GregorianCalendar();
+        now.set(Calendar.HOUR_OF_DAY, 18);
+        now.set(Calendar.MINUTE, 16);
+        assertTrue(blackoutTime.canSendAtTime(now, "02:00-03:00,05:00-07:30,18:00-18:15"));
+    }
+
+    @Test
     public void canSendOnShouldAlwaysReturnFalseWhenInTotalBlackout() throws ParseException {
         Calendar now = new GregorianCalendar();
         now.set(Calendar.HOUR_OF_DAY, 0);
