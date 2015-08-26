@@ -33,9 +33,8 @@ public class BlackoutTime {
         Calendar to = new GregorianCalendar();
         to.setTime(dateFormat.parse(rangeSplit[1]));
 
-
-        Time toTime = new Time(from.get(Calendar.HOUR_OF_DAY), from.get(Calendar.MINUTE));
-        Time fromTime = new Time(to.get(Calendar.HOUR_OF_DAY), to.get(Calendar.MINUTE));
-        return new TimeRange(toTime, fromTime);
+        Time fromTime = new Time(from.get(Calendar.HOUR_OF_DAY), from.get(Calendar.MINUTE));
+        Time toTime = new Time(to.get(Calendar.HOUR_OF_DAY), to.get(Calendar.MINUTE));
+        return new TimeRange(fromTime, toTime);
     }
 }
