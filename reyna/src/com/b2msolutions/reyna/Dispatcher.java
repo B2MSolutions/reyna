@@ -19,6 +19,7 @@ import java.net.URI;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 
 public class Dispatcher {
 
@@ -123,7 +124,7 @@ public class Dispatcher {
     }
 
     private static String zeroPad(int toBePadded) {
-        return String.format("%02d", toBePadded);
+        return String.format(Locale.US,"%02d", toBePadded);
     }
 
     private static boolean isRoaming(NetworkInfo info) {

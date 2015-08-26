@@ -27,7 +27,7 @@ public class BlackoutTime {
     public List<Time> parseTime(String time) throws ParseException {
         String[] rangeSplit = time.split("-");
         List<Time> times = new ArrayList<Time>();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.US);
 
         Calendar from = new GregorianCalendar();
         from.setTime(dateFormat.parse(rangeSplit[0]));

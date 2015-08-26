@@ -31,6 +31,11 @@ public class ForwardService extends RepositoryService {
         Logger.v(TAG, "onHandleIntent");
 
         try {
+            if (Dispatcher.canSend(this) != Result.OK) {
+                Logger.i(TAG, "ForwardService: cannot send");
+                return;
+            }
+
             Message message = this.repository.getNext();
             while(message != null) {
                 this.thread.sleep(SLEEP_MILLISECONDS);
