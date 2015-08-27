@@ -17,7 +17,7 @@ public class BlackoutTime {
         for (String rangeSplit : rangesSplit) {
             TimeRange timeRange = parseTime(rangeSplit);
             Time timeNow = new Time(now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE));
-            if (timeRange.contains(timeNow) && !timeRange.isEmpty()) {
+            if (timeRange.contains(timeNow)) {
                 return false;
             }
         }
