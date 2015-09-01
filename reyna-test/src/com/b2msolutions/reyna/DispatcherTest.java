@@ -7,7 +7,8 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import com.b2msolutions.reyna.Dispatcher.Result;
-import com.b2msolutions.reyna.blackout.*;
+import com.b2msolutions.reyna.blackout.Time;
+import com.b2msolutions.reyna.blackout.TimeRange;
 import com.b2msolutions.reyna.http.HttpPost;
 import com.b2msolutions.reyna.shadows.ShadowAndroidHttpClient;
 import com.xtremelabs.robolectric.Robolectric;
@@ -145,7 +146,7 @@ public class DispatcherTest {
 
         Calendar now = Calendar.getInstance();
         int hourOfDay = now.get(Calendar.HOUR_OF_DAY);
-        com.b2msolutions.reyna.blackout.TimeRange range = new com.b2msolutions.reyna.blackout.TimeRange(new com.b2msolutions.reyna.blackout.Time(hourOfDay - 1, 0), new com.b2msolutions.reyna.blackout.Time(hourOfDay + 1, 0));
+        TimeRange range = new TimeRange(new Time(hourOfDay - 1, 0), new Time(hourOfDay + 1, 0));
         new Preferences(this.context).saveCellularDataBlackout(range);
 
         assertEquals(Result.BLACKOUT, new Dispatcher().sendMessage(null, null, null, this.context));
