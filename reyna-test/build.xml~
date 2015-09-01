@@ -3,15 +3,15 @@
     <property environment="env"/>
     <property name="emma" value="/usr/local/src/android-sdk-linux/tools/lib/emma.jar" />
     <property name="emma.ant" value="/usr/local/src/android-sdk-linux/tools/lib/emma_ant.jar" />
-    <property name="android.sdk.8" value="/usr/local/src/android-sdk-linux/platforms/android-8/android.jar"/>
-    <property name="android.sdk.8.maps" value="/usr/local/src/android-sdk-linux/add-ons/addon-google_apis-google_inc_-8/libs/maps.jar"/>
+    <property name="android.sdk.16" value="/usr/local/src/android-sdk-linux/platforms/android-16/android.jar"/>
+    <property name="android.sdk.16.maps" value="/usr/local/src/android-sdk-linux/add-ons/addon-google_apis-google_inc_-16/libs/maps.jar"/>
     <property name="reyna.location" value="../reyna"/>
     <property name="junit.output.dir" value="../tests/junit"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
-    <path id="Android 2.2.libraryclasspath">
-        <pathelement location="/usr/local/src/android-sdk-linux/platforms/android-8/android.jar"/>
+    <path id="Android 4.1.2.libraryclasspath">
+        <pathelement location="/usr/local/src/android-sdk-linux/platforms/android-16/android.jar"/>
     </path>
     <path id="emma.lib" >
         <pathelement location="${emma}" />
@@ -19,7 +19,7 @@
     </path>
     <path id="reyna.classpath">
         <pathelement location="${reyna.location}/bin/classes"/>
-        <path refid="Android 2.2.libraryclasspath"/>
+        <path refid="Android 4.1.2.libraryclasspath"/>
     </path>
     <path id="reyna-junit.classpath">
         <fileset dir="./libs" includes="*.jar"/>
@@ -27,8 +27,8 @@
         <pathelement location="bin"/>
         <path refid="reyna.classpath"/>
         <path refid="emma.lib"/>
-        <pathelement location="${android.sdk.8}"/>
-        <pathelement location="${android.sdk.8.maps}"/>
+        <pathelement location="${android.sdk.16}"/>
+        <pathelement location="${android.sdk.16.maps}"/>
     </path>
 
     <taskdef resource="emma_ant.properties" classpathref="emma.lib" />
@@ -68,13 +68,21 @@
         </javac>
     </target>
 
-    <target name="test" depends="init">
+    <target name="test" depends="build">
         <property name="filemask" value="**/*Test.java"/>
 
         <delete dir="${junit.output.dir}" />
         <mkdir dir="${junit.output.dir}" />
 
+		<emma enabled="true">
+            <instr instrpath="${reyna.location}/bin/classes" destdir="${junit.output.dir}" metadatafile="${junit.output.dir}/metadata.emma" mode="overwrite" merge="true">
+                <filter excludes="com.b2msolutions.reyna.extended.*,*.R,*.R$$*,*.Manifest,*.Manifest$$*,com.b2msolutions.reyna.BuildConfig,android.content.pm.*,android.content.pm.*" />
+            </instr>
+        </emma>
+
         <junit dir="${reyna.location}" fork="yes" forkmode="once" printsummary="withOutAndErr" failureproperty="junit.failure" errorproperty="junit.error" haltonfailure="false">
+   	    <jvmarg value="-Demma.coverage.out.file=${junit.output.dir}/coverage.emma" />
+            <jvmarg value="-Demma.coverage.out.merge=true" />
             <formatter type="xml"/>
             <classpath refid="reyna-junit.classpath"/>
             <batchtest todir="${junit.output.dir}">
@@ -89,10 +97,33 @@
             <report format="frames" todir="${junit.output.dir}"/>
         </junitreport>
 
+	 <emma enabled="true">
+            <report >
+                <sourcepath>
+                    <pathelement path="${reyna.location}/src" />
+                </sourcepath>
+                <infileset dir="${junit.output.dir}" includes="*.emma" />
+                <txt outfile="${junit.output.dir}/coverage.txt"/>
+                <xml outfile="${junit.output.dir}/coverage.xml"/>
+                <html outfile="${junit.output.dir}/coverage.html"/>
+            </report>
+        </emma>
+
+        <loadfile srcfile="${junit.output.dir}/coverage.txt" property="coverage-text" />
+        <echo message="${coverage-text}" />
+
         <fail if="junit.error" message="Tests had errors."/>
         <fail if="junit.failure" message="Tests had failures."/>
+
     </target>
 
     <target name="test-with-build" depends="cleanall, build, test" />
 
+ <target name="enforce.coverage">
+        <echo message="Checking 100% line coverage" />
+        <emmacheck coveragefile="${junit.output.dir}/coverage.emma"
+                   metadatafile="${junit.output.dir}/metadata.emma"
+                   output="${junit.output.dir}/requiredcoverage.line.out"
+                   overallcoverage="L100" />
+    </target>
 </project>
