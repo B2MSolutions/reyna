@@ -11,9 +11,9 @@ public class Preferences {
     private final String STORAGE_SIZE = "STORAGE_SIZE";
     private final String WLAN_RANGE = "WLAN_RANGE";
     private final String WWAN_RANGE = "WWAN_RANGE";
-    private final String WWAN_ROAMING = "WWAN_ROAMING";
-    private final String ON_CHARGE = "ON_CHARGE";
-    private final String OFF_CHARGE = "OFF_CHARGE";
+    private final String WWAN_ROAMING_BLACKOUT = "WWAN_ROAMING_BLACKOUT";
+    private final String ON_CHARGE_BLACKOUT = "ON_CHARGE_BLACKOUT";
+    private final String OFF_CHARGE_BLACKOUT = "OFF_CHARGE_BLACKOUT";
 
     public Preferences(Context context) {
         this.context = context;
@@ -99,37 +99,37 @@ public class Preferences {
     public void saveWwanRoamingBlackout(boolean value) {
         SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
         SharedPreferences.Editor edit = sp.edit();
-        edit.putBoolean(WWAN_ROAMING, value);
+        edit.putBoolean(WWAN_ROAMING_BLACKOUT, value);
         edit.apply();
     }
 
     public boolean canSendOnRoaming() {
         SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
-        return sp.getBoolean(WWAN_ROAMING, false);
+        return !sp.getBoolean(WWAN_ROAMING_BLACKOUT, true);
     }
 
     public void saveOnChargeBlackout(boolean value) {
         SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
         SharedPreferences.Editor edit = sp.edit();
-        edit.putBoolean(ON_CHARGE, value);
+        edit.putBoolean(ON_CHARGE_BLACKOUT, value);
         edit.apply();
     }
 
     public boolean canSendOnCharge() {
         SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
-        return sp.getBoolean(ON_CHARGE, true);
+        return !sp.getBoolean(ON_CHARGE_BLACKOUT, false);
     }
 
     public void saveOffChargeBlackout(boolean value) {
         SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
         SharedPreferences.Editor edit = sp.edit();
-        edit.putBoolean(OFF_CHARGE, value);
+        edit.putBoolean(OFF_CHARGE_BLACKOUT, value);
         edit.apply();
     }
 
     public boolean canSendOffCharge() {
         SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
-        return sp.getBoolean(OFF_CHARGE, true);
+        return !sp.getBoolean(OFF_CHARGE_BLACKOUT, false);
     }
 
     public boolean isBlackoutRangeValid(String value) {

@@ -364,10 +364,10 @@ public class DispatcherTest {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.saveWlanBlackout("02:00-02:01");
         preferences.saveOnChargeBlackout(true);
-        assertEquals(Result.OK, Dispatcher.canSend(this.context));
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
 
         preferences.saveOnChargeBlackout(false);
-        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+        assertEquals(Result.OK, Dispatcher.canSend(this.context));
     }
 
     @Test
@@ -400,10 +400,10 @@ public class DispatcherTest {
         preferences.saveWlanBlackout("02:00-02:01");
         preferences.saveOffChargeBlackout(true);
 
-        assertEquals(Result.OK, Dispatcher.canSend(this.context));
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
 
         preferences.saveOffChargeBlackout(false);
-        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+        assertEquals(Result.OK, Dispatcher.canSend(this.context));
     }
 
     @Test
@@ -433,10 +433,10 @@ public class DispatcherTest {
         preferences.saveWwanBlackout("02:00-02:01");
         preferences.saveOnChargeBlackout(true);
 
-        assertEquals(Result.OK, Dispatcher.canSend(this.context));
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
 
         preferences.saveOnChargeBlackout(false);
-        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+        assertEquals(Result.OK, Dispatcher.canSend(this.context));
     }
 
     @Test
@@ -483,10 +483,10 @@ public class DispatcherTest {
         preferences.saveWwanBlackout("02:00-02:01");
         preferences.saveOffChargeBlackout(true);
 
-        assertEquals(Result.OK, Dispatcher.canSend(this.context));
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
 
         preferences.saveOffChargeBlackout(false);
-        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+        assertEquals(Result.OK, Dispatcher.canSend(this.context));
     }
 
     @Test
@@ -525,7 +525,7 @@ public class DispatcherTest {
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
 
         preferences.saveOnChargeBlackout(false);
-        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+        assertEquals(Result.OK, Dispatcher.canSend(this.context));
     }
 
     @SuppressLint("NewApi")
@@ -543,7 +543,7 @@ public class DispatcherTest {
         preferences.saveOnChargeBlackout(true);
         preferences.saveWwanRoamingBlackout(true);
 
-        assertEquals(Result.OK, Dispatcher.canSend(this.context));
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
 
         preferences.saveOnChargeBlackout(false);
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
@@ -563,7 +563,7 @@ public class DispatcherTest {
         preferences.saveOffChargeBlackout(true);
         preferences.saveWwanRoamingBlackout(true);
 
-        assertEquals(Result.OK, Dispatcher.canSend(this.context));
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
 
         preferences.saveOffChargeBlackout(false);
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
@@ -586,7 +586,7 @@ public class DispatcherTest {
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
 
         preferences.saveOffChargeBlackout(false);
-        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+        assertEquals(Result.OK, Dispatcher.canSend(this.context));
     }
 
     @SuppressLint("NewApi")
@@ -606,7 +606,7 @@ public class DispatcherTest {
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
 
         preferences.saveOffChargeBlackout(false);
-        assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
+        assertEquals(Result.OK, Dispatcher.canSend(this.context));
     }
 
     @Test
