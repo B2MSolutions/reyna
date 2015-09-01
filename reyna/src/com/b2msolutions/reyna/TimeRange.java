@@ -20,6 +20,8 @@ public class TimeRange {
     }
 
     public boolean contains(Time time) {
+        if(from.getMinuteOfDay() == to.getMinuteOfDay()) return false;
+
         if(this.to.isAfterOrEqualTo(this.from)) {
             return time.isAfterOrEqualTo(this.from) && time.isBeforeOrEqualTo(this.to);
         } else {

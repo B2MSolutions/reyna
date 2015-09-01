@@ -3,8 +3,6 @@ package com.b2msolutions.reyna;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import java.text.SimpleDateFormat;
-
 public class Preferences {
 
     private final Context context;
