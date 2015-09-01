@@ -14,9 +14,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Repository extends SQLiteOpenHelper {
 
-    public static final String DATABASE_NAME = "reyna.db";
+    private static final String DATABASE_NAME = "reyna.db";
 
-    public static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 1;
 
     private static final String TAG = "Repository";
 
@@ -202,7 +202,7 @@ public class Repository extends SQLiteOpenHelper {
             headers.toArray(headersForMessage);
 
             return new Message(messageid, new URI(url), body,
-                    (Header[]) headersForMessage);
+                    headersForMessage);
         } finally {
             if (messageCursor != null)
                 messageCursor.close();

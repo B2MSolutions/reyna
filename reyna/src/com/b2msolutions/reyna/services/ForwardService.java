@@ -31,15 +31,18 @@ public class ForwardService extends RepositoryService {
         Logger.v(TAG, "onHandleIntent");
 
         try {
-            if (Dispatcher.canSend(this) != Result.OK) {
-                Logger.i(TAG, "ForwardService: cannot send");
+            Result canSend = Dispatcher.canSend(this);
+            if (canSend != Result.OK) {
+                Logger.v(TAG, "ForwardService: cannot send " + canSend);
                 return;
             }
 
             Message message = this.repository.getNext();
             while(message != null) {
+
                 this.thread.sleep(SLEEP_MILLISECONDS);
-                Logger.i(TAG, "ForwardService: processing message " + message.getId());
+
+                Logger.v(TAG, "ForwardService: processing message " + message.getId());
 
                 this.addReynaSpecificHeaders(message);
 

@@ -2,11 +2,14 @@ package com.b2msolutions.reyna.services;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import com.b2msolutions.reyna.*;
 import com.b2msolutions.reyna.Dispatcher.Result;
 import com.b2msolutions.reyna.Thread;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
+import com.xtremelabs.robolectric.shadows.ShadowConnectivityManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,16 +35,26 @@ public class ForwardServiceTest {
 
     @Mock Thread thread;
 
+    @Mock
+    NetworkInfo networkInfo;
+
     private Context context;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
+
         this.context = Robolectric.getShadowApplication().getApplicationContext();
         this.forwardService = new ForwardService();
         this.forwardService.dispatcher = dispatcher;
         this.forwardService.repository = repository;
         this.forwardService.thread = thread;
+
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ShadowConnectivityManager shadowConnectivityManager = Robolectric.shadowOf_(connectivityManager);
+        shadowConnectivityManager.setActiveNetworkInfo(networkInfo);
+        when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
+        when(networkInfo.isConnectedOrConnecting()).thenReturn(true);
     }
 
     @Test
@@ -242,5 +255,13 @@ public class ForwardServiceTest {
         inorder.verify(this.repository).delete(message2);
 
         verify(this.thread, never()).sleep(ForwardService.TEMPORARY_ERROR_MILLISECONDS);
+    }
+
+    @Test
+    public void whenSendMessageShouldCheckForCanSendFirstNotGetNextMessageWhenCannotSend() throws URISyntaxException, InterruptedException {
+        when(this.networkInfo.isConnectedOrConnecting()).thenReturn(false);
+
+        this.forwardService.onHandleIntent(null);
+        verify(this.repository, never()).getNext();
     }
 }
