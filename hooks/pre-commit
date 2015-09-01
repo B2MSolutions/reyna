@@ -8,12 +8,11 @@ echo 'building reyna'
 cd ~/src/reyna/reyna
 
 android update project -p .
-ant clean
-ant release
+ant clean release
 
 echo 'running lint'
 cd ~/src/reyna
-lint -Werror .
+lint -Werror --ignore UnusedResources --exitcode .
 
 echo 'running tests'
 cd ~/src/reyna/reyna-test

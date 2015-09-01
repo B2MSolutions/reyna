@@ -2,6 +2,7 @@ package com.b2msolutions.reyna;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import com.b2msolutions.reyna.blackout.TimeRange;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Test;
@@ -14,7 +15,7 @@ public class PreferencesTest {
 
     @Test
     public void canStoreCellularDataBlackout() {
-        TimeRange range = new TimeRange(new Time(1, 12), new Time(19, 19));
+        com.b2msolutions.reyna.blackout.TimeRange range = new com.b2msolutions.reyna.blackout.TimeRange(new com.b2msolutions.reyna.blackout.Time(1, 12), new com.b2msolutions.reyna.blackout.Time(19, 19));
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.saveCellularDataBlackout(range);
         TimeRange other = preferences.getCellularDataBlackout();

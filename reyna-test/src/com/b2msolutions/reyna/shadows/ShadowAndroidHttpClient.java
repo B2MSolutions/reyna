@@ -1,6 +1,8 @@
 package com.b2msolutions.reyna.shadows;
 
 import android.content.ContentResolver;
+import android.content.Context;
+import android.net.http.AndroidHttpClient;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.internal.Implementation;
 import com.xtremelabs.robolectric.internal.Implements;
@@ -18,9 +20,6 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
-
-import android.content.Context;
-import android.net.http.AndroidHttpClient;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

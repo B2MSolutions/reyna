@@ -3,6 +3,7 @@ package com.b2msolutions.reyna.services;
 import android.content.Context;
 import android.content.Intent;
 import com.b2msolutions.reyna.*;
+import com.b2msolutions.reyna.blackout.TimeRange;
 
 public class StoreService extends RepositoryService {
 

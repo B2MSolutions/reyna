@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import com.b2msolutions.reyna.Dispatcher.Result;
+import com.b2msolutions.reyna.blackout.TimeRange;
 import com.b2msolutions.reyna.http.HttpPost;
 import com.b2msolutions.reyna.shadows.ShadowAndroidHttpClient;
 import com.xtremelabs.robolectric.Robolectric;
@@ -144,7 +145,7 @@ public class DispatcherTest {
 
         Calendar now = Calendar.getInstance();
         int hourOfDay = now.get(Calendar.HOUR_OF_DAY);
-        TimeRange range = new TimeRange(new Time(hourOfDay - 1, 0), new Time(hourOfDay + 1, 0));
+        com.b2msolutions.reyna.blackout.TimeRange range = new com.b2msolutions.reyna.blackout.TimeRange(new com.b2msolutions.reyna.blackout.Time(hourOfDay - 1, 0), new com.b2msolutions.reyna.blackout.Time(hourOfDay + 1, 0));
         new Preferences(this.context).saveCellularDataBlackout(range);
 
         assertEquals(Result.BLACKOUT, new Dispatcher().sendMessage(null, null, null, this.context));
@@ -296,7 +297,7 @@ public class DispatcherTest {
         Calendar now = Calendar.getInstance();
         int hourOfDay = now.get(Calendar.HOUR_OF_DAY);
 
-        TimeRange range = new TimeRange(new Time(hourOfDay - 2, 0), new Time(hourOfDay - 1, 0));
+        com.b2msolutions.reyna.blackout.TimeRange range = new com.b2msolutions.reyna.blackout.TimeRange(new com.b2msolutions.reyna.blackout.Time(hourOfDay - 2, 0), new com.b2msolutions.reyna.blackout.Time(hourOfDay - 1, 0));
         new Preferences(this.context).saveCellularDataBlackout(range);
 
         assertEquals(Result.OK, Dispatcher.canSend(this.context));
@@ -317,7 +318,7 @@ public class DispatcherTest {
         Calendar now = Calendar.getInstance();
         int hourOfDay = now.get(Calendar.HOUR_OF_DAY);
 
-        TimeRange range = new TimeRange(new Time(hourOfDay - 1, 0), new Time(hourOfDay + 1, 0));
+        com.b2msolutions.reyna.blackout.TimeRange range = new com.b2msolutions.reyna.blackout.TimeRange(new com.b2msolutions.reyna.blackout.Time(hourOfDay - 1, 0), new com.b2msolutions.reyna.blackout.Time(hourOfDay + 1, 0));
         new Preferences(this.context).saveCellularDataBlackout(range);
 
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
@@ -328,7 +329,7 @@ public class DispatcherTest {
 
         Calendar now = Calendar.getInstance();
         int hourOfDay = now.get(Calendar.HOUR_OF_DAY);
-        TimeRange range = new TimeRange(new Time(hourOfDay - 1, 0), new Time(hourOfDay + 1, 0));
+        com.b2msolutions.reyna.blackout.TimeRange range = new com.b2msolutions.reyna.blackout.TimeRange(new com.b2msolutions.reyna.blackout.Time(hourOfDay - 1, 0), new com.b2msolutions.reyna.blackout.Time(hourOfDay + 1, 0));
         new Preferences(this.context).saveCellularDataBlackout(range);
 
         assertEquals(Result.OK, Dispatcher.canSend(this.context));
@@ -666,8 +667,8 @@ public class DispatcherTest {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         Calendar now = new GregorianCalendar();
-        Time oldTo = new Time(now.get(Calendar.HOUR_OF_DAY) + 1, now.get(Calendar.MINUTE));
-        preferences.saveCellularDataBlackout(new TimeRange(new Time(0,0), oldTo));
+        com.b2msolutions.reyna.blackout.Time oldTo = new com.b2msolutions.reyna.blackout.Time(now.get(Calendar.HOUR_OF_DAY) + 1, now.get(Calendar.MINUTE));
+        preferences.saveCellularDataBlackout(new com.b2msolutions.reyna.blackout.TimeRange(new com.b2msolutions.reyna.blackout.Time(0,0), oldTo));
 
         String newTo = (String.format("%02d", now.get(Calendar.HOUR_OF_DAY) - 1)) + ":" + String.format("%02d", now.get(Calendar.MINUTE));
         preferences.saveWwanBlackout("00:00-" + newTo);
@@ -680,8 +681,8 @@ public class DispatcherTest {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         Calendar now = new GregorianCalendar();
-        Time oldTo = new Time(now.get(Calendar.HOUR_OF_DAY) + 1, now.get(Calendar.MINUTE));
-        preferences.saveCellularDataBlackout(new TimeRange(new Time(0,0), oldTo));
+        com.b2msolutions.reyna.blackout.Time oldTo = new com.b2msolutions.reyna.blackout.Time(now.get(Calendar.HOUR_OF_DAY) + 1, now.get(Calendar.MINUTE));
+        preferences.saveCellularDataBlackout(new com.b2msolutions.reyna.blackout.TimeRange(new com.b2msolutions.reyna.blackout.Time(0,0), oldTo));
 
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(context));
     }
@@ -690,7 +691,7 @@ public class DispatcherTest {
     public void whenOldConfigurationIsFromZeroAndToZeroAllowSending() {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveCellularDataBlackout(new TimeRange(new Time(0,0), new Time(0,0)));
+        preferences.saveCellularDataBlackout(new TimeRange(new com.b2msolutions.reyna.blackout.Time(0,0), new com.b2msolutions.reyna.blackout.Time(0,0)));
 
         assertEquals(Result.OK, Dispatcher.canSend(context));
     }

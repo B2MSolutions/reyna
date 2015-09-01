@@ -2,8 +2,8 @@ package com.b2msolutions.reyna;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-
-import java.text.SimpleDateFormat;
+import com.b2msolutions.reyna.blackout.Time;
+import com.b2msolutions.reyna.blackout.TimeRange;
 
 public class Preferences {
 

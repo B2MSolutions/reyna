@@ -1,6 +1,5 @@
-package com.b2msolutions.reyna.services;
+package com.b2msolutions.reyna.blackout;
 
-import com.b2msolutions.reyna.Time;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -8,7 +7,8 @@ import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 
 import java.text.ParseException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import static junit.framework.Assert.*;
 
@@ -49,30 +49,30 @@ public class BlackoutTimeTest {
 
     @Test
     public void parseTimeWorksWithAmDates() throws ParseException {
-        List<Time> actual = blackoutTime.parseTime("01:00-09:00");
-        assertEquals(actual.get(0).getMinuteOfDay(), new Time(1, 0).getMinuteOfDay());
-        assertEquals(actual.get(1).getMinuteOfDay(), new Time(9, 0).getMinuteOfDay());
+        TimeRange actual = blackoutTime.parseTime("01:00-09:00");
+        assertEquals(actual.getFrom().getMinuteOfDay(), new Time(1, 0).getMinuteOfDay());
+        assertEquals(actual.getTo().getMinuteOfDay(), new Time(9, 0).getMinuteOfDay());
     }
 
     @Test
     public void parseTimeWorksWithAmDatesAndMinutes() throws ParseException {
-        List<Time> actual = blackoutTime.parseTime("01:30-09:15");
-        assertEquals(actual.get(0).getMinuteOfDay(), new Time(1, 30).getMinuteOfDay());
-        assertEquals(actual.get(1).getMinuteOfDay(), new Time(9, 15).getMinuteOfDay());
+        TimeRange actual = blackoutTime.parseTime("01:30-09:15");
+        assertEquals(actual.getFrom().getMinuteOfDay(), new Time(1, 30).getMinuteOfDay());
+        assertEquals(actual.getTo().getMinuteOfDay(), new Time(9, 15).getMinuteOfDay());
     }
 
     @Test
     public void parseTimeWorksWithPmDatesAndMinutes() throws ParseException {
-        List<Time> actual = blackoutTime.parseTime("13:30-21:15");
-        assertEquals(actual.get(0).getMinuteOfDay(), new Time(13, 30).getMinuteOfDay());
-        assertEquals(actual.get(1).getMinuteOfDay(), new Time(21, 15).getMinuteOfDay());
+        TimeRange actual = blackoutTime.parseTime("13:30-21:15");
+        assertEquals(actual.getFrom().getMinuteOfDay(), new Time(13, 30).getMinuteOfDay());
+        assertEquals(actual.getTo().getMinuteOfDay(), new Time(21, 15).getMinuteOfDay());
     }
 
     @Test
     public void parseTimeWorksWithPmDates() throws ParseException {
-        List<Time> actual = blackoutTime.parseTime("13:00-21:00");
-        assertEquals(actual.get(0).getMinuteOfDay(), new Time(13, 0).getMinuteOfDay());
-        assertEquals(actual.get(1).getMinuteOfDay(), new Time(21, 0).getMinuteOfDay());
+        TimeRange actual = blackoutTime.parseTime("13:00-21:00");
+        assertEquals(actual.getFrom().getMinuteOfDay(), new Time(13, 0).getMinuteOfDay());
+        assertEquals(actual.getTo().getMinuteOfDay(), new Time(21, 0).getMinuteOfDay());
     }
 
     @Test
@@ -86,9 +86,9 @@ public class BlackoutTimeTest {
     @Test
     public void parseTimeParsesWhenMalformedRangeTimeWithSpaces() {
         try {
-            List<Time> actual = blackoutTime.parseTime("13:00 - 21:00");
-            assertEquals(actual.get(0).getMinuteOfDay(), new Time(13, 0).getMinuteOfDay());
-            assertEquals(actual.get(1).getMinuteOfDay(), new Time(21, 0).getMinuteOfDay());
+            TimeRange actual = blackoutTime.parseTime("13:00 - 21:00");
+            assertEquals(actual.getFrom().getMinuteOfDay(), new Time(13, 0).getMinuteOfDay());
+            assertEquals(actual.getTo().getMinuteOfDay(), new Time(21, 0).getMinuteOfDay());
         } catch (ParseException e) {
             assertNull(e);
         }
@@ -116,6 +116,14 @@ public class BlackoutTimeTest {
         now.set(Calendar.HOUR_OF_DAY, 18);
         now.set(Calendar.MINUTE, 10);
         assertFalse(blackoutTime.canSendAtTime(now, "02:00-03:00,05:00-07:30,18:00-18:15"));
+    }
+
+    @Test
+    public void whenRangeStoredHasMinutesAndCurrentMinutesIsPastMinutesOfRangeShouldReturnTrue() throws ParseException {
+        Calendar now = new GregorianCalendar();
+        now.set(Calendar.HOUR_OF_DAY, 18);
+        now.set(Calendar.MINUTE, 16);
+        assertTrue(blackoutTime.canSendAtTime(now, "02:00-03:00,05:00-07:30,18:00-18:15"));
     }
 
     @Test
