@@ -126,6 +126,20 @@ public class StoreServiceTest {
     }
 
     @Test
+    public void resetCellularDataBlackoutShouldRemoveKeys() {
+        TimeRange range = new TimeRange(new Time(3, 00), new Time(19, 00));
+        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        StoreService.setCellularDataBlackout(context, range);
+        Preferences preferences = new Preferences(context);
+        TimeRange saved = preferences.getCellularDataBlackout();
+        assertNotNull(saved);
+
+        StoreService.resetCellularDataBlackout(context);
+        saved = preferences.getCellularDataBlackout();
+        assertNull(saved);
+    }
+
+    @Test
     public void setWlanBlackoutShouldSave() {
         String ranges = "06:00-07:00,08:30-10:00,12:19-13:50";
         Context context = Robolectric.getShadowApplication().getApplicationContext();

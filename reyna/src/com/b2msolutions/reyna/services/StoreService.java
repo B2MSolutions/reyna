@@ -38,6 +38,12 @@ public class StoreService extends RepositoryService {
         new Preferences(context).saveCellularDataBlackout(range);
     }
 
+    public static void resetCellularDataBlackout(Context context) {
+        Logger.v(TAG, "resetCellularDataBlackout");
+
+        new Preferences(context).resetCellularDataBlackout();
+    }
+
     public static void setWlanBlackout(Context context, String range) {
         Logger.v(TAG, "setWlanBlackout: " + range);
         new Preferences(context).saveWlanBlackout(range);
