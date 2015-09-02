@@ -47,6 +47,14 @@ public class Preferences {
         return new TimeRange(new Time(from), new Time(to));
     }
 
+    public void resetCellularDataBlackout() {
+        SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.remove(FROM);
+        editor.remove(TO);
+        editor.apply();
+    }
+
     public long getStorageSize() {
         SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
         return sp.getLong(STORAGE_SIZE, -1);

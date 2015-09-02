@@ -42,6 +42,20 @@ public class PreferencesTest {
     }
 
     @Test
+    public void resetCellularDataBlackoutShouldRemoveKeys() {
+        TimeRange range = new TimeRange(new Time(1, 12), new Time(19, 19));
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveCellularDataBlackout(range);
+        TimeRange timeRange = preferences.getCellularDataBlackout();
+        assertNotNull(timeRange);
+
+        preferences.resetCellularDataBlackout();
+        timeRange = preferences.getCellularDataBlackout();
+
+        assertNull(timeRange);
+    }
+
+    @Test
     public void canStoreStorageSize() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.saveStorageSize(100);
