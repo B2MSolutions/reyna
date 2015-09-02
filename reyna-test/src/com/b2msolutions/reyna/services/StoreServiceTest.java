@@ -150,7 +150,7 @@ public class StoreServiceTest {
         Context context = Robolectric.getShadowApplication().getApplicationContext();
         StoreService.setWwanRoamingBlackout(context, false);
         Preferences preferences = new Preferences(context);
-        assertFalse(preferences.canSendOnRoaming());
+        assertTrue(preferences.canSendOnRoaming());
     }
 
     @Test
@@ -158,7 +158,7 @@ public class StoreServiceTest {
         Context context = Robolectric.getShadowApplication().getApplicationContext();
         StoreService.setOnChargeBlackout(context, false);
         Preferences preferences = new Preferences(context);
-        assertFalse(preferences.canSendOnCharge());
+        assertTrue(preferences.canSendOnCharge());
     }
 
     @Test
@@ -166,7 +166,7 @@ public class StoreServiceTest {
         Context context = Robolectric.getShadowApplication().getApplicationContext();
         StoreService.setOffChargeBlackout(context, false);
         Preferences preferences = new Preferences(context);
-        assertFalse(preferences.canSendOffCharge());
+        assertTrue(preferences.canSendOffCharge());
     }
 
     @Test

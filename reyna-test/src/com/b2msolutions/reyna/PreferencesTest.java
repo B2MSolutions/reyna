@@ -138,7 +138,7 @@ public class PreferencesTest {
     public void canSendOnRoamingShouldReturnExpected() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.saveWwanRoamingBlackout(true);
-        assertTrue(preferences.canSendOnRoaming());
+        assertFalse(preferences.canSendOnRoaming());
     }
 
     @Test
@@ -151,7 +151,7 @@ public class PreferencesTest {
     public void canSendOnChargeShouldReturnExpected() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.saveOnChargeBlackout(true);
-        assertTrue(preferences.canSendOnCharge());
+        assertFalse(preferences.canSendOnCharge());
     }
 
     @Test
@@ -164,7 +164,7 @@ public class PreferencesTest {
     public void canSendOffChargeShouldReturnExpected() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.saveOffChargeBlackout(true);
-        assertTrue(preferences.canSendOffCharge());
+        assertFalse(preferences.canSendOffCharge());
     }
 
     @Test
