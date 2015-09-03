@@ -1,4 +1,4 @@
-package com.b2msolutions.reyna;
+package com.b2msolutions.reyna.blackout;
 
 import org.junit.Test;
 

@@ -1,8 +1,6 @@
-package com.b2msolutions.reyna.services;
+package com.b2msolutions.reyna.blackout;
 
 import android.text.TextUtils;
-import com.b2msolutions.reyna.Time;
-import com.b2msolutions.reyna.TimeRange;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -26,7 +24,7 @@ public class BlackoutTime {
 
     public TimeRange parseTime(String time) throws ParseException {
         String[] rangeSplit = time.split("-");
-        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.US);
 
         Calendar from = new GregorianCalendar();
         from.setTime(dateFormat.parse(rangeSplit[0]));

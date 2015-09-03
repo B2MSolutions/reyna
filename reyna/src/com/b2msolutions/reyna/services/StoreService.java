@@ -3,6 +3,7 @@ package com.b2msolutions.reyna.services;
 import android.content.Context;
 import android.content.Intent;
 import com.b2msolutions.reyna.*;
+import com.b2msolutions.reyna.blackout.TimeRange;
 
 public class StoreService extends RepositoryService {
 
@@ -35,6 +36,12 @@ public class StoreService extends RepositoryService {
     public static void setCellularDataBlackout(Context context, TimeRange range) {
         Logger.v(TAG, "setCellularDataBlackout: " + range);
         new Preferences(context).saveCellularDataBlackout(range);
+    }
+
+    public static void resetCellularDataBlackout(Context context) {
+        Logger.v(TAG, "resetCellularDataBlackout");
+
+        new Preferences(context).resetCellularDataBlackout();
     }
 
     public static void setWlanBlackout(Context context, String range) {

@@ -1,12 +1,10 @@
-package com.b2msolutions.reyna;
+package com.b2msolutions.reyna.blackout;
 
 import org.junit.Test;
 
 import java.security.InvalidParameterException;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.*;
 
 public class TimeTest {
     @Test

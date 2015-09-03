@@ -1,18 +1,16 @@
 package com.b2msolutions.reyna.receivers;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
+import android.content.Context;
+import android.content.Intent;
+import com.b2msolutions.reyna.services.ForwardService;
+import com.xtremelabs.robolectric.Robolectric;
+import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.content.Context;
-import android.content.Intent;
-
-import com.b2msolutions.reyna.services.ForwardService;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(RobolectricTestRunner.class)
 public class ForwardServiceReceiverTest {

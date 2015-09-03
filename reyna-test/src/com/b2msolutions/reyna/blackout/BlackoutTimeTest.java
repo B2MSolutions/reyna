@@ -1,7 +1,5 @@
-package com.b2msolutions.reyna.services;
+package com.b2msolutions.reyna.blackout;
 
-import com.b2msolutions.reyna.Time;
-import com.b2msolutions.reyna.TimeRange;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,7 +7,8 @@ import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 
 import java.text.ParseException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import static junit.framework.Assert.*;
 

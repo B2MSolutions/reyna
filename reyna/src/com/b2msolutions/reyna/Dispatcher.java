@@ -7,8 +7,9 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.http.AndroidHttpClient;
 import android.text.TextUtils;
+import com.b2msolutions.reyna.blackout.TimeRange;
 import com.b2msolutions.reyna.http.HttpPost;
-import com.b2msolutions.reyna.services.BlackoutTime;
+import com.b2msolutions.reyna.blackout.BlackoutTime;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.entity.AbstractHttpEntity;
@@ -19,6 +20,7 @@ import java.net.URI;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 
 public class Dispatcher {
 
@@ -123,7 +125,7 @@ public class Dispatcher {
     }
 
     private static String zeroPad(int toBePadded) {
-        return String.format("%02d", toBePadded);
+        return String.format(Locale.US,"%02d", toBePadded);
     }
 
     private static boolean isRoaming(NetworkInfo info) {

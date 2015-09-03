@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import com.b2msolutions.reyna.*;
+import com.b2msolutions.reyna.blackout.Time;
+import com.b2msolutions.reyna.blackout.TimeRange;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
@@ -121,6 +123,20 @@ public class StoreServiceTest {
         TimeRange saved = preferences.getCellularDataBlackout();
         assertEquals(range.getFrom().getMinuteOfDay(), saved.getFrom().getMinuteOfDay());
         assertEquals(range.getTo().getMinuteOfDay(), saved.getTo().getMinuteOfDay());
+    }
+
+    @Test
+    public void resetCellularDataBlackoutShouldRemoveKeys() {
+        TimeRange range = new TimeRange(new Time(3, 00), new Time(19, 00));
+        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        StoreService.setCellularDataBlackout(context, range);
+        Preferences preferences = new Preferences(context);
+        TimeRange saved = preferences.getCellularDataBlackout();
+        assertNotNull(saved);
+
+        StoreService.resetCellularDataBlackout(context);
+        saved = preferences.getCellularDataBlackout();
+        assertNull(saved);
     }
 
     @Test

@@ -1,21 +1,14 @@
 package com.b2msolutions.reyna;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-
+import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.xtremelabs.robolectric.RobolectricTestRunner;
+import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import static org.junit.Assert.*;
 
 @RunWith(RobolectricTestRunner.class)
 public class SerializationTest {

@@ -2,6 +2,8 @@ package com.b2msolutions.reyna;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import com.b2msolutions.reyna.blackout.Time;
+import com.b2msolutions.reyna.blackout.TimeRange;
 
 public class Preferences {
 
@@ -43,6 +45,14 @@ public class Preferences {
         }
 
         return new TimeRange(new Time(from), new Time(to));
+    }
+
+    public void resetCellularDataBlackout() {
+        SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.remove(FROM);
+        editor.remove(TO);
+        editor.apply();
     }
 
     public long getStorageSize() {

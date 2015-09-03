@@ -9,7 +9,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="module" module-name="reyna" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="artifacts" level="project" />
     <orderEntry type="module" module-name="reyna" />
   </component>
 </module>
