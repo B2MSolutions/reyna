@@ -1,5 +1,7 @@
 package com.b2msolutions.reyna;
 
+import com.b2msolutions.reyna.system.Header;
+import com.b2msolutions.reyna.system.Message;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;

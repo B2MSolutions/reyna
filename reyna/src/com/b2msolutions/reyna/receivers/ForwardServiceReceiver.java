@@ -3,7 +3,7 @@ package com.b2msolutions.reyna.receivers;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import com.b2msolutions.reyna.Logger;
+import com.b2msolutions.reyna.system.Logger;
 import com.b2msolutions.reyna.services.ForwardService;
 
 public class ForwardServiceReceiver extends BroadcastReceiver {

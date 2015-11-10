@@ -1,22 +1,35 @@
 package com.b2msolutions.reyna.services;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.WakefulBroadcastReceiver;
 import com.b2msolutions.reyna.*;
 import com.b2msolutions.reyna.blackout.TimeRange;
+import com.b2msolutions.reyna.system.Logger;
+import com.b2msolutions.reyna.system.Message;
+import com.b2msolutions.reyna.system.Preferences;
+import com.b2msolutions.reyna.system.WakefulService;
 
-public class StoreService extends RepositoryService {
+import java.net.URI;
 
-    private static final String TAG = "StoreService";
+public class StoreService extends WakefulService {
+    private static String TAG = "com.b2msolutions.reyna.services.StoreService";
 
     private static final long MINIMUM_STORAGE_LIMIT = 1867776; // 1Mb 800Kb
 
-    public static final String MESSAGE = "com.b2msolutions.reyna.MESSAGE";
+    private static final String MESSAGE = "com.b2msolutions.reyna.MESSAGE";
+
+    private Preferences preferences = null;
+
+    protected Repository repository;
 
     public StoreService() {
         super(StoreService.class.getName());
 
         Logger.v(TAG, "StoreService()");
+        this.repository = new Repository(this);
+        this.preferences = new Preferences(this);
     }
 
     public static void start(Context context, Message message) {
@@ -24,7 +37,10 @@ public class StoreService extends RepositoryService {
 
         Intent service = new Intent(context, StoreService.class);
         service.putExtra(StoreService.MESSAGE, message);
-        context.startService(service);
+        ComponentName componentName = WakefulBroadcastReceiver.startWakefulService(context, service);
+        if (componentName == null) {
+            context.startService(service);
+        }
     }
 
     public static void setLogLevel(int level) {
@@ -95,13 +111,18 @@ public class StoreService extends RepositoryService {
         preferences.resetStorageSize();
     }
 
-    @Override
-    protected void onHandleIntent(Intent intent) {
-        Logger.v(TAG, "onHandleIntent");
+    public static void setBatchUploadConfiguration(Context context, boolean value, URI url, long checkInterval) {
+        Logger.v(TAG, "setBatchUploadConfiguration: " + value);
+        Preferences preferences = new Preferences(context);
 
-        if(intent == null) {
-            return;
-        }
+        preferences.saveBatchUpload(value);
+        preferences.saveBatchUploadUrl(url);
+        preferences.saveBatchUploadCheckInterval(checkInterval);
+    }
+
+    @Override
+    protected void processIntent(Intent intent) {
+        Logger.v(TAG, "onHandleIntent");
 
         Message message = (Message)intent.getSerializableExtra(MESSAGE);
         if(message != null) {
@@ -114,6 +135,7 @@ public class StoreService extends RepositoryService {
 
         long limit = getStorageSizeLimit(this);
         Logger.v(TAG, "insert, getStorageSizeLimit: " + limit);
+
         try {
             if (limit == -1) {
                 this.repository.insert(message);
@@ -123,7 +145,11 @@ public class StoreService extends RepositoryService {
                 this.repository.insert(message, getStorageSizeLimit(this));
             }
 
-            this.startService(new Intent(this, ForwardService.class));
+            if (!this.preferences.getBatchUpload()) {
+                Logger.v(TAG, "insert, getBatchUpload false send immediately");
+                ForwardService.start(this);
+            }
+
         } finally {
             this.repository.close();
         }

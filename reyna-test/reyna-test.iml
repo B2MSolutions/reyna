@@ -8,6 +8,16 @@
     <orderEntry type="library" name="libs" level="project" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="module" module-name="reyna" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/../reyna/libs" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+        <jarDirectory url="file://$MODULE_DIR$/../reyna/libs" recursive="false" />
+      </library>
+    </orderEntry>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="reyna" />
   </component>

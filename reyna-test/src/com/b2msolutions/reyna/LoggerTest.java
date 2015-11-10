@@ -1,6 +1,7 @@
 package com.b2msolutions.reyna;
 
 import android.util.Log;
+import com.b2msolutions.reyna.system.Logger;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import com.xtremelabs.robolectric.internal.Implements;
