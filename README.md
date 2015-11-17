@@ -73,5 +73,4 @@ From the Reyna root folder
 
 ## Contributors
 Pair programmed by [Roy Lines](http://roylines.co.uk) and [James Bloomer](https://github.com/jamesbloomer).
-[Ivan Bokii](https://github.com/ivanbokii)
-[Youhana Hana](https://github.com/youhana-hana).
+[Ivan Bokii](https://github.com/ivanbokii) and [Youhana Hana](https://github.com/youhana-hana).
