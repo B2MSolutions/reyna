@@ -6,20 +6,28 @@ import android.util.Log;
 import com.b2msolutions.reyna.*;
 import com.b2msolutions.reyna.blackout.Time;
 import com.b2msolutions.reyna.blackout.TimeRange;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
-import com.xtremelabs.robolectric.shadows.ShadowApplication;
+import com.b2msolutions.reyna.system.Logger;
+import com.b2msolutions.reyna.system.Message;
+import com.b2msolutions.reyna.system.Preferences;
+import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.Robolectric;
+import org.robolectric.RobolectricTestRunner;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 
+import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
+import static test.Assert.assertServiceNotStartedOrgRobolectric;
+import static test.Assert.assertServiceStartedOrgRobolectric;
 
 @RunWith(RobolectricTestRunner.class)
 public class StoreServiceTest {
@@ -31,13 +39,16 @@ public class StoreServiceTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        this.storeService = new StoreService();
+        this.storeService = org.robolectric.Robolectric.setupService(StoreService.class);
         this.storeService.repository = repository;
+
+        StoreService.setBatchUploadConfiguration(this.storeService.getApplicationContext(), false, URI.create("http://google.com"), 1);
     }
 
     @Test
     public void testConstruction() {
         assertNotNull(this.storeService);
+        assertNotNull(this.storeService.repository);
     }
 
     @Test
@@ -55,7 +66,7 @@ public class StoreServiceTest {
     public void onHandleIntentWithMessageShouldStoreAndStartForwardService() throws URISyntaxException {
         Message message = RepositoryTest.getMessageWithHeaders();
         Intent intent = new Intent();
-        intent.putExtra(StoreService.MESSAGE, message);
+        intent.putExtra("com.b2msolutions.reyna.MESSAGE", message);
 
         this.storeService.onHandleIntent(intent);
 
@@ -70,18 +81,38 @@ public class StoreServiceTest {
         assertEquals("h2", message.getHeaders()[1].getKey());
         assertEquals("v2", message.getHeaders()[1].getValue());
 
-        ShadowApplication shadowApplication = Robolectric.getShadowApplication();
-        Intent service = shadowApplication.getNextStartedService();
-        assertNotNull(service);
-        assertEquals(ForwardService.class.getName(), service.getComponent().getClassName());
+        assertServiceStartedOrgRobolectric(ForwardService.class);
+    }
+
+    @Test
+    public void onHandleIntentWithMessageAndBatchUploadEnabledShouldStoreAndNotStartForwardService() throws URISyntaxException {
+        Message message = RepositoryTest.getMessageWithHeaders();
+        Intent intent = new Intent();
+        intent.putExtra("com.b2msolutions.reyna.MESSAGE", message);
+        StoreService.setBatchUploadConfiguration(this.storeService.getApplicationContext(), true, URI.create("http://google.com"), 1);
+
+        this.storeService.onHandleIntent(intent);
+
+        ArgumentCaptor<Message> argument = ArgumentCaptor.forClass(Message.class);
+        verify(this.repository).insert(argument.capture());
+        Message other = argument.getValue();
+        assertNotNull(other);
+        assertEquals(message.getUrl(), other.getUrl());
+        assertEquals(message.getBody(), other.getBody());
+        assertEquals("h1", message.getHeaders()[0].getKey());
+        assertEquals("v1", message.getHeaders()[0].getValue());
+        assertEquals("h2", message.getHeaders()[1].getKey());
+        assertEquals("v2", message.getHeaders()[1].getValue());
+
+        assertServiceNotStartedOrgRobolectric(ForwardService.class);
     }
 
     @Test
     public void onHandleIntentWithMessageShouldStoreWithDbSizeLimitAndStartForwardService() throws URISyntaxException {
-        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        Context context = Robolectric.application.getApplicationContext();
         Message message = RepositoryTest.getMessageWithHeaders();
         Intent intent = new Intent();
-        intent.putExtra(StoreService.MESSAGE, message);
+        intent.putExtra("com.b2msolutions.reyna.MESSAGE", message);
 
         StoreService.setStorageSizeLimit(context, 2100042);
         this.storeService.onHandleIntent(intent);
@@ -102,10 +133,7 @@ public class StoreServiceTest {
         long limit = argumentLimit.getValue();
         assertEquals(2100042, limit);
 
-        ShadowApplication shadowApplication = Robolectric.getShadowApplication();
-        Intent service = shadowApplication.getNextStartedService();
-        assertNotNull(service);
-        assertEquals(ForwardService.class.getName(), service.getComponent().getClassName());
+        assertServiceStartedOrgRobolectric(ForwardService.class);
     }
 
     @Test
@@ -206,7 +234,6 @@ public class StoreServiceTest {
         assertEquals(1867776, StoreService.getStorageSizeLimit(context));
     }
 
-
     @Test
     public void setStorageLimitShouldSetSizeToMinValueIfPassedValueIsLessThanMinValue() {
         Context context = Robolectric.getShadowApplication().getApplicationContext();
@@ -219,5 +246,34 @@ public class StoreServiceTest {
         Context context = Robolectric.getShadowApplication().getApplicationContext();
         StoreService.resetStorageSizeLimit(context);
         assertEquals(-1, StoreService.getStorageSizeLimit(context));
+    }
+
+    @Test
+    public void setBatchUploadToTrueShouldSave() {
+        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        StoreService.setBatchUploadConfiguration(context, true, URI.create("http://msn.com"), 1000);
+        Preferences preferences = new Preferences(context);
+        assertTrue(preferences.getBatchUpload());
+        assertEquals(URI.create("http://msn.com"), preferences.getBatchUploadUrl());
+        assertEquals(1000, preferences.getBatchUploadCheckInterval());
+    }
+
+    @Test
+    public void setBatchUploadToFalseShouldSave() {
+        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        StoreService.setBatchUploadConfiguration(context, false, URI.create("http://google.com"), 100);
+        Preferences preferences = new Preferences(context);
+        assertFalse(preferences.getBatchUpload());
+        assertEquals(URI.create("http://google.com"), preferences.getBatchUploadUrl());
+        assertEquals(100, preferences.getBatchUploadCheckInterval());
+    }
+
+    @Test
+    public void whenCallingStartShouldAcquirePowerLock() {
+        StoreService.start(Robolectric.application.getApplicationContext(), null);
+
+        Intent intent = assertServiceStartedOrgRobolectric(StoreService.class);
+        int lockId = intent.getIntExtra("android.support.content.wakelockid", -1);
+        assertTrue(lockId != -1);
     }
 }

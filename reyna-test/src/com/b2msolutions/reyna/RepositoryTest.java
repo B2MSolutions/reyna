@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import com.b2msolutions.reyna.system.Header;
+import com.b2msolutions.reyna.system.Message;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Before;
@@ -272,13 +274,41 @@ public class RepositoryTest {
     }
 
     @Test
+    public void getNextMessageAfterGivenIdShouldReturnNextHigherMessage() throws URISyntaxException {
+        Message message = null;
+        for(int i = 0; i<10 ; i++) {
+            message = getMessageWithHeadersAndNonNullId(i + 1);
+            this.repository.insert(message);
+        }
+
+        Message nextMessage = this.repository.getNext();
+        Message nextMessageAfter = this.repository.getNextMessageAfter(7L);
+
+        assertEquals(Long.valueOf(1), nextMessage.getId());
+        assertEquals(Long.valueOf(8), nextMessageAfter.getId());
+    }
+
+    @Test
+    public void getNextMessageAfterGivenIdShouldReturnNullIfThereIsNoMoreMessages() throws URISyntaxException {
+        Message message = null;
+        for(int i = 0; i<10 ; i++) {
+            message = getMessageWithHeadersAndNonNullId(i + 1);
+            this.repository.insert(message);
+        }
+
+        Message nextMessageAfter = this.repository.getNextMessageAfter(11L);
+
+        assertNull(nextMessageAfter);
+    }
+
+    @Test
     public void deleteWithNullMessageShouldNotThrow() {
         this.repository.delete(null);
     }
 
     @Test
     public void deleteWithMessageThatHasNullIdShouldNotThrow() throws URISyntaxException {
-        this.repository.delete(getMessageWithHeadersAndNonNullId());
+        this.repository.delete(getMessageWithHeadersAndNonNullId(1));
     }
 
     @Test
@@ -367,6 +397,57 @@ public class RepositoryTest {
         verify(db, times(1)).close();
     }
 
+    @Test
+    public void deleteMessagesFromShouldDeleteOnlyMessageLessThanOrEqualGivenId() throws URISyntaxException {
+        Message message = null;
+        for(int i = 0; i<10 ; i++) {
+            message = getMessageWithHeadersAndNonNullId(i + 1);
+            this.repository.insert(message);
+        }
+
+        this.repository.deleteMessagesFrom(7);
+        Message nextMessage = this.repository.getNext();
+
+        assertEquals(Long.valueOf(8), nextMessage.getId());
+    }
+
+    @Test
+    public void deleteMessagesFromShouldDeleteHeadersRelatedToMessages() throws URISyntaxException {
+        Message message = null;
+        for(int i = 0; i<10 ; i++) {
+            message = getMessageWithHeadersAndNonNullId(i + 1);
+            this.repository.insert(message);
+        }
+
+        this.repository.deleteMessagesFrom(7);
+
+        SQLiteDatabase db = repository.getReadableDatabase();
+        Cursor headerCursor = db.query("Header", new String[] {"messageid", "key", "value"}, null, null, null, null, "key");
+        assertTrue(headerCursor.moveToFirst());
+        assertEquals(8, headerCursor.getLong(0));
+        headerCursor.close();
+    }
+
+    @Test
+    public void getAvailableMessagesCountShouldGetRowsCount() throws URISyntaxException {
+        SQLiteDatabase db = mock(SQLiteDatabase.class);
+
+        //get number of messages
+        Cursor numberOfMessagesCursor = mock(Cursor.class);
+        doReturn(true).when(numberOfMessagesCursor).moveToFirst();
+        when(numberOfMessagesCursor.getLong(0)).thenReturn(7l);
+        when(db.rawQuery("select count(*) from Message", null)).thenReturn(numberOfMessagesCursor);
+
+        this.repository = spy(this.repository);
+        when(this.repository.getReadableDatabase()).thenReturn(db);
+
+        long actual = this.repository.getAvailableMessagesCount();
+
+        verify(db).rawQuery("select count(*) from Message", null);
+        assertEquals(7L, actual);
+        verify(numberOfMessagesCursor).close();
+    }
+
     public static Message getMessageWithHeaders() throws URISyntaxException {
         return getMessageWithHeaders("body");
     }
@@ -379,11 +460,11 @@ public class RepositoryTest {
         return new Message(new URI("https://www.google.com"), body, new Header[] { new Header("h1", "v1"), new Header("h2", "v2"), new Header("content-encoding", "gzip") });
     }
 
-    public static Message getMessageWithHeadersAndNonNullId() throws URISyntaxException {
-        return new Message(new Long(1), new URI("https://www.google.com"), "body", new Header[] { new Header("h1", "v1"), new Header("h2", "v2") });
+    public static Message getMessageWithHeadersAndNonNullId(long id) throws URISyntaxException {
+        return new Message(id, new URI("https://www.google.com"), "body", new Header[] { new Header("h1", "v1"), new Header("h2", "v2") });
     }
 
-    public static void assertMessage(Repository repository, Message message) {
+    private static void assertMessage(Repository repository, Message message) {
         SQLiteDatabase db = repository.getReadableDatabase();
         Cursor messageCursor = db.query("Message", new String[] {"id", "url", "body"}, null, null, null, null, null);
         assertTrue(messageCursor.moveToFirst());
@@ -410,7 +491,7 @@ public class RepositoryTest {
         headerCursor.close();
     }
 
-    public static void assertMockedMessage(SQLiteDatabase mockedDb) {
+    private static void assertMockedMessage(SQLiteDatabase mockedDb) {
         verify(mockedDb, times(3)).insert(anyString(), anyString(), any(ContentValues.class));
     }
 }

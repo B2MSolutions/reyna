@@ -15,7 +15,6 @@ reyna/build.xml
 bin/
 gen/
 tmp/
-libs/
 local.properties
 junit/
 reports/

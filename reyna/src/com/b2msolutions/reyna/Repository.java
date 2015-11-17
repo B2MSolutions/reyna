@@ -5,6 +5,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import com.b2msolutions.reyna.system.Header;
+import com.b2msolutions.reyna.system.Logger;
+import com.b2msolutions.reyna.system.Message;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -18,7 +21,7 @@ public class Repository extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
 
-    private static final String TAG = "Repository";
+    private static final String TAG = "com.b2msolutions.reyna.Repository";
 
     private static final Lock lock = new ReentrantLock();
 
@@ -51,8 +54,7 @@ public class Repository extends SQLiteOpenHelper {
 
             SQLiteDatabase db = this.getWritableDatabase();
             this.insertMessage(db, message);
-        }
-        finally {
+        } finally {
             lock.unlock();
         }
     }
@@ -75,17 +77,58 @@ public class Repository extends SQLiteOpenHelper {
             }
 
             this.insertMessage(db, message);
-        }
-        finally {
+        } finally {
             lock.unlock();
         }
     }
 
-    private boolean dbSizeApproachesLimit(long dbSize, long limit) {
-        Logger.v(TAG, String.format("dbSizeApproachesLimit, dbSize: %d, limit %d, SIZE_DIFFERENCE_TO_START_CLEANING: %d", dbSize, limit, SIZE_DIFFERENCE_TO_START_CLEANING));
-        boolean result =  (limit > dbSize) && (limit - dbSize) < SIZE_DIFFERENCE_TO_START_CLEANING;
-        Logger.v(TAG, "dbSizeApproachesLimit, result: " + result);
-        return result;
+    public Message getNext() throws URISyntaxException {
+        Logger.v(TAG, "getNext");
+        return getNextMessageAfter(null);
+    }
+
+    public Message getNextMessageAfter(Long messageId) throws URISyntaxException {
+        Logger.v(TAG, "getNextMessageAfter");
+        Cursor messageCursor = null;
+        Cursor headersCursor = null;
+
+        try {
+            SQLiteDatabase db = this.getReadableDatabase();
+            String selection = null;
+            if (messageId != null) {
+                selection = "id > " + messageId.longValue();
+            }
+
+            messageCursor = db.query("Message", new String[]{"id", "url",
+                    "body"}, selection, null, null, null, "id", "1");
+            if (!messageCursor.moveToFirst())
+                return null;
+
+            long messageid = messageCursor.getLong(0);
+            String url = messageCursor.getString(1);
+            String body = messageCursor.getString(2);
+
+            headersCursor = db.query("Header", new String[]{"id", "key",
+                            "value"}, "messageid = " + messageid, null, null, null,
+                    null);
+
+            ArrayList<Header> headers = new ArrayList<Header>();
+            while (headersCursor.moveToNext()) {
+                headers.add(new Header(headersCursor.getLong(0), headersCursor
+                        .getString(1), headersCursor.getString(2)));
+            }
+
+            Header[] headersForMessage = new Header[headers.size()];
+            headers.toArray(headersForMessage);
+
+            return new Message(messageid, new URI(url), body,
+                    headersForMessage);
+        } finally {
+            if (messageCursor != null)
+                messageCursor.close();
+            if (headersCursor != null)
+                headersCursor.close();
+        }
     }
 
     public void shrinkDb(long limit) {
@@ -113,12 +156,47 @@ public class Repository extends SQLiteOpenHelper {
 
             Logger.v(TAG, String.format("shrinkDb, dbSize: %d, limit: %d", dbSize, limit));
             this.vacuum(db);
-        }
-        finally {
+        } finally {
             db.close();
             lock.unlock();
         }
 
+    }
+
+    public void delete(Message message) {
+        Logger.v(TAG, "delete");
+        if (message == null)
+            return;
+        if (message.getId() == null)
+            return;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        if (!this.doesMessageExist(db, message))
+            return;
+
+        this.deleteExistingMessage(db, message);
+    }
+
+    public void deleteMessagesFrom(long messageId) {
+        Logger.v(TAG, "deleteMessagesFrom");
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        db.beginTransaction();
+        try {
+            String[] args = new String[]{String.valueOf(messageId)};
+            db.delete("Header", "messageid <= ?", args);
+            db.delete("Message", "id <= ?", args);
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    public long getAvailableMessagesCount() {
+        Logger.v(TAG, "getAvailableMessagesCount");
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        return this.getNumberOfMessages(db);
     }
 
     private void insertMessage(SQLiteDatabase db, Message message) {
@@ -134,8 +212,7 @@ public class Repository extends SQLiteOpenHelper {
             db.setTransactionSuccessful();
 
             Logger.v("reyna", "Repository: inserted message " + messageId);
-        }
-        finally {
+        } finally {
             if (db != null && db.inTransaction()) {
                 db.endTransaction();
             }
@@ -162,7 +239,7 @@ public class Repository extends SQLiteOpenHelper {
 
         if (cursor.moveToNext()) {
             long result = cursor.getLong(0);
-            Logger.v(TAG, "findOldestMessageIdWithType, oldest messageid: " +  result);
+            Logger.v(TAG, "findOldestMessageIdWithType, oldest messageid: " + result);
             cursor.close();
             return result;
         }
@@ -172,64 +249,39 @@ public class Repository extends SQLiteOpenHelper {
         return null;
     }
 
-    public Message getNext() throws URISyntaxException {
-        Logger.v(TAG, "getNext");
-        Cursor messageCursor = null;
-        Cursor headersCursor = null;
-
-        try {
-            SQLiteDatabase db = this.getReadableDatabase();
-            messageCursor = db.query("Message", new String[] { "id", "url",
-                    "body" }, null, null, null, null, "id", "1");
-            if (!messageCursor.moveToFirst())
-                return null;
-
-            long messageid = messageCursor.getLong(0);
-            String url = messageCursor.getString(1);
-            String body = messageCursor.getString(2);
-
-            headersCursor = db.query("Header", new String[] { "id", "key",
-                            "value" }, "messageid = " + messageid, null, null, null,
-                    null);
-
-            ArrayList<Header> headers = new ArrayList<Header>();
-            while (headersCursor.moveToNext()) {
-                headers.add(new Header(headersCursor.getLong(0), headersCursor
-                        .getString(1), headersCursor.getString(2)));
-            }
-
-            Header[] headersForMessage = new Header[headers.size()];
-            headers.toArray(headersForMessage);
-
-            return new Message(messageid, new URI(url), body,
-                    headersForMessage);
-        } finally {
-            if (messageCursor != null)
-                messageCursor.close();
-            if (headersCursor != null)
-                headersCursor.close();
-        }
+    private boolean dbSizeApproachesLimit(long dbSize, long limit) {
+        Logger.v(TAG, String.format("dbSizeApproachesLimit, dbSize: %d, limit %d, SIZE_DIFFERENCE_TO_START_CLEANING: %d", dbSize, limit, SIZE_DIFFERENCE_TO_START_CLEANING));
+        boolean result = (limit > dbSize) && (limit - dbSize) < SIZE_DIFFERENCE_TO_START_CLEANING;
+        Logger.v(TAG, "dbSizeApproachesLimit, result: " + result);
+        return result;
     }
 
-    public void delete(Message message) {
-        Logger.v(TAG, "delete");
-        if (message == null)
-            return;
-        if (message.getId() == null)
-            return;
 
-        SQLiteDatabase db = this.getReadableDatabase();
-        if (!this.doesMessageExist(db, message))
-            return;
+    private long getNumberOfMessages(SQLiteDatabase db) {
+        Logger.v(TAG, "getNumberOfMessages");
 
-        this.deleteExistingMessage(db, message);
+        Cursor cursor = null;
+        try {
+            cursor = db.rawQuery("select count(*) from Message", null);
+            if (cursor.moveToFirst()) {
+                long numberOfMessages = cursor.getLong(0);
+                Logger.v(TAG, "getNumberOfMessages, numberOfMessages: " + numberOfMessages);
+                return numberOfMessages;
+            }
+
+            return 0;
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
     }
 
     private void deleteExistingMessage(SQLiteDatabase db, Message message) {
         Logger.v(TAG, "deleteExistingMessage");
         db.beginTransaction();
         try {
-            String[] args = new String[] { message.getId().toString() };
+            String[] args = new String[]{message.getId().toString()};
             db.delete("Header", "messageid = ?", args);
             db.delete("Message", "id = ?", args);
             db.setTransactionSuccessful();
@@ -243,8 +295,8 @@ public class Repository extends SQLiteOpenHelper {
 
         Cursor cursor = null;
         try {
-            cursor = db.query("Message", new String[] { "id" }, "id = ?",
-                    new String[] { message.getId().toString() }, null, null,
+            cursor = db.query("Message", new String[]{"id"}, "id = ?",
+                    new String[]{message.getId().toString()}, null, null,
                     null);
             return cursor.moveToFirst();
         } finally {
@@ -266,9 +318,8 @@ public class Repository extends SQLiteOpenHelper {
         }
     }
 
-
     private void shrink(SQLiteDatabase db, long limit, long dbSize) {
-        double limitPercentage = 1 - (double)limit / dbSize;
+        double limitPercentage = 1 - (double) limit / dbSize;
         long numberOfMessages = this.getNumberOfMessages(db);
         long numberOfMessagesToRemove = Math.round(numberOfMessages * limitPercentage);
         numberOfMessagesToRemove = numberOfMessagesToRemove == 0 ? 1 : numberOfMessagesToRemove;
@@ -282,8 +333,7 @@ public class Repository extends SQLiteOpenHelper {
             db.execSQL("delete from Header where messageid < " + thresholdId);
 
             db.setTransactionSuccessful();
-        }
-        finally {
+        } finally {
             if (db.inTransaction()) {
                 db.endTransaction();
             }
@@ -308,29 +358,7 @@ public class Repository extends SQLiteOpenHelper {
             }
 
             return 0;
-        }
-        finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-    }
-
-    private long getNumberOfMessages(SQLiteDatabase db) {
-        Logger.v(TAG, "getNumberOfMessages");
-
-        Cursor cursor = null;
-        try {
-            cursor = db.rawQuery("select count(*) from Message", null);
-            if(cursor.moveToFirst()) {
-                long numberOfMessages = cursor.getLong(0);
-                Logger.v(TAG, "getNumberOfMessages, numberOfMessages: " + numberOfMessages);
-                return numberOfMessages;
-            }
-
-            return 0;
-        }
-        finally {
+        } finally {
             if (cursor != null) {
                 cursor.close();
             }
@@ -351,8 +379,7 @@ public class Repository extends SQLiteOpenHelper {
             }
 
             return 0;
-        }
-        finally {
+        } finally {
             if (cursor != null) {
                 cursor.close();
             }

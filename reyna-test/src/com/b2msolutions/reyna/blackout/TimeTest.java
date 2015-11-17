@@ -3,6 +3,8 @@ package com.b2msolutions.reyna.blackout;
 import org.junit.Test;
 
 import java.security.InvalidParameterException;
+import java.util.Calendar;
+import java.util.Date;
 
 import static junit.framework.Assert.*;
 
@@ -27,6 +29,13 @@ public class TimeTest {
     public void shouldSetMinuteOfDay() {
         assertEquals(12 * 60 + 1, new Time(12, 01).getMinuteOfDay());
         assertEquals(1000, new Time(1000).getMinuteOfDay());
+    }
+
+    @Test
+    public void constructor() {
+        Time time = new Time();
+        int expected = new Date().getHours() * 60 + new Date().getMinutes();
+        assertTrue(expected <= time.getMinuteOfDay());
     }
 
     @Test(expected = InvalidParameterException.class)
