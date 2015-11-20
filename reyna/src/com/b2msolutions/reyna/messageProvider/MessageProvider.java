@@ -10,7 +10,7 @@ import java.net.URISyntaxException;
 
 public class MessageProvider implements IMessageProvider {
 
-    private static final String TAG = "MessageProvider";
+    private static final String TAG = "com.b2msolutions.reyna.messageProvider.MessageProvider";
 
     protected Repository repository;
 
@@ -53,6 +53,7 @@ public class MessageProvider implements IMessageProvider {
     }
 
     private void addReynaSpecificHeaders(Message message) {
+        Logger.v(MessageProvider.TAG, "addReynaSpecificHeaders");
         Header header = new Header("reyna-id", message.getId().toString());
         message.addHeader(header);
     }

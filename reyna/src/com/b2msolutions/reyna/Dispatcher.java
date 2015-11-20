@@ -28,7 +28,7 @@ import java.util.Locale;
 
 public class Dispatcher {
 
-    private static final String TAG = "Dispatcher";
+    private static final String TAG = "com.b2msolutions.reyna.Dispatcher";
 
     public enum Result {
         OK, PERMANENT_ERROR, TEMPORARY_ERROR, BLACKOUT, NOTCONNECTED

@@ -1,5 +1,6 @@
 package com.b2msolutions.reyna.messageProvider;
 
+import com.b2msolutions.reyna.system.Logger;
 import com.b2msolutions.reyna.system.Message;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -18,6 +19,8 @@ public class Batch {
     }
 
     public void add(Message message) {
+        Logger.v(Batch.TAG, "add");
+
         BatchMessage batchMessage = new BatchMessage(message.getId(), message.getUrl(), this.getBody(message.getBody()));
         this.events.add(batchMessage);
     }
@@ -27,12 +30,16 @@ public class Batch {
     }
 
     public void removeLastMessage() {
+        Logger.v(Batch.TAG, "removeLastMessage");
+
         int size = this.events.size();
         if (size > 1) {
             this.events.remove(size -1);
         }
     }
     private JsonObject getBody(String body) {
+        Logger.v(Batch.TAG, "getBody");
+
         try {
             JsonParser parser = new JsonParser();
             return parser.parse(body).getAsJsonObject();
