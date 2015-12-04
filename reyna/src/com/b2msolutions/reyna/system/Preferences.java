@@ -20,9 +20,9 @@ public class Preferences {
     private final String WWAN_ROAMING_BLACKOUT = "WWAN_ROAMING_BLACKOUT";
     private final String ON_CHARGE_BLACKOUT = "ON_CHARGE_BLACKOUT";
     private final String OFF_CHARGE_BLACKOUT = "OFF_CHARGE_BLACKOUT";
-    private final String BACH_UPLOAD = "BATCH_UPLOAD";
-    private final String BACH_UPLOAD_URI = "BATCH_UPLOAD_URI";
-    private final String BACH_UPLOAD_INTERVAL = "BATCH_UPLOAD_INTERVAL";
+    private final String BATCH_UPLOAD = "BATCH_UPLOAD";
+    private final String BATCH_UPLOAD_URI = "BATCH_UPLOAD_URI";
+    private final String BATCH_UPLOAD_INTERVAL = "BATCH_UPLOAD_INTERVAL";
 
     public Preferences(Context context) {
         this.context = context;
@@ -118,19 +118,19 @@ public class Preferences {
     }
 
     public void saveBatchUpload(boolean value) {
-        this.putBoolean(BACH_UPLOAD, value);
+        this.putBoolean(BATCH_UPLOAD, value);
     }
 
     public boolean getBatchUpload() {
-        return this.getBoolean(BACH_UPLOAD, true);
+        return this.getBoolean(BATCH_UPLOAD, true);
     }
 
     public void saveBatchUploadUrl(URI value) {
-        this.putString(BACH_UPLOAD_URI, value.toString());
+        this.putString(BATCH_UPLOAD_URI, value.toString());
     }
 
     public URI getBatchUploadUrl() {
-        String url = this.getString(BACH_UPLOAD_URI, "");
+        String url = this.getString(BATCH_UPLOAD_URI, "");
         if (TextUtils.isEmpty(url)) {
             return null;
         }
@@ -139,11 +139,11 @@ public class Preferences {
     }
 
     public void saveBatchUploadCheckInterval(long value) {
-        this.putLong(BACH_UPLOAD_INTERVAL, value);
+        this.putLong(BATCH_UPLOAD_INTERVAL, value);
     }
 
     public long getBatchUploadCheckInterval() {
-        return this.getLong(BACH_UPLOAD_INTERVAL, AlarmManager.INTERVAL_HALF_DAY / 2);
+        return this.getLong(BATCH_UPLOAD_INTERVAL, AlarmManager.INTERVAL_HALF_DAY / 2);
     }
 
     public void putLong(String key, long value) {
