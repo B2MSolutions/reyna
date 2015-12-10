@@ -85,7 +85,7 @@ public class StoreServiceTest {
     }
 
     @Test
-    public void onHandleIntentWithMessageAndBatchUploadEnabledShouldStoreAndNotStartForwardService() throws URISyntaxException {
+    public void onHandleIntentWithMessageAndBatchUploadEnabledShouldStoreAndStartForwardService() throws URISyntaxException {
         Message message = RepositoryTest.getMessageWithHeaders();
         Intent intent = new Intent();
         intent.putExtra("com.b2msolutions.reyna.MESSAGE", message);
@@ -104,7 +104,7 @@ public class StoreServiceTest {
         assertEquals("h2", message.getHeaders()[1].getKey());
         assertEquals("v2", message.getHeaders()[1].getValue());
 
-        assertServiceNotStartedOrgRobolectric(ForwardService.class);
+        assertServiceStartedOrgRobolectric(ForwardService.class);
     }
 
     @Test

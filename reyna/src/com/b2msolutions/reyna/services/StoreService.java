@@ -145,11 +145,7 @@ public class StoreService extends WakefulService {
                 this.repository.insert(message, getStorageSizeLimit(this));
             }
 
-            if (!this.preferences.getBatchUpload()) {
-                Logger.v(TAG, "insert, getBatchUpload false send immediately");
-                ForwardService.start(this);
-            }
-
+            ForwardService.start(this);
         } finally {
             this.repository.close();
         }
