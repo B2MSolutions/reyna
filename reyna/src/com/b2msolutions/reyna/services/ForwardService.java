@@ -30,6 +30,8 @@ public class ForwardService extends WakefulService {
 
     protected IMessageProvider messageProvider = null;
 
+    protected Repository repository = null;
+
     public ForwardService() {
         super(ForwardService.class.getName());
 
@@ -38,6 +40,7 @@ public class ForwardService extends WakefulService {
         this.dispatcher = new Dispatcher();
         this.thread = new Thread();
         this.periodicBackoutCheck = new PeriodicBackoutCheck(this);
+        this.repository = new Repository(this);
     }
 
     public static void start(Context context) {
@@ -107,16 +110,12 @@ public class ForwardService extends WakefulService {
     }
 
     private IMessageProvider getMessageProvider() {
-        if(this.messageProvider != null) {
-            return this.messageProvider;
-        }
-
         if (new Preferences(this).getBatchUpload()) {
             Logger.v(TAG, "getMessageProvider BatchProvider");
-            return new BatchProvider(this);
+            return new BatchProvider(this, repository);
         }
 
         Logger.v(TAG, "getMessageProvider MessageProvider");
-        return new MessageProvider(this);
+        return new MessageProvider(repository);
     }
 }

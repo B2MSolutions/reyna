@@ -122,7 +122,7 @@ public class Preferences {
     }
 
     public boolean getBatchUpload() {
-        return this.getBoolean(BATCH_UPLOAD, true);
+        return this.getBoolean(BATCH_UPLOAD, false);
     }
 
     public void saveBatchUploadUrl(URI value) {

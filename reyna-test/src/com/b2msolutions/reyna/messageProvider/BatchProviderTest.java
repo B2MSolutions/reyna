@@ -49,8 +49,7 @@ public class BatchProviderTest {
         MockitoAnnotations.initMocks(this);
 
         this.context = Robolectric.getShadowApplication().getApplicationContext();
-        this.messageProvider = new BatchProvider(this.context);
-        this.messageProvider.repository = this.repository;
+        this.messageProvider = new BatchProvider(this.context, this.repository);
         this.messageProvider.batchConfiguration = this.batchConfiguration;
         this.messageProvider.periodicBackoutCheck = this.periodicBackoutCheck;
 
@@ -62,7 +61,7 @@ public class BatchProviderTest {
 
     @Test
     public void testConstruction() {
-        this.messageProvider = new BatchProvider(this.context);
+        this.messageProvider = new BatchProvider(this.context, this.repository);
 
         assertNotNull(this.messageProvider);
         assertNotNull(this.messageProvider.repository);
@@ -303,7 +302,7 @@ public class BatchProviderTest {
 
         assertNotNull(actual);
 
-        assertEquals("http://www.post.com/batch", actual.getUrl());
+        assertEquals("http://www.post.com/api/1/batch", actual.getUrl());
         assertEquals("{\"events\":[" +
                 "{\"url\":\"http://www.post.com\",\"reynaId\":1,\"payload\":{\"key01\":\"value01\",\"key02\":11}}" +
                 "]}", actual.getBody());
@@ -324,7 +323,7 @@ public class BatchProviderTest {
 
         assertNotNull(actual);
 
-        assertEquals("https://www.post.com/1/2/batch", actual.getUrl());
+        assertEquals("https://www.post.com/api/1/batch", actual.getUrl());
     }
 
     @Test

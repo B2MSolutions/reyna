@@ -22,10 +22,10 @@ public class BatchProvider implements IMessageProvider {
 
     protected PeriodicBackoutCheck periodicBackoutCheck;
 
-    public BatchProvider(Context context) {
+    public BatchProvider(Context context, Repository repository) {
         Logger.v(BatchProvider.TAG, "MessageProvider");
 
-        this.repository = new Repository(context);
+        this.repository = repository;
         this.batchConfiguration = new BatchConfiguration(context);
         this.periodicBackoutCheck = new PeriodicBackoutCheck(context);
         this.batchDeleted = false;
@@ -117,16 +117,7 @@ public class BatchProvider implements IMessageProvider {
     }
 
     private URI getUploadUrlFromMessageUrl(URI uri) throws URISyntaxException {
-        String path = uri.getPath();
-        String batchPath;
-        int index = path.lastIndexOf("/");
-        if (index != -1) {
-            batchPath = path.substring(0, index) + "/batch";
-        } else {
-            batchPath = path+"/batch";
-        }
-
-        return new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), batchPath, uri.getQuery(), uri.getFragment());
+        return new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), "/api/1/batch", uri.getQuery(), uri.getFragment());
 
     }
 
