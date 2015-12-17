@@ -198,7 +198,18 @@ public class PreferencesTest {
         this.clear();
 
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        assertFalse(preferences.getBatchUpload());
+    }
+
+    @Test
+    public void whenSavingBatchUploadStoredShouldReturnTrue() {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+
+        preferences.saveBatchUpload(true);
         assertTrue(preferences.getBatchUpload());
+
+        preferences.saveBatchUpload(false);
+        assertFalse(preferences.getBatchUpload());
     }
 
     @Test

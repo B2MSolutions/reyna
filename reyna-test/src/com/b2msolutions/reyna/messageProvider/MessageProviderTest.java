@@ -30,20 +30,16 @@ public class MessageProviderTest {
     @Mock
     Repository repository;
 
-    @Mock
-    private Context context;
-
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
 
-        this.messageProvider = new MessageProvider(this.context);
-        this.messageProvider.repository = this.repository;
+        this.messageProvider = new MessageProvider(this.repository);
     }
 
     @Test
     public void testConstruction() {
-        this.messageProvider = new MessageProvider(this.context);
+        this.messageProvider = new MessageProvider(this.repository);
 
         assertNotNull(this.messageProvider);
         assertNotNull(this.messageProvider.repository);

@@ -14,10 +14,10 @@ public class MessageProvider implements IMessageProvider {
 
     protected Repository repository;
 
-    public MessageProvider(Context context) {
+    public MessageProvider(Repository repository) {
         Logger.v(MessageProvider.TAG, "MessageProvider");
 
-        this.repository = new Repository(context);
+        this.repository = repository;
     }
 
     public Message getNext() throws URISyntaxException {
