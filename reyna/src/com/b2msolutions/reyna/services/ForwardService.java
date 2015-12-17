@@ -28,8 +28,6 @@ public class ForwardService extends WakefulService {
 
     protected PeriodicBackoutCheck periodicBackoutCheck;
 
-    protected IMessageProvider messageProvider = null;
-
     protected Repository repository = null;
 
     public ForwardService() {
@@ -56,7 +54,7 @@ public class ForwardService extends WakefulService {
     protected void processIntent(Intent intent) {
         Logger.v(TAG, "onHandleIntent");
 
-        this.messageProvider = this.getMessageProvider();
+        IMessageProvider messageProvider = this.getMessageProvider();
 
         try {
 
@@ -71,12 +69,12 @@ public class ForwardService extends WakefulService {
                 return;
             }
 
-            if (!this.messageProvider.canSend()) {
+            if (!messageProvider.canSend()) {
                 Logger.v(TAG, "ForwardService: messageProvider cannot send");
                 return;
             }
 
-            Message message = this.messageProvider.getNext();
+            Message message = messageProvider.getNext();
             while(message != null) {
 
                 this.thread.sleep(SLEEP_MILLISECONDS);
@@ -98,18 +96,18 @@ public class ForwardService extends WakefulService {
                     return;
                 }
 
-                this.messageProvider.delete(message);
-                message = this.messageProvider.getNext();
+                messageProvider.delete(message);
+                message = messageProvider.getNext();
             }
 
         } catch(Exception e) {
             Logger.e(TAG, "onHandleIntent", e);
         } finally {
-            this.messageProvider.close();
+            messageProvider.close();
         }
     }
 
-    private IMessageProvider getMessageProvider() {
+    protected IMessageProvider getMessageProvider() {
         if (new Preferences(this).getBatchUpload()) {
             Logger.v(TAG, "getMessageProvider BatchProvider");
             return new BatchProvider(this, repository);

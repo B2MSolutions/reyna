@@ -93,29 +93,27 @@ public class ForwardServiceTest {
 
         assertNotNull(this.forwardService);
         assertNotNull(this.forwardService.periodicBackoutCheck);
-        assertNull(this.forwardService.messageProvider);
+        assertNotNull(this.forwardService.repository);
     }
 
     @Test
     public void whenBatchModeEnabledMessageProviderShouldBeBatchProvider() {
         new Preferences(this.forwardService).saveBatchUpload(true);
         this.forwardService = new ForwardService();
-        this.forwardService.onHandleIntent(new Intent());
+        IMessageProvider messageProvider = this.forwardService.getMessageProvider();
 
-        assertNotNull(this.forwardService);
-        assertNotNull(this.forwardService.messageProvider);
-        assertEquals(BatchProvider.class, this.forwardService.messageProvider.getClass());
+        assertNotNull(messageProvider);
+        assertEquals(BatchProvider.class, messageProvider.getClass());
     }
 
     @Test
     public void whenBatchModeDisabledMessageProviderShouldBeMessageProvider() {
         new Preferences(this.forwardService).saveBatchUpload(false);
         this.forwardService = new ForwardService();
-        this.forwardService.onHandleIntent(new Intent());
+        IMessageProvider messageProvider = this.forwardService.getMessageProvider();
 
-        assertNotNull(this.forwardService);
-        assertNotNull(this.forwardService.messageProvider);
-        assertEquals(MessageProvider.class, this.forwardService.messageProvider.getClass());
+        assertNotNull(messageProvider);
+        assertEquals(MessageProvider.class, messageProvider.getClass());
     }
 
     @Test
