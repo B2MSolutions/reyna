@@ -39,36 +39,45 @@ public class Repository extends SQLiteOpenHelper {
     }
 
     @Override
+    protected void finalize() throws Throwable {
+        this.close();
+        super.finalize();
+    }
+
+    @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Logger.v(TAG, "onUpgrade");
     }
 
     public void insert(Message message) {
         Logger.v(TAG, "insert");
+
+        if (message == null) {
+            Logger.v(TAG, "insert, null message");
+            return;
+        }
+
         lock.lock();
-
+        SQLiteDatabase db = this.getWritableDatabase();
         try {
-            if (message == null) {
-                return;
-            }
-
-            SQLiteDatabase db = this.getWritableDatabase();
             this.insertMessage(db, message);
         } finally {
+            db.close();
             lock.unlock();
         }
     }
 
     public void insert(Message message, long dbSizeLimit) {
         Logger.v(TAG, "insert with limit");
+
+        if (message == null) {
+            Logger.v(TAG, "insert, null message");
+            return;
+        }
+
         lock.lock();
-
+        SQLiteDatabase db = this.getWritableDatabase();
         try {
-            if (message == null) {
-                return;
-            }
-
-            SQLiteDatabase db = this.getWritableDatabase();
             long dbSize = this.getDbSize(db);
             Logger.v(TAG, String.format("insert with limit. dbSize: %d, dbSizeLimit: %d", dbSize, dbSizeLimit));
             if (this.dbSizeApproachesLimit(dbSize, dbSizeLimit)) {
@@ -78,6 +87,7 @@ public class Repository extends SQLiteOpenHelper {
 
             this.insertMessage(db, message);
         } finally {
+            db.close();
             lock.unlock();
         }
     }
@@ -91,9 +101,8 @@ public class Repository extends SQLiteOpenHelper {
         Logger.v(TAG, "getNextMessageAfter");
         Cursor messageCursor = null;
         Cursor headersCursor = null;
-
+        SQLiteDatabase db = this.getReadableDatabase();
         try {
-            SQLiteDatabase db = this.getReadableDatabase();
             String selection = null;
             if (messageId != null) {
                 selection = "id > " + messageId.longValue();
@@ -128,6 +137,7 @@ public class Repository extends SQLiteOpenHelper {
                 messageCursor.close();
             if (headersCursor != null)
                 headersCursor.close();
+            db.close();
         }
     }
 
@@ -170,17 +180,21 @@ public class Repository extends SQLiteOpenHelper {
         if (message.getId() == null)
             return;
 
-        SQLiteDatabase db = this.getReadableDatabase();
-        if (!this.doesMessageExist(db, message))
-            return;
+        SQLiteDatabase db = this.getWritableDatabase();
+        try {
+            if (!this.doesMessageExist(db, message))
+                return;
 
-        this.deleteExistingMessage(db, message);
+            this.deleteExistingMessage(db, message);
+        } finally {
+            db.close();
+        }
     }
 
     public void deleteMessagesFrom(long messageId) {
         Logger.v(TAG, "deleteMessagesFrom");
 
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = this.getWritableDatabase();
         db.beginTransaction();
         try {
             String[] args = new String[]{String.valueOf(messageId)};
@@ -189,6 +203,7 @@ public class Repository extends SQLiteOpenHelper {
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
+            db.close();
         }
     }
 
@@ -196,7 +211,9 @@ public class Repository extends SQLiteOpenHelper {
         Logger.v(TAG, "getAvailableMessagesCount");
 
         SQLiteDatabase db = this.getReadableDatabase();
-        return this.getNumberOfMessages(db);
+        long numberOfMessages = this.getNumberOfMessages(db);
+        db.close();
+        return numberOfMessages;
     }
 
     private void insertMessage(SQLiteDatabase db, Message message) {
@@ -235,18 +252,22 @@ public class Repository extends SQLiteOpenHelper {
 
     private Long findOldestMessageIdWithType(SQLiteDatabase db, String type) {
         Logger.v(TAG, "findOldestMessageIdWithType");
-        Cursor cursor = db.query("Message", new String[]{"min(id)"}, "url=?", new String[]{type}, null, null, null);
+        Cursor cursor = null;
+        try {
+            cursor = db.query("Message", new String[]{"min(id)"}, "url=?", new String[]{type}, null, null, null);
+            if (cursor.moveToNext()) {
+                long result = cursor.getLong(0);
+                Logger.v(TAG, "findOldestMessageIdWithType, oldest messageid: " + result);
+                return result;
+            }
 
-        if (cursor.moveToNext()) {
-            long result = cursor.getLong(0);
-            Logger.v(TAG, "findOldestMessageIdWithType, oldest messageid: " + result);
-            cursor.close();
-            return result;
+            Logger.v(TAG, "findOldestMessageIdWithType, NO Message found");
+            return null;
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
-
-        Logger.v(TAG, "findOldestMessageIdWithType, NO Message found");
-        cursor.close();
-        return null;
     }
 
     private boolean dbSizeApproachesLimit(long dbSize, long limit) {

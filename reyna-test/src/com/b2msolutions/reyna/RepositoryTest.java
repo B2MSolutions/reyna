@@ -6,11 +6,12 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import com.b2msolutions.reyna.system.Header;
 import com.b2msolutions.reyna.system.Message;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -18,6 +19,7 @@ import java.net.URISyntaxException;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+@Config(emulateSdk = 18)
 @RunWith(RobolectricTestRunner.class)
 public class RepositoryTest {
 
@@ -489,6 +491,7 @@ public class RepositoryTest {
 
         messageCursor.close();
         headerCursor.close();
+        db.close();
     }
 
     private static void assertMockedMessage(SQLiteDatabase mockedDb) {
