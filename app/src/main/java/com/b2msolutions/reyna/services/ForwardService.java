@@ -18,6 +18,8 @@ public class ForwardService extends RepositoryService {
 
     protected static final String TAG = "ForwardService";
     protected static final long SLEEP_MILLISECONDS = 1000; // 1 second
+    public static final int EXTERANL_DISPATCHER_SERVICE_CONNECTION_RETRY_COUNT = 10;
+    public static final int SERVICE_CONNECTION_WAIT_TIMEOUT = 500;
 
     protected Dispatcher dispatcher;
     protected Thread thread;
@@ -32,36 +34,37 @@ public class ForwardService extends RepositoryService {
         new Preferences(context).saveDispatcherServiceName(dispatcherServiceName);
     }
 
-	public ForwardService() {
-		super(ForwardService.class.getName());
+    public ForwardService() {
+        super(ForwardService.class.getName());
 
         Logger.v(TAG, "ForwardService()");
 
         this.preferences = new Preferences(this);
         this.dispatcher = new Dispatcher();
         this.thread = new Thread();
-	}
+    }
 
-	@Override
-	protected void onHandleIntent(Intent intent) {
-		Logger.v(TAG, "onHandleIntent");
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        Logger.v(TAG, "onHandleIntent");
 
-		try {
+        try {
             if(this.haveCustomDispatcher() && this.mService == null){
                 this.doBindService();
+                this.waitForBinding();
             }
-			Message message = this.repository.getNext();
-			while(message != null) {
+            Message message = this.repository.getNext();
+            while(message != null) {
                 this.thread.sleep(SLEEP_MILLISECONDS);
-				Logger.i(TAG, "ForwardService: processing message " + message.getId());
+                Logger.i(TAG, "ForwardService: processing message " + message.getId());
 
                 this.addReynaSpecificHeaders(message);
 
                 Result result = sendMessage(message);
 
                 Logger.i(TAG, "ForwardService: send message result: " + result.toString());
-				
-				if(result == Result.TEMPORARY_ERROR) {
+                
+                if(result == Result.TEMPORARY_ERROR) {
                     Logger.i(TAG, "ForwardService: temporary error, backing off...");
                     this.thread.sleep(preferences.getTemporaryErrorTimeout());
                     return;
@@ -71,17 +74,27 @@ public class ForwardService extends RepositoryService {
                     return;
                 }
 
-				this.repository.delete(message);
-				message = this.repository.getNext();
-			}
-		} catch(Exception e) {
+                this.repository.delete(message);
+                message = this.repository.getNext();
+            }
+        } catch(Exception e) {
             Logger.e(TAG, "onHandleIntent", e);
-		} finally {
+        } finally {
             if(mService!= null) {
                 this.doUnbindService();
             }
-		}		
-	}
+        }       
+    }
+
+    private void waitForBinding() throws Exception {
+        int retryCount = EXTERANL_DISPATCHER_SERVICE_CONNECTION_RETRY_COUNT - 1;
+        while(this.mService == null){
+            this.thread.sleep(SERVICE_CONNECTION_WAIT_TIMEOUT);
+            if(--retryCount < 0){
+                throw new Exception("Bind to custom dispatcher timed out");
+            }
+        }
+    }
 
     private boolean haveCustomDispatcher(){
         String customDispatcher = this.preferences.getDispatcherServiceName();

@@ -26,28 +26,28 @@ import static org.mockito.Mockito.verify;
 
 @RunWith(ReynaTestRunner.class)
 public class StoreServiceTest {
-	
-	@Mock Repository repository;
-	
-	private StoreService storeService;
+    
+    @Mock Repository repository;
+    
+    private StoreService storeService;
 
-	@Before
-	public void setup() {
-		MockitoAnnotations.initMocks(this);
-		this.storeService = new StoreService();
-		this.storeService.repository = repository;
-	}
-	
-	@Test
-	public void testConstruction() {        
+    @Before
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
+        this.storeService = new StoreService();
+        this.storeService.repository = repository;
+    }
+    
+    @Test
+    public void testConstruction() {        
         assertNotNull(this.storeService);
-    }	
+    }   
 
-	@Test
-	public void onHandleIntentWithoutMessageShouldNotThrow() {
-		Intent intent = new Intent();		
-		this.storeService.onHandleIntent(intent);
-	}
+    @Test
+    public void onHandleIntentWithoutMessageShouldNotThrow() {
+        Intent intent = new Intent();       
+        this.storeService.onHandleIntent(intent);
+    }
 
     @Test
     public void onCalllingStartShouldStartStoreServiceWithProvidedMessage() throws URISyntaxException {
@@ -70,43 +70,43 @@ public class StoreServiceTest {
         assertEquals("h2", receivedMessage.getHeaders()[1].getKey());
         assertEquals("v2", receivedMessage.getHeaders()[1].getValue());
     }
-	
-	@Test
-	public void onHandleIntentWithMessageShouldStoreAndStartForwardService() throws URISyntaxException {
-		Message message = ReynaSqlHelperTest.getMessageWithHeaders();
-		Intent intent = new Intent();
-		intent.setAction(StoreService.ACTION_STORE_MESSAGE);
-		intent.putExtra(StoreService.MESSAGE, message);
-				
-		this.storeService.onHandleIntent(intent);		
-		
-		ArgumentCaptor<Message> argument = ArgumentCaptor.forClass(Message.class);
-		verify(this.repository).insert(argument.capture());
-		Message other = argument.getValue();
-		assertNotNull(other);
-		assertEquals(message.getUrl(), other.getUrl());
-		assertEquals(message.getBody(), other.getBody());
-		assertEquals("h1", other.getHeaders()[0].getKey());
-		assertEquals("v1", other.getHeaders()[0].getValue());
-		assertEquals("h2", other.getHeaders()[1].getKey());
-		assertEquals("v2", other.getHeaders()[1].getValue());
+    
+    @Test
+    public void onHandleIntentWithMessageShouldStoreAndStartForwardService() throws URISyntaxException {
+        Message message = ReynaSqlHelperTest.getMessageWithHeaders();
+        Intent intent = new Intent();
+        intent.setAction(StoreService.ACTION_STORE_MESSAGE);
+        intent.putExtra(StoreService.MESSAGE, message);
+                
+        this.storeService.onHandleIntent(intent);       
+        
+        ArgumentCaptor<Message> argument = ArgumentCaptor.forClass(Message.class);
+        verify(this.repository).insert(argument.capture());
+        Message other = argument.getValue();
+        assertNotNull(other);
+        assertEquals(message.getUrl(), other.getUrl());
+        assertEquals(message.getBody(), other.getBody());
+        assertEquals("h1", other.getHeaders()[0].getKey());
+        assertEquals("v1", other.getHeaders()[0].getValue());
+        assertEquals("h2", other.getHeaders()[1].getKey());
+        assertEquals("v2", other.getHeaders()[1].getValue());
 
         ShadowApplication shadowApplication = Robolectric.getShadowApplication();
         Intent service = shadowApplication.getNextStartedService();
-		assertNotNull(service);
-		assertEquals(ForwardService.class.getName(), service.getComponent().getClassName());
-	}
+        assertNotNull(service);
+        assertEquals(ForwardService.class.getName(), service.getComponent().getClassName());
+    }
 
-	@Test
-	public void onHandleIntentWithMissingMessageShouldNotStore() throws URISyntaxException {
-		Intent intent = new Intent();
-		intent.setAction(StoreService.ACTION_STORE_MESSAGE);
-		intent.putExtra(StoreService.MESSAGE, (Message)null);
+    @Test
+    public void onHandleIntentWithMissingMessageShouldNotStore() throws URISyntaxException {
+        Intent intent = new Intent();
+        intent.setAction(StoreService.ACTION_STORE_MESSAGE);
+        intent.putExtra(StoreService.MESSAGE, (Message)null);
 
-		this.storeService.onHandleIntent(intent);
+        this.storeService.onHandleIntent(intent);
 
-		verify(this.repository, never()).insert(any(Message.class));
-	}
+        verify(this.repository, never()).insert(any(Message.class));
+    }
 
     @Test
     public void setLogLevelShouldChangeLogLevel() {
@@ -213,5 +213,10 @@ public class StoreServiceTest {
         this.storeService.onHandleIntent(intent);
 
         assertNull(shadowApplication.getNextStartedService());
+    }
+
+    @Test
+    public void whenCallingOnHandleIntentWithNullIntentShouldNotThrow(){
+        this.storeService.onHandleIntent(null);
     }
 }
