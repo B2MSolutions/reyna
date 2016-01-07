@@ -1,212 +1,256 @@
 package com.b2msolutions.reyna.services;
 
+import android.app.AlarmManager;
 import android.content.Context;
 import android.content.Intent;
-
-import com.b2msolutions.reyna.Dispatcher;
-import com.b2msolutions.reyna.Header;
-import com.b2msolutions.reyna.Message;
-import com.b2msolutions.reyna.Preferences;
-import com.b2msolutions.reyna.Repository;
-import com.b2msolutions.reyna.ReynaTestRunner;
-import com.b2msolutions.reyna.Thread;
-import com.b2msolutions.reyna.http.Result;
-
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import com.b2msolutions.reyna.*;
+import com.b2msolutions.reyna.Dispatcher.Result;
+import com.b2msolutions.reyna.system.Message;
+import com.b2msolutions.reyna.system.PeriodicBackoutCheck;
+import com.b2msolutions.reyna.system.Preferences;
+import com.b2msolutions.reyna.system.Thread;
+import com.b2msolutions.reyna.messageProvider.BatchProvider;
+import com.b2msolutions.reyna.messageProvider.IMessageProvider;
+import com.b2msolutions.reyna.messageProvider.MessageProvider;
+import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowConnectivityManager;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.robolectric.Robolectric.shadowOf;
+import static org.mockito.Mockito.*;
+import static test.Assert.assertServiceStartedOrgRobolectric;
 
-@RunWith(ReynaTestRunner.class)
+@Config(emulateSdk = 18)
+@RunWith(RobolectricTestRunner.class)
 public class ForwardServiceTest {
 
-	private ForwardService forwardService;
-
-	@Mock IDispatcherService dispatcherService;
-
-	@Mock Repository repository;
-
-    @Mock Thread thread;
-
-	@Mock Preferences preferences;
+    private ForwardService forwardService;
 
     @Mock Dispatcher dispatcher;
 
+    @Mock
+    Repository repository;
+
+    @Mock Thread thread;
+
+    @Mock
+    NetworkInfo networkInfo;
+
+    @Mock
+    PeriodicBackoutCheck periodicBackoutCheck;
+
     private Context context;
 
-	private final long TEMPORARY_ERROR_MILLISECONDS = 345;
-
     @Before
-	public void setup() {
-		MockitoAnnotations.initMocks(this);
-        this.context = Robolectric.getShadowApplication().getApplicationContext();
-		this.forwardService = Robolectric.setupService(ForwardService.class);
-		this.forwardService.mService = null;
-		this.forwardService.repository = repository;
-        this.forwardService.thread = thread;
-		this.forwardService.preferences = preferences;
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
+
+        this.context = Robolectric.application.getApplicationContext();
+        this.forwardService = Robolectric.setupService(ForwardService.class);
         this.forwardService.dispatcher = dispatcher;
+        this.forwardService.repository = repository;
+        this.forwardService.thread = thread;
+        this.forwardService.periodicBackoutCheck = this.periodicBackoutCheck;
 
-		when(this.preferences.getTemporaryErrorTimeout()).thenReturn(TEMPORARY_ERROR_MILLISECONDS);
-        when(this.preferences.getDispatcherServiceName()).thenReturn(null);
-	}
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ShadowConnectivityManager shadowConnectivityManager = Robolectric.shadowOf_(connectivityManager);
+        shadowConnectivityManager.setActiveNetworkInfo(networkInfo);
+        when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
+        when(networkInfo.isConnectedOrConnecting()).thenReturn(true);
 
-	@Test
-	public void testConstruction() {
-        assertNotNull(this.forwardService);
+        doReturn(true).when(this.periodicBackoutCheck).timeElapsed("ForwardService_Backout_Temporary_Error", 300000);
     }
 
-	@Test
-	public void whenNotNullIntentShouldNotThrow() {
-		this.forwardService.onHandleIntent(new Intent());
-	}
+    @Test
+    public void sleepTimeoutShouldBeCorrect() {
+      assertEquals(1000, ForwardService.SLEEP_MILLISECONDS);
+    };
 
-	@Test
-	public void whenThereAreNoMessagesShouldNotThrow() {
-		this.forwardService.onHandleIntent(null);
-	}
+    @Test
+    public void temporaryErrorTimeoutShouldBeCorrect() {
+        assertEquals(300000, ForwardService.TEMPORARY_ERROR_MILLISECONDS);
+    }
+
+    @Test
+    public void testConstruction() {
+        this.forwardService = new ForwardService();
+
+        assertNotNull(this.forwardService);
+        assertNotNull(this.forwardService.periodicBackoutCheck);
+        assertNotNull(this.forwardService.repository);
+    }
+
+    @Test
+    public void whenBatchModeEnabledMessageProviderShouldBeBatchProvider() {
+        new Preferences(this.forwardService).saveBatchUpload(true);
+        this.forwardService = new ForwardService();
+        IMessageProvider messageProvider = this.forwardService.getMessageProvider();
+
+        assertNotNull(messageProvider);
+        assertEquals(BatchProvider.class, messageProvider.getClass());
+    }
+
+    @Test
+    public void whenBatchModeDisabledMessageProviderShouldBeMessageProvider() {
+        new Preferences(this.forwardService).saveBatchUpload(false);
+        this.forwardService = new ForwardService();
+        IMessageProvider messageProvider = this.forwardService.getMessageProvider();
+
+        assertNotNull(messageProvider);
+        assertEquals(MessageProvider.class, messageProvider.getClass());
+    }
+
+    @Test
+    public void whenNotNullIntentShouldNotThrow() {
+        this.forwardService.onHandleIntent(null);
+    }
+
+    @Test
+    public void whenThereAreNoMessagesShouldNotThrow() {
+        this.forwardService.onHandleIntent(null);
+    }
 
     @Test
     public void whenThereAreNoMessagesShouldNotSleep() throws InterruptedException {
-        this.forwardService.onHandleIntent(null);
+        this.forwardService.onHandleIntent(new Intent());
         verify(this.thread, never()).sleep(anyLong());
     }
 
-	@Test
-	public void whenSingleMessageAndDispatchReturnsOKShouldDeleteMessage() throws URISyntaxException, InterruptedException {
-		Message message = mock(Message.class);
-		when(this.repository.getNext()).thenReturn(message).thenReturn(null);
-		when(this.dispatcher.sendMessage(any(Context.class), eq(message))).thenReturn(Result.OK);
+    @Test
+    public void whenMoveNextThrowsShouldNotThrow() throws URISyntaxException {
+        when(this.repository.getNext()).thenThrow(new URISyntaxException("", ""));
+        this.forwardService.onHandleIntent(new Intent());
+    }
 
-		this.forwardService.onHandleIntent(null);
+    @Test
+    public void whenSingleMessageAndDispatchReturnsOKShouldDeleteMessage() throws URISyntaxException, InterruptedException {
+        Message message = mock(Message.class);
+        when(this.repository.getNext()).thenReturn(message).thenReturn(null);
+        when(this.dispatcher.sendMessage(this.forwardService, message)).thenReturn(Result.OK);
+
+        this.forwardService.onHandleIntent(new Intent());
 
         InOrder inorder = inOrder(this.thread, this.dispatcher, this.repository);
 
         inorder.verify(this.thread).sleep(ForwardService.SLEEP_MILLISECONDS);
-        inorder.verify(this.dispatcher).sendMessage(any(Context.class), eq(message));
+        inorder.verify(this.dispatcher).sendMessage(this.forwardService, message);
         inorder.verify(this.repository).delete(message);
 
-        verify(this.thread, never()).sleep(TEMPORARY_ERROR_MILLISECONDS);
-	}
-
-    @Test
-    public void whenSingleMessageShouldAddMessageIdToHeaders() throws URISyntaxException, InterruptedException {
-        Message message = mock(Message.class);
-        when(message.getId()).thenReturn(42L);
-        when(this.repository.getNext()).thenReturn(message).thenReturn(null);
-        when(this.dispatcherService.sendMessage(message)).thenReturn(Result.OK);
-        ArgumentCaptor<Header> header = ArgumentCaptor.forClass(Header.class);
-
-        this.forwardService.onHandleIntent(null);
-
-        verify(message).addHeader(header.capture());
-        assertEquals("42", header.getValue().getValue());
-        assertEquals("reyna-id", header.getValue().getKey());
+        verify(this.periodicBackoutCheck, never()).record("ForwardService_Backout_Temporary_Error");
     }
 
-	@Test
-	public void whenTwoMessagesAndDispatchReturnsOKShouldDeleteMessages() throws URISyntaxException, InterruptedException {
-		Message message1 = mock(Message.class);
-		Message message2 = mock(Message.class);
-		when(this.repository.getNext())
-			.thenReturn(message1)
-			.thenReturn(message2)
-			.thenReturn(null);
+    @Test
+    public void whenCallingOnHandleIntentAndMessageProviderThrowsShouldNotThrow() throws URISyntaxException, InterruptedException {
+        doThrow(IOException.class).when(this.repository).getNext();
 
-		when(this.dispatcher.sendMessage(any(Context.class), eq(message1))).thenReturn(Result.OK);
-		when(this.dispatcher.sendMessage(any(Context.class), eq(message2))).thenReturn(Result.OK);
+        this.forwardService.onHandleIntent(new Intent());
 
-		this.forwardService.onHandleIntent(null);
-		InOrder inorder = inOrder(this.thread, this.dispatcher, this.repository);
+        verify(this.repository).close();
+    }
+
+    @Test
+    public void whenTwoMessagesAndDispatchReturnsOKShouldDeleteMessages() throws URISyntaxException, InterruptedException {
+        Message message1 = mock(Message.class);
+        Message message2 = mock(Message.class);
+        when(this.repository.getNext())
+            .thenReturn(message1)
+            .thenReturn(message2)
+            .thenReturn(null);
+
+        when(this.dispatcher.sendMessage(this.forwardService, message1)).thenReturn(Result.OK);
+        when(this.dispatcher.sendMessage(this.forwardService, message2)).thenReturn(Result.OK);
+
+        this.forwardService.onHandleIntent(new Intent());
+        InOrder inorder = inOrder(this.thread, this.dispatcher, this.repository);
 
         inorder.verify(this.thread).sleep(ForwardService.SLEEP_MILLISECONDS);
-		inorder.verify(this.dispatcher).sendMessage(any(Context.class), eq(message1));
-		inorder.verify(this.repository).delete(message1);
+        inorder.verify(this.dispatcher).sendMessage(this.forwardService, message1);
+        inorder.verify(this.repository).delete(message1);
         inorder.verify(this.thread).sleep(ForwardService.SLEEP_MILLISECONDS);
-		inorder.verify(this.dispatcher).sendMessage(any(Context.class), eq(message2));
-		inorder.verify(this.repository).delete(message2);
+        inorder.verify(this.dispatcher).sendMessage(this.forwardService, message2);
+        inorder.verify(this.repository).delete(message2);
 
-        verify(this.thread, never()).sleep(TEMPORARY_ERROR_MILLISECONDS);
-	}
+        verify(this.periodicBackoutCheck, never()).record("ForwardService_Backout_Temporary_Error");
+    }
 
-	@Test
-	public void whenSingleMessageAndDispatchReturnsTemporaryErrorShouldNotDeleteMessage() throws URISyntaxException, InterruptedException {
-		Message message = mock(Message.class);
-		when(this.repository.getNext()).thenReturn(message).thenReturn(null);
-		when(this.dispatcher.sendMessage(any(Context.class), eq(message))).thenReturn(Result.TEMPORARY_ERROR);
+    @Test
+    public void whenSingleMessageAndDispatchReturnsTemporaryErrorShouldNotDeleteMessage() throws URISyntaxException, InterruptedException {
+        Message message = mock(Message.class);
+        when(this.repository.getNext()).thenReturn(message).thenReturn(null);
+        when(this.dispatcher.sendMessage(this.forwardService, message)).thenReturn(Result.TEMPORARY_ERROR);
 
-		this.forwardService.onHandleIntent(null);
-		verify(this.dispatcher).sendMessage(any(Context.class), eq(message));
-		verify(this.repository, never()).delete(message);
+        this.forwardService.onHandleIntent(new Intent());
+        verify(this.dispatcher).sendMessage(this.forwardService, message);
+        verify(this.repository, never()).delete(message);
+        verify(this.repository, never()).deleteMessagesFrom(anyLong());
 
-        verify(this.thread).sleep(TEMPORARY_ERROR_MILLISECONDS);
+        verify(this.periodicBackoutCheck).record("ForwardService_Backout_Temporary_Error");
     }
 
     @Test
     public void whenSingleMessageAndDispatchReturnsBlackoutShouldNotDeleteMessage() throws URISyntaxException, InterruptedException {
         Message message = mock(Message.class);
         when(this.repository.getNext()).thenReturn(message).thenReturn(null);
-        when(this.dispatcher.sendMessage(any(Context.class), eq(message))).thenReturn(Result.BLACKOUT);
+        when(this.dispatcher.sendMessage(this.forwardService, message)).thenReturn(Result.BLACKOUT);
 
-        this.forwardService.onHandleIntent(null);
-        verify(this.dispatcher).sendMessage(any(Context.class), eq(message));
+        this.forwardService.onHandleIntent(new Intent());
+        verify(this.dispatcher).sendMessage(this.forwardService, message);
         verify(this.repository, never()).delete(message);
+        verify(this.repository, never()).deleteMessagesFrom(anyLong());
 
-        verify(this.thread, never()).sleep(TEMPORARY_ERROR_MILLISECONDS);
+        verify(this.periodicBackoutCheck, never()).record("ForwardService_Backout_Temporary_Error");
     }
 
     @Test
     public void whenSingleMessageAndDispatchReturnsNotConnectedShouldNotDeleteMessage() throws URISyntaxException, InterruptedException {
         Message message = mock(Message.class);
         when(this.repository.getNext()).thenReturn(message).thenReturn(null);
-        when(this.dispatcher.sendMessage(any(Context.class), eq(message))).thenReturn(Result.NOTCONNECTED);
+        when(this.dispatcher.sendMessage(this.forwardService, message)).thenReturn(Result.NOTCONNECTED);
 
-        this.forwardService.onHandleIntent(null);
-        verify(this.dispatcher).sendMessage(any(Context.class), eq(message));
+        this.forwardService.onHandleIntent(new Intent());
+        verify(this.dispatcher).sendMessage(this.forwardService, message);
         verify(this.repository, never()).delete(message);
+        verify(this.repository, never()).deleteMessagesFrom(anyLong());
 
-        verify(this.thread, never()).sleep(TEMPORARY_ERROR_MILLISECONDS);
+        verify(this.periodicBackoutCheck, never()).record("ForwardService_Backout_Temporary_Error");
     }
 
-	@Test
-	public void whenTwoMessagesAndFirstDispatchReturnsTemporaryErrorShouldNotDeleteMessages() throws URISyntaxException, InterruptedException {
-		Message message1 = mock(Message.class);
-		Message message2 = mock(Message.class);
-		when(this.repository.getNext())
-			.thenReturn(message1)
-			.thenReturn(message2)
-			.thenReturn(null);
+    @Test
+    public void whenTwoMessagesAndFirstDispatchReturnsTemporaryErrorShouldNotDeleteMessages() throws URISyntaxException, InterruptedException {
+        Message message1 = mock(Message.class);
+        Message message2 = mock(Message.class);
+        when(this.repository.getNext())
+            .thenReturn(message1)
+            .thenReturn(message2)
+            .thenReturn(null);
 
-		when(this.dispatcher.sendMessage(any(Context.class), eq(message1))).thenReturn(Result.TEMPORARY_ERROR);
+        when(this.dispatcher.sendMessage(this.forwardService, message1)).thenReturn(Result.TEMPORARY_ERROR);
 
-		this.forwardService.onHandleIntent(null);
-		InOrder inorder = inOrder(this.dispatcher, this.repository);
+        this.forwardService.onHandleIntent(new Intent());
+        InOrder inorder = inOrder(this.dispatcher, this.repository);
 
-		inorder.verify(this.dispatcher).sendMessage(any(Context.class), eq(message1));
-		inorder.verify(this.repository, never()).delete(message1);
-		inorder.verify(this.dispatcher, never()).sendMessage(any(Context.class), eq(message2));
-		inorder.verify(this.repository, never()).delete(message2);
-
-        verify(this.thread).sleep(TEMPORARY_ERROR_MILLISECONDS);
+        inorder.verify(this.dispatcher).sendMessage(this.forwardService, message1);
+        inorder.verify(this.repository, never()).delete(message1);
+        inorder.verify(this.dispatcher, never()).sendMessage(this.forwardService, message2);
+        inorder.verify(this.repository, never()).delete(message2);
+        inorder.verify(this.repository, never()).deleteMessagesFrom(anyLong());
+        verify(this.periodicBackoutCheck).record("ForwardService_Backout_Temporary_Error");
     }
 
     @Test
@@ -218,101 +262,89 @@ public class ForwardServiceTest {
                 .thenReturn(message2)
                 .thenReturn(null);
 
-        when(this.dispatcher.sendMessage(any(Context.class), eq(message1))).thenReturn(Result.BLACKOUT);
+        when(this.dispatcher.sendMessage(this.forwardService, message1)).thenReturn(Result.BLACKOUT);
 
-        this.forwardService.onHandleIntent(null);
+        this.forwardService.onHandleIntent(new Intent());
         InOrder inorder = inOrder(this.dispatcher, this.repository);
 
-        inorder.verify(this.dispatcher).sendMessage(any(Context.class), eq(message1));
+        inorder.verify(this.dispatcher).sendMessage(this.forwardService, message1);
         inorder.verify(this.repository, never()).delete(message1);
-        inorder.verify(this.dispatcher, never()).sendMessage(any(Context.class), eq(message2));
+        inorder.verify(this.dispatcher, never()).sendMessage(this.forwardService, message2);
         inorder.verify(this.repository, never()).delete(message2);
+        inorder.verify(this.repository, never()).deleteMessagesFrom(anyLong());
 
-        verify(this.thread, never()).sleep(TEMPORARY_ERROR_MILLISECONDS);
-    }
-
-	@Test
-	public void whenTwoMessagesAndFirstDispatchReturnsPermanentErrorShouldDeleteMessages() throws URISyntaxException, InterruptedException {
-		Message message1 = mock(Message.class);
-		Message message2 = mock(Message.class);
-		when(this.repository.getNext())
-			.thenReturn(message1)
-			.thenReturn(message2)
-			.thenReturn(null);
-
-		when(this.dispatcher.sendMessage(any(Context.class), eq(message1))).thenReturn(Result.PERMANENT_ERROR);
-		when(this.dispatcher.sendMessage(any(Context.class), eq(message2))).thenReturn(Result.OK);
-
-		this.forwardService.onHandleIntent(null);
-		InOrder inorder = inOrder(this.dispatcher, this.repository);
-
-		inorder.verify(this.dispatcher).sendMessage(any(Context.class), eq(message1));
-		inorder.verify(this.repository).delete(message1);
-		inorder.verify(this.dispatcher).sendMessage(any(Context.class), eq(message2));
-		inorder.verify(this.repository).delete(message2);
-
-        verify(this.thread, never()).sleep(TEMPORARY_ERROR_MILLISECONDS);
+        verify(this.periodicBackoutCheck, never()).record("ForwardService_Backout_Temporary_Error");
     }
 
     @Test
-    public void whenCallingOnHandleIntentAndHaveCustomDispatcherShouldBindDispatcherService(){
-        when(this.preferences.getDispatcherServiceName()).thenReturn(DispatcherService.class.getName());
-        this.forwardService.onHandleIntent(new Intent());
-
-        Intent intent = shadowOf(this.forwardService).getNextStartedService();
-        assertNotNull(intent);
-        assertEquals("com.b2msolutions.reyna.services.DispatcherService", intent.getComponent().getClassName());
-        assertEquals("com.my.package.name", intent.getComponent().getPackageName());
-    }
-
-    @Test
-    public void whenCallingOnHandleIntentShouldUnbindDispatcherService(){
-        this.forwardService.onHandleIntent(new Intent());
-
-        assertNull(this.forwardService.mService);
-    }
-
-    @Test
-    public void whenCallingOnServiceConnectedShouldSetDispatcherService(){
-        BindableDispatcherService.LocalBinder binder = mock(BindableDispatcherService.LocalBinder.class);
-        when(binder.getService()).thenReturn(this.dispatcherService);
-        this.forwardService.mService = null;
-
-        this.forwardService.mConnection.onServiceConnected(null, binder);
-
-        assertNotNull(this.forwardService.mService);
-        assertEquals(this.dispatcherService, this.forwardService.mService);
-    }
-
-    @Test
-    public void whenCallingOnServiceConnectedAndBinderIsNullShouldNotThrow(){
-        this.forwardService.mConnection.onServiceConnected(null, null);
-    }
-
-    @Test
-    public void whenCallingOnServiceDisconnectedShouldSetDispatcherServiceToNull(){
-        this.forwardService.mConnection.onServiceDisconnected(null);
-
-        assertNull(this.forwardService.mService);
-    }
-
-    @Test
-    public void whenCallingOnHandleIntentAndCustomDispatcherSetupedAndCustomDispatcherServiceIsConnectedShouldDisconnectAfterSendingMessage() throws Exception{
-        when(this.preferences.getDispatcherServiceName()).thenReturn(DispatcherService.class.getName());
+    public void whenTwoMessagesAndFirstDispatchReturnsPermanentErrorShouldDeleteMessages() throws URISyntaxException, InterruptedException {
         Message message1 = mock(Message.class);
         Message message2 = mock(Message.class);
-        when(this.dispatcherService.sendMessage(any(Message.class))).thenReturn(Result.OK);
         when(this.repository.getNext())
-                .thenReturn(message1)
-                .thenReturn(message2)
-                .thenReturn(null);
+            .thenReturn(message1)
+            .thenReturn(message2)
+            .thenReturn(null);
 
-        this.forwardService.mService = this.dispatcherService;
+        when(this.dispatcher.sendMessage(this.forwardService, message1)).thenReturn(Result.PERMANENT_ERROR);
+        when(this.dispatcher.sendMessage(this.forwardService, message2)).thenReturn(Result.OK);
+
+        this.forwardService.onHandleIntent(new Intent());
+        InOrder inorder = inOrder(this.dispatcher, this.repository);
+
+        inorder.verify(this.dispatcher).sendMessage(this.forwardService, message1);
+        inorder.verify(this.repository).delete(message1);
+        inorder.verify(this.dispatcher).sendMessage(this.forwardService, message2);
+        inorder.verify(this.repository).delete(message2);
+
+        verify(this.periodicBackoutCheck, never()).record("ForwardService_Backout_Temporary_Error");
+    }
+
+    @Test
+    public void whenSendMessageShouldCheckForCanSendFirstNotGetNextMessageWhenCannotSend() throws URISyntaxException, InterruptedException {
+        when(this.networkInfo.isConnectedOrConnecting()).thenReturn(false);
+
+        this.forwardService.onHandleIntent(new Intent());
+        verify(this.repository, never()).getNext();
+    }
+
+    @Test
+    public void whenCallingStartShouldStartService() {
+        ForwardService.start(this.context);
+
+        assertServiceStartedOrgRobolectric(ForwardService.class);
+    }
+
+    @Test
+    public void whenMessageProviderCannotSendShouldDoNothing() throws URISyntaxException, InterruptedException {
+        long interval = (long)(AlarmManager.INTERVAL_DAY * 0.9);
+        PeriodicBackoutCheck periodicBackoutCheck1 = new PeriodicBackoutCheck(this.context);
+        periodicBackoutCheck1.record("BatchProvider");
+        new Preferences(this.context).saveBatchUpload(true);
+
         this.forwardService.onHandleIntent(new Intent());
 
-        InOrder order = inOrder(this.dispatcherService);
-        order.verify(this.dispatcherService).sendMessage(message1);
-        order.verify(this.dispatcherService).sendMessage(message2);
-        assertNull(this.forwardService.mService);
+        verify(this.repository, never()).getNext();
+        verify(this.repository, never()).delete(any(Message.class));
+        verify(this.repository).close();
+        verify(this.periodicBackoutCheck, never()).record("ForwardService_Backout_Temporary_Error");
+    }
+
+    @Test
+    public void whenPreviousMessagesFailedWithTemporaryErrorShouldNotTryToSendAnyMessageWithinFiveMinutes() throws URISyntaxException, InterruptedException {
+        doReturn(false).when(this.periodicBackoutCheck).timeElapsed("ForwardService_Backout_Temporary_Error", 300000);
+        this.forwardService.onHandleIntent(new Intent());
+
+        verify(this.repository, never()).getNext();
+        verify(this.repository, never()).delete(any(Message.class));
+        verify(this.repository).close();
+        verify(this.periodicBackoutCheck, never()).record("ForwardService_Backout_Temporary_Error");
+    }
+
+    @Test
+    public void whenCallingStartShouldAcquirePowerLock() {
+        ForwardService.start(Robolectric.application.getApplicationContext());
+        Intent intent = assertServiceStartedOrgRobolectric(ForwardService.class);
+        int lockId = intent.getIntExtra("android.support.content.wakelockid", -1);
+        assertTrue(lockId != -1);
     }
 }

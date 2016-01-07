@@ -1,69 +1,94 @@
 package com.b2msolutions.reyna.services;
 
-import android.content.ComponentName;
+import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.IBinder;
+import android.support.v4.content.WakefulBroadcastReceiver;
+import com.b2msolutions.reyna.*;
+import com.b2msolutions.reyna.Dispatcher.Result;
+import com.b2msolutions.reyna.system.*;
+import com.b2msolutions.reyna.messageProvider.BatchProvider;
+import com.b2msolutions.reyna.messageProvider.IMessageProvider;
+import com.b2msolutions.reyna.messageProvider.MessageProvider;
+import com.b2msolutions.reyna.system.Thread;
 
-import com.b2msolutions.reyna.Dispatcher;
-import com.b2msolutions.reyna.Header;
-import com.b2msolutions.reyna.Logger;
-import com.b2msolutions.reyna.Message;
-import com.b2msolutions.reyna.Preferences;
-import com.b2msolutions.reyna.Thread;
-import com.b2msolutions.reyna.http.Result;
+public class ForwardService extends WakefulService {
 
-public class ForwardService extends RepositoryService {
+    private static String TAG = "com.b2msolutions.reyna.services.ForwardService";
 
-    protected static final String TAG = "ForwardService";
+    private static String PERIODIC_BACKOUT_TEMPORARY_ERROR = "ForwardService_Backout_Temporary_Error";
+
     protected static final long SLEEP_MILLISECONDS = 1000; // 1 second
 
+    protected static final long TEMPORARY_ERROR_MILLISECONDS = 300000; // 5 minutes
+
     protected Dispatcher dispatcher;
+
     protected Thread thread;
-    protected Preferences preferences;
-    protected IDispatcherService mService;
 
-    public static void setErrorTimeout(Context context, long timeoutMilliseconds){
-        new Preferences(context).saveTemporaryErrorTimeout(timeoutMilliseconds);
-    }
+    protected PeriodicBackoutCheck periodicBackoutCheck;
 
-    public static void setDispatcherServiceName(Context context, String dispatcherServiceName){
-        new Preferences(context).saveDispatcherServiceName(dispatcherServiceName);
-    }
+    protected Repository repository = null;
 
-	public ForwardService() {
-		super(ForwardService.class.getName());
+    public ForwardService() {
+        super(ForwardService.class.getName());
 
         Logger.v(TAG, "ForwardService()");
 
-        this.preferences = new Preferences(this);
         this.dispatcher = new Dispatcher();
         this.thread = new Thread();
-	}
+        this.periodicBackoutCheck = new PeriodicBackoutCheck(this);
+        this.repository = new Repository(this);
+    }
 
-	@Override
-	protected void onHandleIntent(Intent intent) {
-		Logger.v(TAG, "onHandleIntent");
+    public static void start(Context context) {
+        Logger.v(ForwardService.TAG, "start");
 
-		try {
-            if(this.haveCustomDispatcher() && this.mService == null){
-                this.doBindService();
+        Intent serviceIntent = new Intent();
+        serviceIntent.setClass(context, ForwardService.class);
+        context.startService(serviceIntent);
+        WakefulBroadcastReceiver.startWakefulService(context, serviceIntent);
+    }
+
+    @Override
+    protected void processIntent(Intent intent) {
+        Logger.v(TAG, "onHandleIntent");
+
+        IMessageProvider messageProvider = this.getMessageProvider();
+
+        try {
+
+            if(!this.periodicBackoutCheck.timeElapsed(ForwardService.PERIODIC_BACKOUT_TEMPORARY_ERROR, ForwardService.TEMPORARY_ERROR_MILLISECONDS)) {
+                Logger.i(TAG, "ForwardService: temporary error, backing off...");
+                return;
             }
-			Message message = this.repository.getNext();
-			while(message != null) {
+
+            Result canSend = Dispatcher.canSend(this);
+            if (canSend != Result.OK) {
+                Logger.v(TAG, "ForwardService: cannot send " + canSend);
+                return;
+            }
+
+            if (!messageProvider.canSend()) {
+                Logger.v(TAG, "ForwardService: messageProvider cannot send");
+                return;
+            }
+
+            Message message = messageProvider.getNext();
+            while(message != null) {
+
                 this.thread.sleep(SLEEP_MILLISECONDS);
-				Logger.i(TAG, "ForwardService: processing message " + message.getId());
 
-                this.addReynaSpecificHeaders(message);
+                Logger.v(TAG, "ForwardService: processing message " + message.getId());
 
-                Result result = sendMessage(message);
+                Result result = dispatcher.sendMessage(this, message);
 
                 Logger.i(TAG, "ForwardService: send message result: " + result.toString());
-				
-				if(result == Result.TEMPORARY_ERROR) {
+
+                if(result == Result.TEMPORARY_ERROR) {
                     Logger.i(TAG, "ForwardService: temporary error, backing off...");
-                    this.thread.sleep(preferences.getTemporaryErrorTimeout());
+
+                    this.periodicBackoutCheck.record(ForwardService.PERIODIC_BACKOUT_TEMPORARY_ERROR);
                     return;
                 }
 
@@ -71,64 +96,24 @@ public class ForwardService extends RepositoryService {
                     return;
                 }
 
-				this.repository.delete(message);
-				message = this.repository.getNext();
-			}
-		} catch(Exception e) {
+                messageProvider.delete(message);
+                message = messageProvider.getNext();
+            }
+
+        } catch(Exception e) {
             Logger.e(TAG, "onHandleIntent", e);
-		} finally {
-            if(mService!= null) {
-                this.doUnbindService();
-            }
-		}		
-	}
-
-    private boolean haveCustomDispatcher(){
-        String customDispatcher = this.preferences.getDispatcherServiceName();
-        return (customDispatcher != null && !customDispatcher.isEmpty());
-    }
-
-    private Result sendMessage(Message message){
-        if(this.haveCustomDispatcher()) {
-            if (mService == null) {
-                return Result.NOTCONNECTED;
-            }
-            return mService.sendMessage(message);
-        }
-        else
-        {
-            return this.dispatcher.sendMessage(this, message);
+        } finally {
+            messageProvider.close();
         }
     }
 
-    private void doBindService() {
-        Intent intent = new Intent();
-        intent.setComponent(new ComponentName(this.getPackageName(), this.preferences.getDispatcherServiceName()));
-
-        this.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    private void doUnbindService() {
-        if (mService != null) {
-            unbindService(mConnection);
-            mService = null;
-        }
-    }
-
-    private void addReynaSpecificHeaders(Message message) {
-        Header header = new Header("reyna-id", message.getId().toString());
-        message.addHeader(header);
-    }
-
-    protected ServiceConnection mConnection = new ServiceConnection() {
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            if(service!=null) {
-                mService = ((DispatcherService.LocalBinder) service).getService();
-            }
+    protected IMessageProvider getMessageProvider() {
+        if (new Preferences(this).getBatchUpload()) {
+            Logger.v(TAG, "getMessageProvider BatchProvider");
+            return new BatchProvider(this, repository);
         }
 
-        public void onServiceDisconnected(ComponentName className) {
-            mService = null;
-        }
-    };
+        Logger.v(TAG, "getMessageProvider MessageProvider");
+        return new MessageProvider(repository);
+    }
 }
