@@ -62,6 +62,8 @@ public class StoreService extends RepositoryService {
     protected void onHandleIntent(Intent intent) {
         Logger.v(TAG, "onHandleIntent");
 
+        if(intent == null) return;
+
         if (intent.getAction() == null) return;
 
         if (intent.getAction().equals(ACTION_MOVE)) {
