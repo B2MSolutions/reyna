@@ -16,6 +16,8 @@ public class BatchProvider implements IMessageProvider {
 
     private boolean batchDeleted = false;
 
+    private boolean exitAsLastBatchWasNotFull = false;
+
     protected BatchConfiguration batchConfiguration;
 
     protected Repository repository;
@@ -33,6 +35,11 @@ public class BatchProvider implements IMessageProvider {
 
     public Message getNext() throws URISyntaxException {
         Logger.v(BatchProvider.TAG, "getNext");
+
+        if (exitAsLastBatchWasNotFull) {
+            Logger.v(TAG, "getNext exit as there is no enough messages to form a batch");
+            return null;
+        }
 
         Message message = this.repository.getNext();
         Batch batch = new Batch();
@@ -55,9 +62,11 @@ public class BatchProvider implements IMessageProvider {
         }
 
         Logger.v(TAG, "adding message size " + size + " and maxBatchSize " + maxBatchSize);
+        this.exitAsLastBatchWasNotFull = count != maxMessagesCount;
         if (size > maxBatchSize) {
             Logger.v(TAG, "removeLastMessage ");
             batch.removeLastMessage();
+            this.exitAsLastBatchWasNotFull = false;
         }
 
         if (batch.getEvents().size() > 0) {
