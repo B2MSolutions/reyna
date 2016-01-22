@@ -368,6 +368,99 @@ public class BatchProviderTest {
         assertFalse(actual);
     }
 
+    @Test
+    public void whenCallingGetNextAndPreviousBatchWasLessThanMaximumessagesCountShouldReturnNull() throws URISyntaxException {
+        doReturn(2).when(this.batchConfiguration).getBatchMessageCount();
+        ArrayList<Message> messages = this.getTestMessages();
+        when(this.repository.getNext()).thenReturn(messages.get(0));
+        when(this.repository.getNextMessageAfter(1L)).thenReturn(messages.get(1));
+        when(this.repository.getNextMessageAfter(2L)).thenReturn(messages.get(2));
+        when(this.repository.getNextMessageAfter(3L)).thenReturn(null);
+
+        Message actual = this.messageProvider.getNext();
+
+        assertNotNull(actual);
+
+        assertEquals("www.post.com/api/batch", actual.getUrl());
+        assertEquals("{\"events\":[" +
+                "{\"url\":\"http://google.com\",\"reynaId\":1,\"payload\":{\"key01\":\"value01\",\"key02\":11}}," +
+                "{\"url\":\"http://google2.com\",\"reynaId\":2,\"payload\":{\"key11\":\"value11\",\"key12\":12}}" +
+                "]}", actual.getBody());
+
+        when(this.repository.getNext()).thenReturn(messages.get(2));
+        when(this.repository.getNextMessageAfter(3L)).thenReturn(null);
+
+        actual = this.messageProvider.getNext();
+        assertNotNull(actual);
+
+        assertEquals("www.post.com/api/batch", actual.getUrl());
+        assertEquals("{\"events\":[" +
+                "{\"url\":\"http://google3.com\",\"reynaId\":3,\"payload\":{\"key21\":\"value21\",\"key22\":22}}" +
+                "]}", actual.getBody());
+
+        when(this.repository.getNext()).thenReturn(messages.get(0));
+        when(this.repository.getNextMessageAfter(1L)).thenReturn(messages.get(1));
+        when(this.repository.getNextMessageAfter(2L)).thenReturn(messages.get(2));
+        when(this.repository.getNextMessageAfter(3L)).thenReturn(null);
+        actual = this.messageProvider.getNext();
+
+        assertNull(actual);
+    }
+
+    @Test
+    public void whenCallingGetNextAndPreviousBatchWasLessThanMaximumMessagesButSizeIsReachedShouldReturnBatch() throws URISyntaxException {
+        doReturn(95L).when(this.batchConfiguration).getBatchMessagesSize();
+        doReturn(3).when(this.batchConfiguration).getBatchMessageCount();
+        ArrayList<Message> messages = this.getTestMessages();
+        when(this.repository.getNext()).thenReturn(messages.get(0));
+        when(this.repository.getNextMessageAfter(1L)).thenReturn(messages.get(1));
+        when(this.repository.getNextMessageAfter(2L)).thenReturn(messages.get(2));
+        when(this.repository.getNextMessageAfter(3L)).thenReturn(null);
+
+        /*batch due to size limit*/
+        Message actual = this.messageProvider.getNext();
+        assertNotNull(actual);
+        assertEquals("www.post.com/api/batch", actual.getUrl());
+        assertEquals("{\"events\":[" +
+                "{\"url\":\"http://google.com\",\"reynaId\":1,\"payload\":{\"key01\":\"value01\",\"key02\":11}}" +
+                "]}", actual.getBody());
+
+        /*batch due to number of max messages limit*/
+        doReturn(10000L).when(this.batchConfiguration).getBatchMessagesSize();
+        doReturn(2).when(this.batchConfiguration).getBatchMessageCount();
+        when(this.repository.getNext()).thenReturn(messages.get(0));
+        when(this.repository.getNextMessageAfter(1L)).thenReturn(messages.get(1));
+        when(this.repository.getNextMessageAfter(2L)).thenReturn(messages.get(2));
+        when(this.repository.getNextMessageAfter(3L)).thenReturn(null);
+        actual = this.messageProvider.getNext();
+        assertNotNull(actual);
+
+        assertEquals("{\"events\":[" +
+                "{\"url\":\"http://google.com\",\"reynaId\":1,\"payload\":{\"key01\":\"value01\",\"key02\":11}}," +
+                "{\"url\":\"http://google2.com\",\"reynaId\":2,\"payload\":{\"key11\":\"value11\",\"key12\":12}}" +
+                "]}", actual.getBody());
+
+
+        /*batch include rest of the messages*/
+        when(this.repository.getNext()).thenReturn(messages.get(2));
+        when(this.repository.getNextMessageAfter(3L)).thenReturn(null);
+        actual = this.messageProvider.getNext();
+        assertNotNull(actual);
+        assertEquals("www.post.com/api/batch", actual.getUrl());
+        assertEquals("{\"events\":[" +
+                "{\"url\":\"http://google3.com\",\"reynaId\":3,\"payload\":{\"key21\":\"value21\",\"key22\":22}}" +
+                "]}", actual.getBody());
+
+        /*should return null as last batch has only 1 message*/
+        when(this.repository.getNext()).thenReturn(messages.get(0));
+        when(this.repository.getNextMessageAfter(1L)).thenReturn(messages.get(1));
+        when(this.repository.getNextMessageAfter(2L)).thenReturn(messages.get(2));
+        when(this.repository.getNextMessageAfter(3L)).thenReturn(null);
+        actual = this.messageProvider.getNext();
+
+        assertNull(actual);
+    }
+
     private ArrayList<Message> getTestMessages() {
         Message message1 = new Message(1L, URI.create("http://google.com"), "{\"key01\":\"value01\", \"key02\": 11}", getTestMessageHeaders());
         Message message2 = new Message(2L, URI.create("http://google2.com"), "{\"key11\":\"value11\", \"key12\": 12}", getTestMessageHeaders());
@@ -381,7 +474,7 @@ public class BatchProviderTest {
         return messages;
     }
 
-    public void assertHeaders(Message actual) {
+    private void assertHeaders(Message actual) {
         assertEquals(3, actual.getHeaders().length);
         assertEquals("key1", actual.getHeaders()[0].getKey());
         assertEquals("value1", actual.getHeaders()[0].getValue());
