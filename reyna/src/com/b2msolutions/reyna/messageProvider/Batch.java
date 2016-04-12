@@ -21,7 +21,7 @@ public class Batch {
     public void add(Message message) {
         Logger.v(Batch.TAG, "add");
 
-        BatchMessage batchMessage = new BatchMessage(message.getId(), message.getUrl(), this.getBody(message.getBody()));
+        BatchMessage batchMessage = new BatchMessage(message.getId(), message.getUrl(), message.getBody());
         this.events.add(batchMessage);
     }
 
@@ -37,18 +37,26 @@ public class Batch {
             this.events.remove(size -1);
         }
     }
-    private JsonObject getBody(String body) {
-        Logger.v(Batch.TAG, "getBody");
 
-        try {
-            JsonParser parser = new JsonParser();
-            return parser.parse(body).getAsJsonObject();
-        }
-        catch(Exception ignored) {
+    public String ToJson()
+    {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("{");
+        buffer.append("\"events\"");
+        buffer.append(":[");
+
+        if (this.events.size() > 0)
+        {
+            for (BatchMessage item : this.events)
+            {
+                buffer.append(item.ToJson());
+                buffer.append(",");
+            }
+
+            buffer = buffer.deleteCharAt(buffer.length() - 1);
         }
 
-        JsonObject element = new JsonObject();
-        element.addProperty("body", body);
-        return element;
+        buffer.append("]}");
+        return buffer.toString();
     }
 }
