@@ -1,16 +1,14 @@
 package com.b2msolutions.reyna.messageProvider;
 
-import com.google.gson.JsonObject;
-
 public class BatchMessage {
 
     private final String url;
 
     private final long reynaId;
 
-    private final JsonObject payload;
+    private final String payload;
 
-    public BatchMessage(long reynaId, String url, JsonObject payload) {
+    public BatchMessage(long reynaId, String url, String payload) {
 
         this.reynaId = reynaId;
         this.url = url;
@@ -25,7 +23,31 @@ public class BatchMessage {
         return this.reynaId;
     }
 
-    public JsonObject getPayload() {
+    public String getPayload() {
         return this.payload;
+    }
+
+    public String ToJson()
+    {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("{");
+        buffer.append("\"url\"");
+        buffer.append(":");
+        buffer.append("\"");
+        buffer.append(this.url);
+        buffer.append("\",");
+
+        buffer.append("\"reynaId\"");
+        buffer.append(":");
+        buffer.append(this.reynaId);
+        buffer.append(",");
+
+        buffer.append("\"payload\"");
+        buffer.append(":");
+        buffer.append(this.payload);
+
+        buffer.append("}");
+
+        return buffer.toString();
     }
 }

@@ -3,7 +3,6 @@ package com.b2msolutions.reyna.messageProvider;
 import android.content.Context;
 import com.b2msolutions.reyna.*;
 import com.b2msolutions.reyna.system.*;
-import com.google.gson.Gson;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -77,7 +76,7 @@ public class BatchProvider implements IMessageProvider {
 
             URI uri = URI.create(batchMessage.getUrl());
 
-            String body = new Gson().toJson(batch, Batch.class);
+            String body = batch.ToJson();
 
             return new Message(batchMessage.getReynaId(), this.getBatchUploadUrl(uri), body, headers);
         }
@@ -131,7 +130,7 @@ public class BatchProvider implements IMessageProvider {
     }
 
     private long getSize(Batch batch) {
-        String body = new Gson().toJson(batch, Batch.class);
+        String body = batch.ToJson();
         return body.getBytes().length;
     }
 }

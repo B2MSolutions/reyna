@@ -133,19 +133,6 @@ public class BatchProviderTest {
                 "]}", actual.getBody());
 
         this.assertHeaders(actual);
-
-        Batch batch = new Gson().fromJson(actual.getBody(), Batch.class);
-        assertEquals(1L, batch.getEvents().get(0).getReynaId());
-        assertEquals("http://google.com", batch.getEvents().get(0).getUrl());
-        assertEquals("{\"key01\":\"value01\",\"key02\":11}", batch.getEvents().get(0).getPayload().toString());
-
-        assertEquals(2L, batch.getEvents().get(1).getReynaId());
-        assertEquals("http://google2.com", batch.getEvents().get(1).getUrl());
-        assertEquals("{\"key11\":\"value11\",\"key12\":12}", batch.getEvents().get(1).getPayload().toString());
-
-        assertEquals(3L, batch.getEvents().get(2).getReynaId());
-        assertEquals("http://google3.com", batch.getEvents().get(2).getUrl());
-        assertEquals("{\"key21\":\"value21\",\"key22\":22}", batch.getEvents().get(2).getPayload().toString());
     }
 
     @Test
@@ -168,22 +155,13 @@ public class BatchProviderTest {
         assertEquals("www.post.com/api/batch", actual.getUrl());
         assertEquals("{\"events\":[" +
                 "{\"url\":\"http://google.com\",\"reynaId\":1,\"payload\":{\"key01\":\"value01\",\"key02\":11}}," +
-                "{\"url\":\"http://google2.com\",\"reynaId\":2,\"payload\":{\"body\":\"{\\\"key11\\\":\"}}," +
+                "{\"url\":\"http://google2.com\",\"reynaId\":2,\"payload\":{\"key11\":}," +
                 "{\"url\":\"http://google3.com\",\"reynaId\":3,\"payload\":{\"key21\":\"value21\",\"key22\":22}}" +
                 "]}", actual.getBody());
 
         assertEquals(3L, actual.getId().longValue());
 
         this.assertHeaders(actual);
-
-        Batch batch = new Gson().fromJson(actual.getBody(), Batch.class);
-        assertEquals(1L, batch.getEvents().get(0).getReynaId());
-        assertEquals("http://google.com", batch.getEvents().get(0).getUrl());
-        assertEquals("{\"key01\":\"value01\",\"key02\":11}", batch.getEvents().get(0).getPayload().toString());
-
-        assertEquals(3L, batch.getEvents().get(2).getReynaId());
-        assertEquals("http://google3.com", batch.getEvents().get(2).getUrl());
-        assertEquals("{\"key21\":\"value21\",\"key22\":22}", batch.getEvents().get(2).getPayload().toString());
     }
 
     @Test
@@ -207,15 +185,6 @@ public class BatchProviderTest {
                 "]}", actual.getBody());
 
         this.assertHeaders(actual);
-
-        Batch batch = new Gson().fromJson(actual.getBody(), Batch.class);
-        assertEquals(1L, batch.getEvents().get(0).getReynaId());
-        assertEquals("http://google.com", batch.getEvents().get(0).getUrl());
-        assertEquals("{\"key01\":\"value01\",\"key02\":11}", batch.getEvents().get(0).getPayload().toString());
-
-        assertEquals(2L, batch.getEvents().get(1).getReynaId());
-        assertEquals("http://google2.com", batch.getEvents().get(1).getUrl());
-        assertEquals("{\"key11\":\"value11\",\"key12\":12}", batch.getEvents().get(1).getPayload().toString());
     }
 
     @Test
@@ -238,24 +207,11 @@ public class BatchProviderTest {
         assertEquals("www.post.com/api/batch", actual.getUrl());
         assertEquals("{\"events\":[" +
                 "{\"url\":\"http://google.com\",\"reynaId\":1,\"payload\":{\"key01\":\"value01\",\"key02\":11}}," +
-                "{\"url\":\"http://google2.com\",\"reynaId\":2,\"payload\":{\"body\":\"Message body\"}}," +
+                "{\"url\":\"http://google2.com\",\"reynaId\":2,\"payload\":Message body}," +
                 "{\"url\":\"http://google3.com\",\"reynaId\":3,\"payload\":{\"key21\":\"value21\",\"key22\":22}}" +
                 "]}", actual.getBody());
 
         this.assertHeaders(actual);
-
-        Batch batch = new Gson().fromJson(actual.getBody(), Batch.class);
-        assertEquals(1L, batch.getEvents().get(0).getReynaId());
-        assertEquals("http://google.com", batch.getEvents().get(0).getUrl());
-        assertEquals("{\"key01\":\"value01\",\"key02\":11}", batch.getEvents().get(0).getPayload().toString());
-
-        assertEquals(2L, batch.getEvents().get(1).getReynaId());
-        assertEquals("http://google2.com", batch.getEvents().get(1).getUrl());
-        assertEquals("{\"body\":\"Message body\"}", batch.getEvents().get(1).getPayload().toString());
-
-        assertEquals(3L, batch.getEvents().get(2).getReynaId());
-        assertEquals("http://google3.com", batch.getEvents().get(2).getUrl());
-        assertEquals("{\"key21\":\"value21\",\"key22\":22}", batch.getEvents().get(2).getPayload().toString());
     }
 
     @Test
@@ -277,11 +233,6 @@ public class BatchProviderTest {
                 "]}", actual.getBody());
 
         this.assertHeaders(actual);
-
-        Batch batch = new Gson().fromJson(actual.getBody(), Batch.class);
-        assertEquals(1L, batch.getEvents().get(0).getReynaId());
-        assertEquals("http://google.com", batch.getEvents().get(0).getUrl());
-        assertEquals("{\"key01\":\"value01\",\"key02\":11}", batch.getEvents().get(0).getPayload().toString());
     }
 
     @Test
@@ -289,9 +240,9 @@ public class BatchProviderTest {
         doReturn(95L).when(this.batchConfiguration).getBatchMessagesSize();
         doReturn(null).when(this.batchConfiguration).getBatchUrl();
 
-        Message message1 = new Message(1L, URI.create("http://www.post.com"), "{\"key01\":\"value01\", \"key02\": 11}", getTestMessageHeaders());
-        Message message2 = new Message(2L, URI.create("http://www.post.com"), "{\"key11\":\"value11\", \"key12\": 12}", getTestMessageHeaders());
-        Message message3 = new Message(3L, URI.create("http://www.post.com"), "{\"key21\":\"value21\", \"key22\": 22}", getTestMessageHeaders());
+        Message message1 = new Message(1L, URI.create("http://www.post.com"), "{\"key01\":\"value01\",\"key02\":11}", getTestMessageHeaders());
+        Message message2 = new Message(2L, URI.create("http://www.post.com"), "{\"key11\":\"value11\",\"key12\":12}", getTestMessageHeaders());
+        Message message3 = new Message(3L, URI.create("http://www.post.com"), "{\"key21\":\"value21\",\"key22\":22}", getTestMessageHeaders());
 
         when(this.repository.getNext()).thenReturn(message1);
         when(this.repository.getNextMessageAfter(1L)).thenReturn(message2);
@@ -305,6 +256,36 @@ public class BatchProviderTest {
         assertEquals("http://www.post.com/api/1/batch", actual.getUrl());
         assertEquals("{\"events\":[" +
                 "{\"url\":\"http://www.post.com\",\"reynaId\":1,\"payload\":{\"key01\":\"value01\",\"key02\":11}}" +
+                "]}", actual.getBody());
+    }
+
+    @Test
+    public void testingDifferentMessagesFormat() throws URISyntaxException {
+        doReturn(10).when(this.batchConfiguration).getBatchMessageCount();
+        doReturn(null).when(this.batchConfiguration).getBatchUrl();
+
+        Message message1 = new Message(1L, URI.create("http://www.post.com"), "{\"buckets\":[{\"total\":1129.0,\"hour\":\"2016041105\"},{\"total\":601.0,\"hour\":\"2016041107\"}],\"utc\":1460373149543}", getTestMessageHeaders());
+        Message message2 = new Message(2L, URI.create("http://www.post.com"), "{\"coreBytes\":246270,\"mobileBytes\":2217672,\"totalBytes\":2217672,\"utc\":1460356950584}", getTestMessageHeaders());
+        Message message3 = new Message(3L, URI.create("http://www.post.com"), "{\"utc\":1460241205631}", getTestMessageHeaders());
+        Message message4 = new Message(4L, URI.create("http://www.post.com"), "{\"source\":\"source\",\"level\":92,\"utc\":1460360349303}", getTestMessageHeaders());
+
+        when(this.repository.getNext()).thenReturn(message1);
+        when(this.repository.getNextMessageAfter(1L)).thenReturn(message2);
+        when(this.repository.getNextMessageAfter(2L)).thenReturn(message3);
+        when(this.repository.getNextMessageAfter(3L)).thenReturn(message4);
+        when(this.repository.getNextMessageAfter(4L)).thenReturn(null);
+
+        Message actual = this.messageProvider.getNext();
+
+        assertNotNull(actual);
+
+        assertEquals(4L, actual.getId().longValue());
+        assertEquals("http://www.post.com/api/1/batch", actual.getUrl());
+        assertEquals("{\"events\":[" +
+                "{\"url\":\"http://www.post.com\",\"reynaId\":1,\"payload\":{\"buckets\":[{\"total\":1129.0,\"hour\":\"2016041105\"},{\"total\":601.0,\"hour\":\"2016041107\"}],\"utc\":1460373149543}}," +
+                "{\"url\":\"http://www.post.com\",\"reynaId\":2,\"payload\":{\"coreBytes\":246270,\"mobileBytes\":2217672,\"totalBytes\":2217672,\"utc\":1460356950584}}," +
+                "{\"url\":\"http://www.post.com\",\"reynaId\":3,\"payload\":{\"utc\":1460241205631}}," +
+                "{\"url\":\"http://www.post.com\",\"reynaId\":4,\"payload\":{\"source\":\"source\",\"level\":92,\"utc\":1460360349303}}" +
                 "]}", actual.getBody());
     }
 
@@ -462,9 +443,9 @@ public class BatchProviderTest {
     }
 
     private ArrayList<Message> getTestMessages() {
-        Message message1 = new Message(1L, URI.create("http://google.com"), "{\"key01\":\"value01\", \"key02\": 11}", getTestMessageHeaders());
-        Message message2 = new Message(2L, URI.create("http://google2.com"), "{\"key11\":\"value11\", \"key12\": 12}", getTestMessageHeaders());
-        Message message3 = new Message(3L, URI.create("http://google3.com"), "{\"key21\":\"value21\", \"key22\": 22}", getTestMessageHeaders());
+        Message message1 = new Message(1L, URI.create("http://google.com"), "{\"key01\":\"value01\",\"key02\":11}", getTestMessageHeaders());
+        Message message2 = new Message(2L, URI.create("http://google2.com"), "{\"key11\":\"value11\",\"key12\":12}", getTestMessageHeaders());
+        Message message3 = new Message(3L, URI.create("http://google3.com"), "{\"key21\":\"value21\",\"key22\":22}", getTestMessageHeaders());
 
         ArrayList<Message> messages = new ArrayList<Message>(3);
         messages.add(message1);
