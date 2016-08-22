@@ -23,6 +23,8 @@ public class Preferences {
     private final String BATCH_UPLOAD = "BATCH_UPLOAD";
     private final String BATCH_UPLOAD_URI = "BATCH_UPLOAD_URI";
     private final String BATCH_UPLOAD_INTERVAL = "BATCH_UPLOAD_INTERVAL";
+    private final String WWAN_BLACKOUT_START = "WWAN_BLACKOUT_START";
+    private final String WWAN_BLACKOUT_END = "WWAN_BLACKOUT_END";
 
     public Preferences(Context context) {
         this.context = context;
@@ -195,5 +197,26 @@ public class Preferences {
     private String getString(String key, String defaultValue) {
         SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
         return sp.getString(key, defaultValue);
+    }
+
+    public long getNonRecurringWwanBlackoutStartTime() {
+        return this.getLong(WWAN_BLACKOUT_START, -1);
+    }
+
+    public long getNonRecurringWwanBlackoutEndTime() {
+        return this.getLong(WWAN_BLACKOUT_END, -1);
+    }
+
+    public void saveNonRecurringWwanBlackout(long startTime, long endTime) {
+        this.putLong(WWAN_BLACKOUT_START, startTime);
+        this.putLong(WWAN_BLACKOUT_END, endTime);
+    }
+
+    public void resetNonRecurringWwanBlackout() {
+        SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
+        SharedPreferences.Editor edit = sp.edit();
+        edit.remove(WWAN_BLACKOUT_START);
+        edit.remove(WWAN_BLACKOUT_END);
+        edit.apply();
     }
 }
