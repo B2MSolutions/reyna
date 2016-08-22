@@ -8,6 +8,7 @@ import com.b2msolutions.reyna.blackout.Time;
 import com.b2msolutions.reyna.blackout.TimeRange;
 
 import java.net.URI;
+import java.util.Date;
 
 public class Preferences {
 
@@ -207,9 +208,9 @@ public class Preferences {
         return this.getLong(WWAN_BLACKOUT_END, -1);
     }
 
-    public void saveNonRecurringWwanBlackout(long startTime, long endTime) {
-        this.putLong(WWAN_BLACKOUT_START, startTime);
-        this.putLong(WWAN_BLACKOUT_END, endTime);
+    public void saveNonRecurringWwanBlackout(long startTimeUtc, long endTimeUtc) {
+        this.putLong(WWAN_BLACKOUT_START, startTimeUtc);
+        this.putLong(WWAN_BLACKOUT_END, endTimeUtc);
     }
 
     public void resetNonRecurringWwanBlackout() {

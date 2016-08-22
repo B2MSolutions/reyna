@@ -698,4 +698,16 @@ public class DispatcherTest {
 
         assertEquals(Result.OK, Dispatcher.canSend(context));
     }
+
+    @Test
+    public void whenCallingCanSendAndCurrentTimeIsBetweenNonRecurringWwanBlackoutStartTimeAndEndTimeShouldBlackout() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveNonRecurringWwanBlackout(42L, 84L);
+
+        GregorianCalendar now = mock(GregorianCalendar.class);
+        when(now.getTimeInMillis()).thenReturn(63L);
+
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(context, now));
+    }
 }
