@@ -79,7 +79,7 @@ public class Dispatcher {
 
         long startTime = preferences.getNonRecurringWwanBlackoutStartTime();
         long endTime = preferences.getNonRecurringWwanBlackoutEndTime();
-        if (isMobile(info) && !canSendNow(startTime, endTime, now)) {
+        if (isMobile(info) && !canSendNow(startTime, endTime, now.getTimeInMillis())) {
             Logger.v(TAG, "blackout because mobile and current time is within non recurring WWAN blackout period");
             return Result.BLACKOUT;
         }
@@ -123,8 +123,8 @@ public class Dispatcher {
         return blackoutTime.canSendAtTime(now, window);
     }
 
-    private static boolean canSendNow(long startUtc, long endUtc, GregorianCalendar now) {
-        return now.getTimeInMillis() - startUtc >= endUtc - startUtc;
+    private static boolean canSendNow(long startUtc, long endUtc, long nowUtc) {
+        return nowUtc < startUtc || nowUtc >= endUtc;
     }
 
     private static void saveCellularDataAsWwanForBackwardCompatibility(Preferences preferences) {
