@@ -199,17 +199,31 @@ public class Preferences {
         return sp.getString(key, defaultValue);
     }
 
-    public long getNonRecurringWwanBlackoutStartTime() {
-        return this.getLong(WWAN_BLACKOUT_START, -1);
+    public long getNonRecurringWwanBlackoutStartTime(long defaultValue) {
+        String res = this.getString(WWAN_BLACKOUT_START, null);
+        if(res == null) return defaultValue;
+
+        return Long.parseLong(res);
     }
 
-    public long getNonRecurringWwanBlackoutEndTime() {
-        return this.getLong(WWAN_BLACKOUT_END, -1);
+    public long getNonRecurringWwanBlackoutEndTime(long defaultValue) {
+        String res = this.getString(WWAN_BLACKOUT_END, null);
+        if(res == null) return defaultValue;
+
+        return Long.parseLong(res);
+    }
+
+    public String getNonRecurringWwanBlackoutStartTimeAsString() {
+        return this.getString(WWAN_BLACKOUT_START, null);
+    }
+
+    public String getNonRecurringWwanBlackoutEndTimeAsString() {
+        return this.getString(WWAN_BLACKOUT_END, null);
     }
 
     public void saveNonRecurringWwanBlackout(long startTimeUtc, long endTimeUtc) {
-        this.putLong(WWAN_BLACKOUT_START, startTimeUtc);
-        this.putLong(WWAN_BLACKOUT_END, endTimeUtc);
+        this.putString(WWAN_BLACKOUT_START, String.valueOf(startTimeUtc));
+        this.putString(WWAN_BLACKOUT_END, String.valueOf(endTimeUtc));
     }
 
     public void resetNonRecurringWwanBlackout() {

@@ -242,31 +242,59 @@ public class PreferencesTest {
     }
 
     @Test
-    public void whenCallingGetNonRecurringWwanBlackoutStartTimeAndNoValueSavedShouldDefaultToMinus1() {
+    public void whenCallingGetNonRecurringWwanBlackoutStartTimeAndNoValueSavedShouldReturnSpecifiedDefaul() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        assertEquals(-1,  preferences.getNonRecurringWwanBlackoutStartTime());
+        assertEquals(-1,  preferences.getNonRecurringWwanBlackoutStartTime(-1));
     }
 
     @Test
-    public void whenCallingGetNonRecurringWwanBlackoutEndTimeAndNoValueSavedShouldDefaultToMinus1() {
+    public void whenCallingGetNonRecurringWwanBlackoutEndTimeAndNoValueSavedShouldReturnSpecifiedDefault() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        assertEquals(-1,  preferences.getNonRecurringWwanBlackoutEndTime());
+        assertEquals(-1,  preferences.getNonRecurringWwanBlackoutEndTime(-1));
     }
 
     @Test
     public void whenCallingSaveNonRecurringWwanBlackoutShouldRecordStartTimeAndEndTimeOfBlackout() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.saveNonRecurringWwanBlackout(42L, 84L);
-        assertEquals(42L,  preferences.getNonRecurringWwanBlackoutStartTime());
-        assertEquals(84L,  preferences.getNonRecurringWwanBlackoutEndTime());
+        assertEquals(42L,  preferences.getNonRecurringWwanBlackoutStartTime(-1));
+        assertEquals(84L,  preferences.getNonRecurringWwanBlackoutEndTime(-1));
     }
 
     @Test
     public void whenCallingResetNonRecurringWwanBlackoutShouldRemoveStartAndEndValuesFromPrefs() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
         preferences.resetNonRecurringWwanBlackout();
-        assertEquals(-1L,  preferences.getNonRecurringWwanBlackoutStartTime());
-        assertEquals(-1L,  preferences.getNonRecurringWwanBlackoutEndTime());
+        assertEquals(-1L,  preferences.getNonRecurringWwanBlackoutStartTime(-1));
+        assertEquals(-1L,  preferences.getNonRecurringWwanBlackoutEndTime(-1));
+    }
+
+    @Test
+    public void whenCallingSaveNonRecurringWwanBlackoutShouldRecordStartTimeAndEndTimeOfBlackoutAsString() {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveNonRecurringWwanBlackout(42L, 84L);
+        assertEquals("42",  preferences.getNonRecurringWwanBlackoutStartTimeAsString());
+        assertEquals("84",  preferences.getNonRecurringWwanBlackoutEndTimeAsString());
+    }
+
+    @Test
+    public void whenCallingGetNonRecurringWwanBlackoutStartTimeAsStringShouldDefaultToNull() {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        assertEquals(null,  preferences.getNonRecurringWwanBlackoutStartTimeAsString());
+    }
+
+    @Test
+    public void whenCallingGetNonRecurringWwanBlackoutEndTimeAsStringShouldDefaultToNull() {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        assertEquals(null,  preferences.getNonRecurringWwanBlackoutEndTimeAsString());
+    }
+
+    @Test
+    public void whenCallingResetNonRecurringWwanBlackoutShouldRemoveStartAndEndValuesFromPrefsAndGetValuesAsStringShouldReturnNull() {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.resetNonRecurringWwanBlackout();
+        assertEquals(null,  preferences.getNonRecurringWwanBlackoutStartTimeAsString());
+        assertEquals(null,  preferences.getNonRecurringWwanBlackoutEndTimeAsString());
     }
 
     private void clear() {
