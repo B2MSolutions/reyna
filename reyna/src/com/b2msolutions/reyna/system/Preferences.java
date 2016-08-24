@@ -8,7 +8,6 @@ import com.b2msolutions.reyna.blackout.Time;
 import com.b2msolutions.reyna.blackout.TimeRange;
 
 import java.net.URI;
-import java.util.Date;
 
 public class Preferences {
 
