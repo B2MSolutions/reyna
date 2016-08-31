@@ -254,11 +254,17 @@ public class PreferencesTest {
     }
 
     @Test
-    public void whenCallingSaveNonRecurringWwanBlackoutShouldRecordStartTimeAndEndTimeOfBlackout() {
+    public void whenCallingSaveNonRecurringWwanBlackoutStartTimeShouldRecordStartTimeOfBlackout() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveNonRecurringWwanBlackout(42L, 84L);
+        preferences.saveNonRecurringWwanBlackoutStartTime(42L);
         assertEquals(42L,  preferences.getNonRecurringWwanBlackoutStartTime(-1));
-        assertEquals(84L,  preferences.getNonRecurringWwanBlackoutEndTime(-1));
+    }
+
+    @Test
+    public void whenCallingSaveNonRecurringWwanBlackoutEndTimeShouldRecordEndTimeOfBlackout() {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveNonRecurringWwanBlackoutEndTime(42L);
+        assertEquals(42L,  preferences.getNonRecurringWwanBlackoutEndTime(-1));
     }
 
     @Test
@@ -270,11 +276,17 @@ public class PreferencesTest {
     }
 
     @Test
-    public void whenCallingSaveNonRecurringWwanBlackoutShouldRecordStartTimeAndEndTimeOfBlackoutAsString() {
+    public void whenCallingSaveNonRecurringWwanBlackoutStartTimeShouldRecordStartTimeOfBlackoutAsString() {
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveNonRecurringWwanBlackout(42L, 84L);
+        preferences.saveNonRecurringWwanBlackoutStartTime(42L);
         assertEquals("42",  preferences.getNonRecurringWwanBlackoutStartTimeAsString());
-        assertEquals("84",  preferences.getNonRecurringWwanBlackoutEndTimeAsString());
+    }
+
+    @Test
+    public void whenCallingSaveNonRecurringWwanBlackoutEndTimeShouldRecordEndTimeOfBlackoutAsString() {
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveNonRecurringWwanBlackoutEndTime(42L);
+        assertEquals("42",  preferences.getNonRecurringWwanBlackoutEndTimeAsString());
     }
 
     @Test

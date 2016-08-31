@@ -221,8 +221,11 @@ public class Preferences {
         return this.getString(WWAN_BLACKOUT_END, null);
     }
 
-    public void saveNonRecurringWwanBlackout(long startTimeUtc, long endTimeUtc) {
+    public void saveNonRecurringWwanBlackoutStartTime(long startTimeUtc) {
         this.putString(WWAN_BLACKOUT_START, String.valueOf(startTimeUtc));
+    }
+
+    public void saveNonRecurringWwanBlackoutEndTime(long endTimeUtc) {
         this.putString(WWAN_BLACKOUT_END, String.valueOf(endTimeUtc));
     }
 
