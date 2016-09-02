@@ -694,8 +694,59 @@ public class DispatcherTest {
     public void whenOldConfigurationIsFromZeroAndToZeroAllowSending() {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
-        preferences.saveCellularDataBlackout(new TimeRange(new Time(0,0), new Time(0,0)));
+        preferences.saveCellularDataBlackout(new TimeRange(new Time(0, 0), new Time(0, 0)));
 
         assertEquals(Result.OK, Dispatcher.canSend(context));
+    }
+
+    @Test
+    public void whenCallingCanSendAndCurrentTimeIsBetweenNonRecurringWwanBlackoutStartTimeAndEndTimeShouldBlackout() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveNonRecurringWwanBlackoutStartTime(42L);
+        preferences.saveNonRecurringWwanBlackoutEndTime(84L);
+
+        GregorianCalendar now = mock(GregorianCalendar.class);
+        when(now.getTimeInMillis()).thenReturn(63L);
+
+        assertEquals(Result.BLACKOUT, Dispatcher.canSend(context, now));
+    }
+
+    @Test
+    public void whenCallingCanSendAndCurrentTimeIsBeforeNonRecurringWwanBlackoutStartTimeAndEndTimeShouldBeOk() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveNonRecurringWwanBlackoutStartTime(70L);
+        preferences.saveNonRecurringWwanBlackoutEndTime(84L);
+
+        GregorianCalendar now = mock(GregorianCalendar.class);
+        when(now.getTimeInMillis()).thenReturn(63L);
+
+        assertEquals(Result.OK, Dispatcher.canSend(context, now));
+    }
+
+    @Test
+    public void whenCallingCanSendAndCurrentTimeIsAfterNonRecurringWwanBlackoutStartTimeAndEndTimeShouldBeOk() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.saveNonRecurringWwanBlackoutStartTime(70L);
+        preferences.saveNonRecurringWwanBlackoutEndTime(84L);
+
+        GregorianCalendar now = mock(GregorianCalendar.class);
+        when(now.getTimeInMillis()).thenReturn(90L);
+
+        assertEquals(Result.OK, Dispatcher.canSend(context, now));
+    }
+
+    @Test
+    public void whenCallingCanSendAndNonRecurringWwanBlackoutStartTimeOrEndTimeIsNotSetShouldBeOk() {
+        when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
+        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        preferences.resetNonRecurringWwanBlackout();
+
+        GregorianCalendar now = mock(GregorianCalendar.class);
+        when(now.getTimeInMillis()).thenReturn(90L);
+
+        assertEquals(Result.OK, Dispatcher.canSend(context, now));
     }
 }

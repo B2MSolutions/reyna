@@ -62,6 +62,10 @@ public class Dispatcher {
     }
 
     public static Result canSend(Context context) {
+        return canSend(context, new GregorianCalendar());
+    }
+
+    protected static Result canSend(Context context, GregorianCalendar now) {
         Logger.v(TAG, "canSend start");
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info = connectivityManager.getActiveNetworkInfo();
@@ -72,6 +76,13 @@ public class Dispatcher {
 
         Preferences preferences = new Preferences(context);
         BlackoutTime blackoutTime = new BlackoutTime();
+
+        String startTime = preferences.getNonRecurringWwanBlackoutStartTimeAsString();
+        String endTime = preferences.getNonRecurringWwanBlackoutEndTimeAsString();
+        if (isMobile(info) && isNonRecurringBlackout(startTime, endTime, now.getTimeInMillis())) {
+            Logger.v(TAG, "blackout because mobile and current time is within non recurring WWAN blackout period");
+            return Result.BLACKOUT;
+        }
 
         if (TextUtils.isEmpty(preferences.getWwanBlackout())) {
             Logger.v(TAG, "save cellular data backward compatibility");
@@ -91,11 +102,11 @@ public class Dispatcher {
             return Result.BLACKOUT;
         }
         try {
-            if (isWifi(info) && !canSendNow(blackoutTime, preferences.getWlanBlackout())) {
+            if (isWifi(info) && !canSendNow(blackoutTime, preferences.getWlanBlackout(), now)) {
                 Logger.v(TAG, "blackout because wifi and cant send at " + preferences.getWlanBlackout());
                 return Result.BLACKOUT;
             }
-            if (isMobile(info) && !canSendNow(blackoutTime, preferences.getWwanBlackout())) {
+            if (isMobile(info) && !canSendNow(blackoutTime, preferences.getWwanBlackout(), now)) {
                 Logger.v(TAG, "blackout because mobile and cant send at " + preferences.getWwanBlackout());
                 return Result.BLACKOUT;
             }
@@ -108,8 +119,16 @@ public class Dispatcher {
         return Result.OK;
     }
 
-    private static boolean canSendNow(BlackoutTime blackoutTime, String window) throws ParseException {
-        return blackoutTime.canSendAtTime(new GregorianCalendar(), window);
+    private static boolean canSendNow(BlackoutTime blackoutTime, String window, GregorianCalendar now) throws ParseException {
+        return blackoutTime.canSendAtTime(now, window);
+    }
+
+    private static boolean isNonRecurringBlackout(String startUtc, String endUtc, long nowUtc) {
+        if(startUtc == null || startUtc.isEmpty() || endUtc == null || endUtc.isEmpty()) {
+            return false;
+        }
+
+        return nowUtc >= Long.parseLong(startUtc) && nowUtc < Long.parseLong(endUtc);
     }
 
     private static void saveCellularDataAsWwanForBackwardCompatibility(Preferences preferences) {

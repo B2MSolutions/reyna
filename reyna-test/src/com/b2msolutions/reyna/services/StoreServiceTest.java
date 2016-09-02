@@ -22,6 +22,7 @@ import org.robolectric.RobolectricTestRunner;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
@@ -276,4 +277,36 @@ public class StoreServiceTest {
         int lockId = intent.getIntExtra("android.support.content.wakelockid", -1);
         assertTrue(lockId != -1);
     }
+
+    @Test
+    public void whenCallingSaveNonRecurringWwanBlackoutStartTimeShouldRecordStartTimeOfBlackout() {
+        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        Preferences preferences = new Preferences(context);
+
+        StoreService.setNonRecurringWwanBlackoutStartTime(context, 42L);
+
+        assertEquals(42L, preferences.getNonRecurringWwanBlackoutStartTime(-1));
+    }
+
+    @Test
+    public void whenCallingSaveNonRecurringWwanBlackoutEndTimeShouldRecordEndTimeOfBlackout() {
+        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        Preferences preferences = new Preferences(context);
+
+        StoreService.setNonRecurringWwanBlackoutEndTime(context, 42L);
+
+        assertEquals(42L,  preferences.getNonRecurringWwanBlackoutEndTime(-1));
+    }
+
+    @Test
+    public void whenCallingResetNonRecurringWwanBlackoutShouldRemoveStartAndEndValuesFromPrefsAndGetValuesAsStringShouldReturnNull() {
+        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        Preferences preferences = new Preferences(context);
+
+        StoreService.resetNonRecurringWwanBlackout(context);
+
+        assertEquals(null, preferences.getNonRecurringWwanBlackoutStartTimeAsString());
+        assertEquals(null,  preferences.getNonRecurringWwanBlackoutEndTimeAsString());
+    }
+
 }

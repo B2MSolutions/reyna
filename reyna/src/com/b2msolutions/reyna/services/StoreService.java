@@ -97,6 +97,21 @@ public class StoreService extends WakefulService {
         repo.shrinkDb(limit);
     }
 
+    public static void setNonRecurringWwanBlackoutStartTime(Context context, long startTimeUtc) {
+        Logger.v(TAG, "setNonRecurringWwanBlackoutStartTime: " + startTimeUtc);
+        new Preferences(context).saveNonRecurringWwanBlackoutStartTime(startTimeUtc);
+    }
+
+    public static void setNonRecurringWwanBlackoutEndTime(Context context, long endTimeUtc) {
+        Logger.v(TAG, "setNonRecurringWwanBlackoutEndTime: " + endTimeUtc);
+        new Preferences(context).saveNonRecurringWwanBlackoutEndTime(endTimeUtc);
+    }
+
+    public static void resetNonRecurringWwanBlackout(Context context) {
+        Logger.v(TAG, "resetNonRecurringWwanBlackout");
+        new Preferences(context).resetNonRecurringWwanBlackout();
+    }
+
     public static long getStorageSizeLimit(Context context) {
         Logger.v(TAG, "getStorageSizeLimit");
         Preferences preferences = new Preferences(context);

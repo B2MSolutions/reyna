@@ -23,6 +23,8 @@ public class Preferences {
     private final String BATCH_UPLOAD = "BATCH_UPLOAD";
     private final String BATCH_UPLOAD_URI = "BATCH_UPLOAD_URI";
     private final String BATCH_UPLOAD_INTERVAL = "BATCH_UPLOAD_INTERVAL";
+    private final String WWAN_BLACKOUT_START = "WWAN_BLACKOUT_START";
+    private final String WWAN_BLACKOUT_END = "WWAN_BLACKOUT_END";
 
     public Preferences(Context context) {
         this.context = context;
@@ -195,5 +197,43 @@ public class Preferences {
     private String getString(String key, String defaultValue) {
         SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
         return sp.getString(key, defaultValue);
+    }
+
+    public long getNonRecurringWwanBlackoutStartTime(long defaultValue) {
+        String res = this.getString(WWAN_BLACKOUT_START, null);
+        if(res == null) return defaultValue;
+
+        return Long.parseLong(res);
+    }
+
+    public long getNonRecurringWwanBlackoutEndTime(long defaultValue) {
+        String res = this.getString(WWAN_BLACKOUT_END, null);
+        if(res == null) return defaultValue;
+
+        return Long.parseLong(res);
+    }
+
+    public String getNonRecurringWwanBlackoutStartTimeAsString() {
+        return this.getString(WWAN_BLACKOUT_START, null);
+    }
+
+    public String getNonRecurringWwanBlackoutEndTimeAsString() {
+        return this.getString(WWAN_BLACKOUT_END, null);
+    }
+
+    public void saveNonRecurringWwanBlackoutStartTime(long startTimeUtc) {
+        this.putString(WWAN_BLACKOUT_START, String.valueOf(startTimeUtc));
+    }
+
+    public void saveNonRecurringWwanBlackoutEndTime(long endTimeUtc) {
+        this.putString(WWAN_BLACKOUT_END, String.valueOf(endTimeUtc));
+    }
+
+    public void resetNonRecurringWwanBlackout() {
+        SharedPreferences sp = this.context.getSharedPreferences(Preferences.class.getName(), Context.MODE_PRIVATE);
+        SharedPreferences.Editor edit = sp.edit();
+        edit.remove(WWAN_BLACKOUT_START);
+        edit.remove(WWAN_BLACKOUT_END);
+        edit.apply();
     }
 }
