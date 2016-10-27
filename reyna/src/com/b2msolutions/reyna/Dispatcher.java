@@ -7,6 +7,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.http.AndroidHttpClient;
 import android.text.TextUtils;
+import com.b2msolutions.reyna.blackout.Time;
 import com.b2msolutions.reyna.blackout.TimeRange;
 import com.b2msolutions.reyna.http.HttpPost;
 import com.b2msolutions.reyna.blackout.BlackoutTime;
@@ -29,6 +30,12 @@ import java.util.Locale;
 public class Dispatcher {
 
     private static final String TAG = "com.b2msolutions.reyna.Dispatcher";
+
+    private Time time;
+
+    public Dispatcher(Time time) {
+        this.time = time;
+    }
 
     public enum Result {
         OK, PERMANENT_ERROR, TEMPORARY_ERROR, BLACKOUT, NOTCONNECTED
@@ -179,7 +186,7 @@ public class Dispatcher {
             AbstractHttpEntity entity = Dispatcher.getEntity(message, context);
             httpPost.setEntity(entity);
 
-            Dispatcher.setHeaders(httpPost, message.getHeaders());
+            this.setHeaders(httpPost, message.getHeaders());
 
             return Result.OK;
         } catch (Exception e) {
@@ -246,12 +253,18 @@ public class Dispatcher {
         return AndroidHttpClient.getCompressedEntity(data, context.getContentResolver());
     }
 
-    private static void setHeaders(HttpPost httpPost, Header[] headers) {
+    private void setHeaders(HttpPost httpPost, Header[] headers) {
         Header[] filteredHeaders = Dispatcher.removeGzipEncodingHeader(headers);
 
         for (Header header : filteredHeaders) {
             httpPost.setHeader(header.getKey(), header.getValue());
         }
+
+        httpPost.addHeader("submitted", getSubmittedTimestamp());
+    }
+
+    private String getSubmittedTimestamp() {
+        return String.valueOf(this.time.getCurrentTimeMillis());
     }
 
     private static AbstractHttpEntity getEntity(Message message, Context context) throws Exception {

@@ -85,7 +85,9 @@ public class DispatcherTest {
         HttpClient httpClient = mock(HttpClient.class);
         when(httpClient.execute(httpPost)).thenReturn(httpResponse);
 
-        assertEquals(Result.OK, new Dispatcher().sendMessage(message, httpPost, httpClient, this.context));
+        Time time = mock(Time.class);
+
+        assertEquals(Result.OK, new Dispatcher(time).sendMessage(message, httpPost, httpClient, this.context));
 
         this.verifyHttpPost(message, httpPost);
 
@@ -109,7 +111,9 @@ public class DispatcherTest {
         HttpClient httpClient = mock(HttpClient.class);
         when(httpClient.execute(httpPost)).thenReturn(httpResponse);
 
-        assertEquals(Result.OK, new Dispatcher().sendMessage(message, httpPost, httpClient, this.context));
+        Time time = mock(Time.class);
+
+        assertEquals(Result.OK, new Dispatcher(time).sendMessage(message, httpPost, httpClient, this.context));
 
         this.verifyHttpPost(message, httpPost);
 
@@ -133,7 +137,9 @@ public class DispatcherTest {
         HttpClient httpClient = mock(HttpClient.class);
         when(httpClient.execute(httpPost)).thenReturn(httpResponse);
 
-        assertEquals(Result.OK, new Dispatcher().sendMessage(message, httpPost, httpClient, this.context));
+        Time time = mock(Time.class);
+
+        assertEquals(Result.OK, new Dispatcher(time).sendMessage(message, httpPost, httpClient, this.context));
 
         ArgumentCaptor<StringEntity> stringEntityCaptor = ArgumentCaptor.forClass(StringEntity.class);
         verify(httpPost).setEntity(stringEntityCaptor.capture());
@@ -151,13 +157,18 @@ public class DispatcherTest {
         TimeRange range = new TimeRange(new Time(hourOfDay - 1, 0), new Time(hourOfDay + 1, 0));
         new Preferences(this.context).saveCellularDataBlackout(range);
 
-        assertEquals(Result.BLACKOUT, new Dispatcher().sendMessage(null, null, null, this.context));
+        Time time = mock(Time.class);
+
+        assertEquals(Result.BLACKOUT, new Dispatcher(time).sendMessage(null, null, null, this.context));
     }
 
     @Test
     public void sendMessageShouldReturnNotConnectedWhenNotConnected() {
         when(this.networkInfo.isConnectedOrConnecting()).thenReturn(false);
-        assertEquals(Result.NOTCONNECTED, new Dispatcher().sendMessage(null, null, null, this.context));
+
+        Time time = mock(Time.class);
+
+        assertEquals(Result.NOTCONNECTED, new Dispatcher(time).sendMessage(null, null, null, this.context));
     }
 
     @Test
@@ -168,7 +179,9 @@ public class DispatcherTest {
         HttpClient httpClient = mock(HttpClient.class);
         when(httpClient.execute(httpPost)).thenThrow(new RuntimeException(""));
 
-        assertEquals(Result.TEMPORARY_ERROR, new Dispatcher().sendMessage(message, httpPost, httpClient, this.context));
+        Time time = mock(Time.class);
+
+        assertEquals(Result.TEMPORARY_ERROR, new Dispatcher(time).sendMessage(message, httpPost, httpClient, this.context));
 
         this.verifyHttpPost(message, httpPost);
     }
@@ -197,7 +210,9 @@ public class DispatcherTest {
         when(httpClient.execute(httpPost)).thenReturn(httpResponse);
         when(httpClient.execute(httpPost)).thenReturn(httpResponse);
 
-        assertEquals(Result.OK, new Dispatcher().sendMessage(message, httpPost, httpClient, this.context));
+        Time time = mock(Time.class);
+
+        assertEquals(Result.OK, new Dispatcher(time).sendMessage(message, httpPost, httpClient, this.context));
 
         this.verifyHttpPost(message, httpPost);
 
@@ -222,7 +237,9 @@ public class DispatcherTest {
         HttpClient httpClient = mock(HttpClient.class);
         when(httpClient.execute(httpPost)).thenReturn(httpResponse);
 
-        Result actual = new Dispatcher().sendMessage(message, httpPost, httpClient, this.context);
+        Time time = mock(Time.class);
+
+        Result actual = new Dispatcher(time).sendMessage(message, httpPost, httpClient, this.context);
 
         assertEquals(Result.OK, actual);
 
@@ -748,5 +765,26 @@ public class DispatcherTest {
         when(now.getTimeInMillis()).thenReturn(90L);
 
         assertEquals(Result.OK, Dispatcher.canSend(context, now));
+    }
+
+    @Test
+    public void whenCallingSendMessageShouldAddSubmittedTimestamp() throws IOException, URISyntaxException {
+        Message message = RepositoryTest.getMessageWithHeaders();
+
+        StatusLine statusLine = mock(StatusLine.class);
+        when(statusLine.getStatusCode()).thenReturn(200);
+        HttpResponse httpResponse = mock(HttpResponse.class);
+        when(httpResponse.getStatusLine()).thenReturn(statusLine);
+
+        HttpPost httpPost = mock(HttpPost.class);
+        HttpClient httpClient = mock(HttpClient.class);
+        when(httpClient.execute(httpPost)).thenReturn(httpResponse);
+
+        Time time = mock(Time.class);
+        when(time.getCurrentTimeMillis()).thenReturn(42L);
+
+        assertEquals(Result.OK, new Dispatcher(time).sendMessage(message, httpPost, httpClient, this.context));
+
+        verify(httpPost).setHeader(message.getHeaders()[2].getKey(), "42");
     }
 }
