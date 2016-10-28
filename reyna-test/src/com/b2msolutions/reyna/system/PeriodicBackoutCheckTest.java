@@ -2,15 +2,13 @@ package com.b2msolutions.reyna.system;
 
 import android.app.AlarmManager;
 import android.content.Context;
-import com.b2msolutions.reyna.system.PeriodicBackoutCheck;
-import com.b2msolutions.reyna.system.Preferences;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.RobolectricTestRunner;
 
 import static junit.framework.Assert.*;
 import static org.mockito.Matchers.eq;

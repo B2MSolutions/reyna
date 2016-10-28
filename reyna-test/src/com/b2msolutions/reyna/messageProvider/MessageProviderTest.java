@@ -1,16 +1,15 @@
 package com.b2msolutions.reyna.messageProvider;
 
-import android.content.Context;
 import com.b2msolutions.reyna.system.Header;
 import com.b2msolutions.reyna.system.Message;
 import com.b2msolutions.reyna.Repository;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.RobolectricTestRunner;
 
 import java.net.URISyntaxException;
 
