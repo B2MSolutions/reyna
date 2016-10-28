@@ -1,10 +1,10 @@
 package com.b2msolutions.reyna.blackout;
 
-import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.RobolectricTestRunner;
 
 import java.text.ParseException;
 import java.util.Calendar;

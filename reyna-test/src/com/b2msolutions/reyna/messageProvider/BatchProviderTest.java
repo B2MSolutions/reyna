@@ -2,13 +2,10 @@ package com.b2msolutions.reyna.messageProvider;
 
 import android.app.AlarmManager;
 import android.content.Context;
-import android.os.SystemClock;
 import com.b2msolutions.reyna.*;
 import com.b2msolutions.reyna.system.Header;
 import com.b2msolutions.reyna.system.Message;
 import com.b2msolutions.reyna.system.PeriodicBackoutCheck;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,7 +23,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
 import com.google.gson.Gson;
-import org.mockito.Spy;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 
 @RunWith(RobolectricTestRunner.class)
 public class BatchProviderTest {
@@ -48,7 +46,7 @@ public class BatchProviderTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
 
-        this.context = Robolectric.getShadowApplication().getApplicationContext();
+        this.context = RuntimeEnvironment.application.getApplicationContext();
         this.messageProvider = new BatchProvider(this.context, this.repository);
         this.messageProvider.batchConfiguration = this.batchConfiguration;
         this.messageProvider.periodicBackoutCheck = this.periodicBackoutCheck;

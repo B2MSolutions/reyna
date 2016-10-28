@@ -9,15 +9,14 @@ import com.b2msolutions.reyna.blackout.TimeRange;
 import com.b2msolutions.reyna.system.Logger;
 import com.b2msolutions.reyna.system.Message;
 import com.b2msolutions.reyna.system.Preferences;
-import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -25,10 +24,8 @@ import java.net.URISyntaxException;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
-import static test.Assert.assertServiceNotStartedOrgRobolectric;
-import static test.Assert.assertServiceStartedOrgRobolectric;
+import static test.Assert.assertServiceStarted;
 
 @RunWith(RobolectricTestRunner.class)
 public class StoreServiceTest {
@@ -82,7 +79,7 @@ public class StoreServiceTest {
         assertEquals("h2", message.getHeaders()[1].getKey());
         assertEquals("v2", message.getHeaders()[1].getValue());
 
-        assertServiceStartedOrgRobolectric(ForwardService.class);
+        assertServiceStarted(ForwardService.class);
     }
 
     @Test
@@ -105,12 +102,12 @@ public class StoreServiceTest {
         assertEquals("h2", message.getHeaders()[1].getKey());
         assertEquals("v2", message.getHeaders()[1].getValue());
 
-        assertServiceStartedOrgRobolectric(ForwardService.class);
+        assertServiceStarted(ForwardService.class);
     }
 
     @Test
     public void onHandleIntentWithMessageShouldStoreWithDbSizeLimitAndStartForwardService() throws URISyntaxException {
-        Context context = Robolectric.application.getApplicationContext();
+        Context context = RuntimeEnvironment.application.getApplicationContext();
         Message message = RepositoryTest.getMessageWithHeaders();
         Intent intent = new Intent();
         intent.putExtra("com.b2msolutions.reyna.MESSAGE", message);
@@ -134,7 +131,7 @@ public class StoreServiceTest {
         long limit = argumentLimit.getValue();
         assertEquals(2100042, limit);
 
-        assertServiceStartedOrgRobolectric(ForwardService.class);
+        assertServiceStarted(ForwardService.class);
     }
 
     @Test
@@ -145,8 +142,8 @@ public class StoreServiceTest {
 
     @Test
     public void setCellularDataBlackoutShouldSave() {
-        TimeRange range = new TimeRange(new Time(3, 00), new Time(19, 00));
-        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        TimeRange range = new TimeRange(new Time(3, 0), new Time(19, 0));
+        Context context = RuntimeEnvironment.application.getApplicationContext();
         StoreService.setCellularDataBlackout(context, range);
         Preferences preferences = new Preferences(context);
         TimeRange saved = preferences.getCellularDataBlackout();
@@ -156,8 +153,8 @@ public class StoreServiceTest {
 
     @Test
     public void resetCellularDataBlackoutShouldRemoveKeys() {
-        TimeRange range = new TimeRange(new Time(3, 00), new Time(19, 00));
-        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        TimeRange range = new TimeRange(new Time(3, 0), new Time(19, 0));
+        Context context = RuntimeEnvironment.application.getApplicationContext();
         StoreService.setCellularDataBlackout(context, range);
         Preferences preferences = new Preferences(context);
         TimeRange saved = preferences.getCellularDataBlackout();
@@ -171,7 +168,7 @@ public class StoreServiceTest {
     @Test
     public void setWlanBlackoutShouldSave() {
         String ranges = "06:00-07:00,08:30-10:00,12:19-13:50";
-        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        Context context = RuntimeEnvironment.application.getApplicationContext();
         StoreService.setWlanBlackout(context, ranges);
         Preferences preferences = new Preferences(context);
         String saved = preferences.getWlanBlackout();
@@ -181,7 +178,7 @@ public class StoreServiceTest {
     @Test
     public void setWwanBlackoutShouldSave() {
         String ranges = "06:00-07:00,08:30-10:00,12:19-13:50";
-        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        Context context = RuntimeEnvironment.application.getApplicationContext();
         StoreService.setWwanBlackout(context, ranges);
         Preferences preferences = new Preferences(context);
         String saved = preferences.getWwanBlackout();
@@ -190,7 +187,7 @@ public class StoreServiceTest {
 
     @Test
     public void setWwanRoamingBlackoutShouldSave() {
-        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        Context context = RuntimeEnvironment.application.getApplicationContext();
         StoreService.setWwanRoamingBlackout(context, false);
         Preferences preferences = new Preferences(context);
         assertTrue(preferences.canSendOnRoaming());
@@ -198,7 +195,7 @@ public class StoreServiceTest {
 
     @Test
     public void setOnChargeBlackoutShouldSave() {
-        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        Context context = RuntimeEnvironment.application.getApplicationContext();
         StoreService.setOnChargeBlackout(context, false);
         Preferences preferences = new Preferences(context);
         assertTrue(preferences.canSendOnCharge());
@@ -206,7 +203,7 @@ public class StoreServiceTest {
 
     @Test
     public void setOffChargeBlackoutShouldSave() {
-        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        Context context = RuntimeEnvironment.application.getApplicationContext();
         StoreService.setOffChargeBlackout(context, false);
         Preferences preferences = new Preferences(context);
         assertTrue(preferences.canSendOffCharge());
@@ -214,14 +211,14 @@ public class StoreServiceTest {
 
     @Test
     public void setStorageLimitShouldSaveTheLimit() {
-        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        Context context = RuntimeEnvironment.application.getApplicationContext();
         StoreService.setStorageSizeLimit(context, 2100042);
         assertEquals(2100042, StoreService.getStorageSizeLimit(context));
     }
 
     @Test
     public void setStorageLimitShouldSetLimitToMinValueIfItLessThan0() {
-        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        Context context = RuntimeEnvironment.application.getApplicationContext();
         StoreService.setStorageSizeLimit(context, 2100042);
         StoreService.setStorageSizeLimit(context, -100);
         assertEquals(1867776, StoreService.getStorageSizeLimit(context));
@@ -229,7 +226,7 @@ public class StoreServiceTest {
 
     @Test
     public void setStorageLimitShouldSetLimitToMinValueIfItLessEqual0() {
-        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        Context context = RuntimeEnvironment.application.getApplicationContext();
         StoreService.setStorageSizeLimit(context, 2100042);
         StoreService.setStorageSizeLimit(context, 0);
         assertEquals(1867776, StoreService.getStorageSizeLimit(context));
@@ -237,21 +234,21 @@ public class StoreServiceTest {
 
     @Test
     public void setStorageLimitShouldSetSizeToMinValueIfPassedValueIsLessThanMinValue() {
-        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        Context context = RuntimeEnvironment.application.getApplicationContext();
         StoreService.setStorageSizeLimit(context, 42);
         assertEquals(1867776, StoreService.getStorageSizeLimit(context));
     }
 
     @Test
     public void resetStorageLimitShouldSetItToDefault() {
-        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        Context context = RuntimeEnvironment.application.getApplicationContext();
         StoreService.resetStorageSizeLimit(context);
         assertEquals(-1, StoreService.getStorageSizeLimit(context));
     }
 
     @Test
     public void setBatchUploadToTrueShouldSave() {
-        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        Context context = RuntimeEnvironment.application.getApplicationContext();
         StoreService.setBatchUploadConfiguration(context, true, URI.create("http://msn.com"), 1000);
         Preferences preferences = new Preferences(context);
         assertTrue(preferences.getBatchUpload());
@@ -261,7 +258,7 @@ public class StoreServiceTest {
 
     @Test
     public void setBatchUploadToFalseShouldSave() {
-        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        Context context = RuntimeEnvironment.application.getApplicationContext();
         StoreService.setBatchUploadConfiguration(context, false, URI.create("http://google.com"), 100);
         Preferences preferences = new Preferences(context);
         assertFalse(preferences.getBatchUpload());
@@ -271,16 +268,16 @@ public class StoreServiceTest {
 
     @Test
     public void whenCallingStartShouldAcquirePowerLock() {
-        StoreService.start(Robolectric.application.getApplicationContext(), null);
+        StoreService.start(RuntimeEnvironment.application.getApplicationContext(), null);
 
-        Intent intent = assertServiceStartedOrgRobolectric(StoreService.class);
+        Intent intent = assertServiceStarted(StoreService.class);
         int lockId = intent.getIntExtra("android.support.content.wakelockid", -1);
         assertTrue(lockId != -1);
     }
 
     @Test
     public void whenCallingSaveNonRecurringWwanBlackoutStartTimeShouldRecordStartTimeOfBlackout() {
-        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        Context context = RuntimeEnvironment.application.getApplicationContext();
         Preferences preferences = new Preferences(context);
 
         StoreService.setNonRecurringWwanBlackoutStartTime(context, 42L);
@@ -290,7 +287,7 @@ public class StoreServiceTest {
 
     @Test
     public void whenCallingSaveNonRecurringWwanBlackoutEndTimeShouldRecordEndTimeOfBlackout() {
-        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        Context context = RuntimeEnvironment.application.getApplicationContext();
         Preferences preferences = new Preferences(context);
 
         StoreService.setNonRecurringWwanBlackoutEndTime(context, 42L);
@@ -300,7 +297,7 @@ public class StoreServiceTest {
 
     @Test
     public void whenCallingResetNonRecurringWwanBlackoutShouldRemoveStartAndEndValuesFromPrefsAndGetValuesAsStringShouldReturnNull() {
-        Context context = Robolectric.getShadowApplication().getApplicationContext();
+        Context context = RuntimeEnvironment.application.getApplicationContext();
         Preferences preferences = new Preferences(context);
 
         StoreService.resetNonRecurringWwanBlackout(context);

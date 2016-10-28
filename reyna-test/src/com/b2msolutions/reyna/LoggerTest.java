@@ -2,21 +2,30 @@ package com.b2msolutions.reyna;
 
 import android.util.Log;
 import com.b2msolutions.reyna.system.Logger;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
-import com.xtremelabs.robolectric.internal.Implements;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
+import org.robolectric.annotation.Implements;
 
 import static org.junit.Assert.assertEquals;
 
+@Config(shadows = {LoggerTest.ShadowLog.class})
 @RunWith(RobolectricTestRunner.class)
 public class LoggerTest {
 
+    @BeforeClass
+    public static void setupOnce() {
+        assertEquals(Log.INFO, Logger.getLevel());
+    }
+
     @Before
     public void setup() {
-        Robolectric.bindShadowClass(ShadowLog.class);
+        org.robolectric.shadows.ShadowLog.reset();
+        Logger.setLevel(Log.INFO);
+        org.robolectric.shadows.ShadowLog.reset();
     }
 
     @Test
@@ -27,7 +36,7 @@ public class LoggerTest {
 
     @Test
     public void LogDebugShouldNotLogAndReturn0() {
-        int actual = Logger.v("TAG", "MSG");
+        int actual = Logger.d("TAG", "MSG");
         assertEquals(0, actual);
     }
 
