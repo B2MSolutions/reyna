@@ -784,6 +784,6 @@ public class DispatcherTest {
 
         assertEquals(Result.OK, new Dispatcher(time).sendMessage(message, httpPost, httpClient, this.context));
 
-        verify(httpPost).setHeader(message.getHeaders()[2].getKey(), "42");
+        verify(httpPost).addHeader("submitted", "42");
     }
 }
