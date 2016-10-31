@@ -31,10 +31,10 @@ public class Dispatcher {
 
     private static final String TAG = "com.b2msolutions.reyna.Dispatcher";
 
-    private Time time;
+    protected Time time;
 
-    public Dispatcher(Time time) {
-        this.time = time;
+    public Dispatcher() {
+        this.time = new Time();
     }
 
     public enum Result {

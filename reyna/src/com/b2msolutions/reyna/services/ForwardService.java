@@ -35,7 +35,7 @@ public class ForwardService extends WakefulService {
 
         Logger.v(TAG, "ForwardService()");
 
-        this.dispatcher = new Dispatcher(new Time());
+        this.dispatcher = new Dispatcher();
         this.thread = new Thread();
         this.periodicBackoutCheck = new PeriodicBackoutCheck(this);
         this.repository = new Repository(this);

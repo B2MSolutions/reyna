@@ -86,7 +86,7 @@ public class DispatcherTest {
 
         Time time = mock(Time.class);
 
-        assertEquals(Result.OK, new Dispatcher(time).sendMessage(message, httpPost, httpClient, this.context));
+        assertEquals(Result.OK, new Dispatcher().sendMessage(message, httpPost, httpClient, this.context));
 
         this.verifyHttpPost(message, httpPost);
 
@@ -111,8 +111,10 @@ public class DispatcherTest {
         when(httpClient.execute(httpPost)).thenReturn(httpResponse);
 
         Time time = mock(Time.class);
+        Dispatcher dispatcher = new Dispatcher();
+        dispatcher.time = time;
 
-        assertEquals(Result.OK, new Dispatcher(time).sendMessage(message, httpPost, httpClient, this.context));
+        assertEquals(Result.OK, dispatcher.sendMessage(message, httpPost, httpClient, this.context));
 
         this.verifyHttpPost(message, httpPost);
 
@@ -137,8 +139,10 @@ public class DispatcherTest {
         when(httpClient.execute(httpPost)).thenReturn(httpResponse);
 
         Time time = mock(Time.class);
+        Dispatcher dispatcher = new Dispatcher();
+        dispatcher.time = time;
 
-        assertEquals(Result.OK, new Dispatcher(time).sendMessage(message, httpPost, httpClient, this.context));
+        assertEquals(Result.OK, dispatcher.sendMessage(message, httpPost, httpClient, this.context));
 
         ArgumentCaptor<StringEntity> stringEntityCaptor = ArgumentCaptor.forClass(StringEntity.class);
         verify(httpPost).setEntity(stringEntityCaptor.capture());
@@ -157,8 +161,10 @@ public class DispatcherTest {
         new Preferences(this.context).saveCellularDataBlackout(range);
 
         Time time = mock(Time.class);
+        Dispatcher dispatcher = new Dispatcher();
+        dispatcher.time = time;
 
-        assertEquals(Result.BLACKOUT, new Dispatcher(time).sendMessage(null, null, null, this.context));
+        assertEquals(Result.BLACKOUT, dispatcher.sendMessage(null, null, null, this.context));
     }
 
     @Test
@@ -166,8 +172,10 @@ public class DispatcherTest {
         when(this.networkInfo.isConnectedOrConnecting()).thenReturn(false);
 
         Time time = mock(Time.class);
+        Dispatcher dispatcher = new Dispatcher();
+        dispatcher.time = time;
 
-        assertEquals(Result.NOTCONNECTED, new Dispatcher(time).sendMessage(null, null, null, this.context));
+        assertEquals(Result.NOTCONNECTED, dispatcher.sendMessage(null, null, null, this.context));
     }
 
     @Test
@@ -179,8 +187,10 @@ public class DispatcherTest {
         when(httpClient.execute(httpPost)).thenThrow(new RuntimeException(""));
 
         Time time = mock(Time.class);
+        Dispatcher dispatcher = new Dispatcher();
+        dispatcher.time = time;
 
-        assertEquals(Result.TEMPORARY_ERROR, new Dispatcher(time).sendMessage(message, httpPost, httpClient, this.context));
+        assertEquals(Result.TEMPORARY_ERROR, dispatcher.sendMessage(message, httpPost, httpClient, this.context));
 
         this.verifyHttpPost(message, httpPost);
     }
@@ -210,8 +220,10 @@ public class DispatcherTest {
         when(httpClient.execute(httpPost)).thenReturn(httpResponse);
 
         Time time = mock(Time.class);
+        Dispatcher dispatcher = new Dispatcher();
+        dispatcher.time = time;
 
-        assertEquals(Result.OK, new Dispatcher(time).sendMessage(message, httpPost, httpClient, this.context));
+        assertEquals(Result.OK, dispatcher.sendMessage(message, httpPost, httpClient, this.context));
 
         this.verifyHttpPost(message, httpPost);
 
@@ -237,8 +249,10 @@ public class DispatcherTest {
         when(httpClient.execute(httpPost)).thenReturn(httpResponse);
 
         Time time = mock(Time.class);
+        Dispatcher dispatcher = new Dispatcher();
+        dispatcher.time = time;
 
-        Result actual = new Dispatcher(time).sendMessage(message, httpPost, httpClient, this.context);
+        Result actual = dispatcher.sendMessage(message, httpPost, httpClient, this.context);
 
         assertEquals(Result.OK, actual);
 
@@ -781,8 +795,10 @@ public class DispatcherTest {
 
         Time time = mock(Time.class);
         when(time.getCurrentTimeMillis()).thenReturn(42L);
+        Dispatcher dispatcher = new Dispatcher();
+        dispatcher.time = time;
 
-        assertEquals(Result.OK, new Dispatcher(time).sendMessage(message, httpPost, httpClient, this.context));
+        assertEquals(Result.OK, dispatcher.sendMessage(message, httpPost, httpClient, this.context));
 
         verify(httpPost).addHeader("submitted", "42");
     }
