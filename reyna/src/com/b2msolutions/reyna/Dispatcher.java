@@ -7,14 +7,10 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.http.AndroidHttpClient;
 import android.text.TextUtils;
-import com.b2msolutions.reyna.blackout.Time;
 import com.b2msolutions.reyna.blackout.TimeRange;
 import com.b2msolutions.reyna.http.HttpPost;
 import com.b2msolutions.reyna.blackout.BlackoutTime;
-import com.b2msolutions.reyna.system.Header;
-import com.b2msolutions.reyna.system.Logger;
-import com.b2msolutions.reyna.system.Message;
-import com.b2msolutions.reyna.system.Preferences;
+import com.b2msolutions.reyna.system.*;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.entity.AbstractHttpEntity;
@@ -31,10 +27,10 @@ public class Dispatcher {
 
     private static final String TAG = "com.b2msolutions.reyna.Dispatcher";
 
-    protected Time time;
+    protected Clock clock;
 
     public Dispatcher() {
-        this.time = new Time();
+        this.clock = new Clock();
     }
 
     public enum Result {
@@ -264,7 +260,7 @@ public class Dispatcher {
     }
 
     private String getSubmittedTimestamp() {
-        return String.valueOf(this.time.getCurrentTimeMillis());
+        return String.valueOf(this.clock.getCurrentTimeMillis());
     }
 
     private static AbstractHttpEntity getEntity(Message message, Context context) throws Exception {

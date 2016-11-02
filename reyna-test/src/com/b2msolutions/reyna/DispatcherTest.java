@@ -11,6 +11,7 @@ import com.b2msolutions.reyna.blackout.Time;
 import com.b2msolutions.reyna.blackout.TimeRange;
 import com.b2msolutions.reyna.http.HttpPost;
 import com.b2msolutions.reyna.shadows.ShadowAndroidHttpClient;
+import com.b2msolutions.reyna.system.Clock;
 import com.b2msolutions.reyna.system.Message;
 import com.b2msolutions.reyna.system.Preferences;
 import org.apache.http.HttpResponse;
@@ -110,9 +111,9 @@ public class DispatcherTest {
         HttpClient httpClient = mock(HttpClient.class);
         when(httpClient.execute(httpPost)).thenReturn(httpResponse);
 
-        Time time = mock(Time.class);
+        Clock clock = mock(Clock.class);
         Dispatcher dispatcher = new Dispatcher();
-        dispatcher.time = time;
+        dispatcher.clock = clock;
 
         assertEquals(Result.OK, dispatcher.sendMessage(message, httpPost, httpClient, this.context));
 
@@ -138,9 +139,9 @@ public class DispatcherTest {
         HttpClient httpClient = mock(HttpClient.class);
         when(httpClient.execute(httpPost)).thenReturn(httpResponse);
 
-        Time time = mock(Time.class);
+        Clock clock = mock(Clock.class);
         Dispatcher dispatcher = new Dispatcher();
-        dispatcher.time = time;
+        dispatcher.clock = clock;
 
         assertEquals(Result.OK, dispatcher.sendMessage(message, httpPost, httpClient, this.context));
 
@@ -160,9 +161,9 @@ public class DispatcherTest {
         TimeRange range = new TimeRange(new Time(hourOfDay - 1, 0), new Time(hourOfDay + 1, 0));
         new Preferences(this.context).saveCellularDataBlackout(range);
 
-        Time time = mock(Time.class);
+        Clock clock = mock(Clock.class);
         Dispatcher dispatcher = new Dispatcher();
-        dispatcher.time = time;
+        dispatcher.clock = clock;
 
         assertEquals(Result.BLACKOUT, dispatcher.sendMessage(null, null, null, this.context));
     }
@@ -171,9 +172,9 @@ public class DispatcherTest {
     public void sendMessageShouldReturnNotConnectedWhenNotConnected() {
         when(this.networkInfo.isConnectedOrConnecting()).thenReturn(false);
 
-        Time time = mock(Time.class);
+        Clock clock = mock(Clock.class);
         Dispatcher dispatcher = new Dispatcher();
-        dispatcher.time = time;
+        dispatcher.clock = clock;
 
         assertEquals(Result.NOTCONNECTED, dispatcher.sendMessage(null, null, null, this.context));
     }
@@ -186,9 +187,9 @@ public class DispatcherTest {
         HttpClient httpClient = mock(HttpClient.class);
         when(httpClient.execute(httpPost)).thenThrow(new RuntimeException(""));
 
-        Time time = mock(Time.class);
+        Clock clock = mock(Clock.class);
         Dispatcher dispatcher = new Dispatcher();
-        dispatcher.time = time;
+        dispatcher.clock = clock;
 
         assertEquals(Result.TEMPORARY_ERROR, dispatcher.sendMessage(message, httpPost, httpClient, this.context));
 
@@ -219,9 +220,9 @@ public class DispatcherTest {
         when(httpClient.execute(httpPost)).thenReturn(httpResponse);
         when(httpClient.execute(httpPost)).thenReturn(httpResponse);
 
-        Time time = mock(Time.class);
+        Clock clock = mock(Clock.class);
         Dispatcher dispatcher = new Dispatcher();
-        dispatcher.time = time;
+        dispatcher.clock = clock;
 
         assertEquals(Result.OK, dispatcher.sendMessage(message, httpPost, httpClient, this.context));
 
@@ -248,9 +249,9 @@ public class DispatcherTest {
         HttpClient httpClient = mock(HttpClient.class);
         when(httpClient.execute(httpPost)).thenReturn(httpResponse);
 
-        Time time = mock(Time.class);
+        Clock clock = mock(Clock.class);
         Dispatcher dispatcher = new Dispatcher();
-        dispatcher.time = time;
+        dispatcher.clock = clock;
 
         Result actual = dispatcher.sendMessage(message, httpPost, httpClient, this.context);
 
@@ -793,10 +794,10 @@ public class DispatcherTest {
         HttpClient httpClient = mock(HttpClient.class);
         when(httpClient.execute(httpPost)).thenReturn(httpResponse);
 
-        Time time = mock(Time.class);
-        when(time.getCurrentTimeMillis()).thenReturn(42L);
+        Clock clock = mock(Clock.class);
         Dispatcher dispatcher = new Dispatcher();
-        dispatcher.time = time;
+        when(clock.getCurrentTimeMillis()).thenReturn(42L);
+        dispatcher.clock = clock;
 
         assertEquals(Result.OK, dispatcher.sendMessage(message, httpPost, httpClient, this.context));
 

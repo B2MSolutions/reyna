@@ -39,8 +39,4 @@ public class Time {
     public boolean isAfterOrEqualTo(Time other) {
         return this.minuteOfDay >= other.minuteOfDay;
     }
-
-    public long getCurrentTimeMillis() {
-        return System.currentTimeMillis();
-    }
 }
