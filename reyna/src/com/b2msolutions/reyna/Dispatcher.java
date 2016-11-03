@@ -10,10 +10,7 @@ import android.text.TextUtils;
 import com.b2msolutions.reyna.blackout.TimeRange;
 import com.b2msolutions.reyna.http.HttpPost;
 import com.b2msolutions.reyna.blackout.BlackoutTime;
-import com.b2msolutions.reyna.system.Header;
-import com.b2msolutions.reyna.system.Logger;
-import com.b2msolutions.reyna.system.Message;
-import com.b2msolutions.reyna.system.Preferences;
+import com.b2msolutions.reyna.system.*;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.entity.AbstractHttpEntity;
@@ -29,6 +26,12 @@ import java.util.Locale;
 public class Dispatcher {
 
     private static final String TAG = "com.b2msolutions.reyna.Dispatcher";
+
+    protected Clock clock;
+
+    public Dispatcher() {
+        this.clock = new Clock();
+    }
 
     public enum Result {
         OK, PERMANENT_ERROR, TEMPORARY_ERROR, BLACKOUT, NOTCONNECTED
@@ -179,7 +182,7 @@ public class Dispatcher {
             AbstractHttpEntity entity = Dispatcher.getEntity(message, context);
             httpPost.setEntity(entity);
 
-            Dispatcher.setHeaders(httpPost, message.getHeaders());
+            this.setHeaders(httpPost, message.getHeaders());
 
             return Result.OK;
         } catch (Exception e) {
@@ -246,12 +249,18 @@ public class Dispatcher {
         return AndroidHttpClient.getCompressedEntity(data, context.getContentResolver());
     }
 
-    private static void setHeaders(HttpPost httpPost, Header[] headers) {
+    private void setHeaders(HttpPost httpPost, Header[] headers) {
         Header[] filteredHeaders = Dispatcher.removeGzipEncodingHeader(headers);
 
         for (Header header : filteredHeaders) {
             httpPost.setHeader(header.getKey(), header.getValue());
         }
+
+        httpPost.addHeader("submitted", getSubmittedTimestamp());
+    }
+
+    private String getSubmittedTimestamp() {
+        return String.valueOf(this.clock.getCurrentTimeMillis());
     }
 
     private static AbstractHttpEntity getEntity(Message message, Context context) throws Exception {
