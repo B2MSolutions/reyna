@@ -13,10 +13,6 @@ import com.b2msolutions.reyna.http.HttpPost;
 import com.b2msolutions.reyna.shadows.ShadowAndroidHttpClient;
 import com.b2msolutions.reyna.system.Message;
 import com.b2msolutions.reyna.system.Preferences;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
-import com.xtremelabs.robolectric.shadows.ShadowApplication;
-import com.xtremelabs.robolectric.shadows.ShadowConnectivityManager;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
@@ -30,6 +26,10 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowConnectivityManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -49,12 +49,13 @@ import java.util.zip.GZIPOutputStream;
 import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
+import static org.robolectric.Shadows.shadowOf;
 
+@Config(shadows = {ShadowAndroidHttpClient.class})
 @RunWith(RobolectricTestRunner.class)
 public class DispatcherTest {
 
     private Context context;
-    private ShadowApplication shadowApplication;
     private Intent batteryStatus;
     @Mock NetworkInfo networkInfo;
     @Mock Date now;
@@ -62,11 +63,9 @@ public class DispatcherTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        shadowApplication = Robolectric.getShadowApplication();
-        context = shadowApplication.getApplicationContext();
-        Robolectric.bindShadowClass(ShadowAndroidHttpClient.class);
+        context = RuntimeEnvironment.application.getApplicationContext();
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        ShadowConnectivityManager shadowConnectivityManager = Robolectric.shadowOf_(connectivityManager);
+        ShadowConnectivityManager shadowConnectivityManager = shadowOf(connectivityManager);
         shadowConnectivityManager.setActiveNetworkInfo(networkInfo);
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
         when(networkInfo.isConnectedOrConnecting()).thenReturn(true);
@@ -240,7 +239,7 @@ public class DispatcherTest {
     @Test
     public void canSendShouldReturnNOTCONNECTEDIfNoActiveNetwork() {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        ShadowConnectivityManager shadowConnectivityManager = Robolectric.shadowOf_(connectivityManager);
+        ShadowConnectivityManager shadowConnectivityManager = shadowOf(connectivityManager);
         shadowConnectivityManager.setActiveNetworkInfo(null);
         assertEquals(Result.NOTCONNECTED, Dispatcher.canSend(this.context));
     }
@@ -286,7 +285,7 @@ public class DispatcherTest {
     @Test
     public void canSendShouldReturnNoConnectionIfActiveConnectionIsNotConnectedOrConnecting() {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        ShadowConnectivityManager shadowConnectivityManager = Robolectric.shadowOf_(connectivityManager);
+        ShadowConnectivityManager shadowConnectivityManager = shadowOf(connectivityManager);
         when(this.networkInfo.isConnectedOrConnecting()).thenReturn(false);
         shadowConnectivityManager.setActiveNetworkInfo(this.networkInfo);
 
@@ -365,7 +364,7 @@ public class DispatcherTest {
         initBatteryChanged();
         batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, android.os.BatteryManager.BATTERY_PLUGGED_AC);
 
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        Preferences preferences = new Preferences(RuntimeEnvironment.application.getApplicationContext());
         preferences.saveWlanBlackout("02:00-02:01");
         preferences.saveOnChargeBlackout(true);
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
@@ -383,7 +382,7 @@ public class DispatcherTest {
         initBatteryChanged();
         batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, android.os.BatteryManager.BATTERY_PLUGGED_AC);
 
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        Preferences preferences = new Preferences(RuntimeEnvironment.application.getApplicationContext());
         preferences.saveWlanBlackout("00:00-23:59");
         preferences.saveOnChargeBlackout(true);
         assertEquals(Result.BLACKOUT, Dispatcher.canSend(this.context));
@@ -400,7 +399,7 @@ public class DispatcherTest {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
         initBatteryChanged();
 
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        Preferences preferences = new Preferences(RuntimeEnvironment.application.getApplicationContext());
         preferences.saveWlanBlackout("02:00-02:01");
         preferences.saveOffChargeBlackout(true);
 
@@ -418,7 +417,7 @@ public class DispatcherTest {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
         initBatteryChanged();
 
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        Preferences preferences = new Preferences(RuntimeEnvironment.application.getApplicationContext());
         preferences.saveWlanBlackout("00:00-23:59");
         preferences.saveOffChargeBlackout(true);
 
@@ -433,7 +432,7 @@ public class DispatcherTest {
         initBatteryChanged();
         batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, android.os.BatteryManager.BATTERY_PLUGGED_AC);
 
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        Preferences preferences = new Preferences(RuntimeEnvironment.application.getApplicationContext());
         preferences.saveWwanBlackout("02:00-02:01");
         preferences.saveOnChargeBlackout(true);
 
@@ -465,7 +464,7 @@ public class DispatcherTest {
         initBatteryChanged();
         batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, android.os.BatteryManager.BATTERY_PLUGGED_AC);
 
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        Preferences preferences = new Preferences(RuntimeEnvironment.application.getApplicationContext());
         preferences.saveWwanBlackout("00:00-23:59");
         preferences.saveOnChargeBlackout(true);
 
@@ -483,7 +482,7 @@ public class DispatcherTest {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         initBatteryChanged();
 
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        Preferences preferences = new Preferences(RuntimeEnvironment.application.getApplicationContext());
         preferences.saveWwanBlackout("02:00-02:01");
         preferences.saveOffChargeBlackout(true);
 
@@ -501,7 +500,7 @@ public class DispatcherTest {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
         initBatteryChanged();
 
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        Preferences preferences = new Preferences(RuntimeEnvironment.application.getApplicationContext());
         preferences.saveWwanBlackout("00:00-23:59");
         preferences.saveOffChargeBlackout(true);
 
@@ -522,7 +521,7 @@ public class DispatcherTest {
         initBatteryChanged();
         batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, android.os.BatteryManager.BATTERY_PLUGGED_AC);
 
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        Preferences preferences = new Preferences(RuntimeEnvironment.application.getApplicationContext());
         preferences.saveOnChargeBlackout(true);
         preferences.saveWwanRoamingBlackout(false);
 
@@ -543,7 +542,7 @@ public class DispatcherTest {
         initBatteryChanged();
         batteryStatus.putExtra(android.os.BatteryManager.EXTRA_PLUGGED, android.os.BatteryManager.BATTERY_PLUGGED_AC);
 
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        Preferences preferences = new Preferences(RuntimeEnvironment.application.getApplicationContext());
         preferences.saveOnChargeBlackout(true);
         preferences.saveWwanRoamingBlackout(true);
 
@@ -563,7 +562,7 @@ public class DispatcherTest {
         when(this.networkInfo.isRoaming()).thenReturn(true);
         initBatteryChanged();
 
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        Preferences preferences = new Preferences(RuntimeEnvironment.application.getApplicationContext());
         preferences.saveOffChargeBlackout(true);
         preferences.saveWwanRoamingBlackout(true);
 
@@ -583,7 +582,7 @@ public class DispatcherTest {
         when(this.networkInfo.isRoaming()).thenReturn(true);
         initBatteryChanged();
 
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        Preferences preferences = new Preferences(RuntimeEnvironment.application.getApplicationContext());
         preferences.saveOffChargeBlackout(true);
         preferences.saveWwanRoamingBlackout(false);
 
@@ -603,7 +602,7 @@ public class DispatcherTest {
         when(this.networkInfo.isRoaming()).thenReturn(true);
         initBatteryChanged();
 
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        Preferences preferences = new Preferences(RuntimeEnvironment.application.getApplicationContext());
         preferences.saveOffChargeBlackout(true);
         preferences.saveWwanRoamingBlackout(false);
 
@@ -617,7 +616,7 @@ public class DispatcherTest {
     public void whenCallingIsChargingAndCouldNotGetBatteryStatusShouldReturnFalse() {
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_AIRPLANE_MODE_CHANGED);
-        shadowApplication.sendStickyBroadcast(intent);
+        RuntimeEnvironment.application.sendStickyBroadcast(intent);
         assertFalse(Dispatcher.isBatteryCharging(context));
     }
 
@@ -627,7 +626,7 @@ public class DispatcherTest {
         batteryStatus.putExtra(android.os.BatteryManager.EXTRA_LEVEL, 3);
         batteryStatus.putExtra(android.os.BatteryManager.EXTRA_SCALE, 7);
         batteryStatus.putExtra(android.os.BatteryManager.EXTRA_STATUS, 4);
-        shadowApplication.sendStickyBroadcast(batteryStatus);
+        RuntimeEnvironment.application.sendStickyBroadcast(batteryStatus);
     }
 
     @Test
@@ -668,7 +667,7 @@ public class DispatcherTest {
     @Test
     public void whenOldAndNewConfigurationPresentPreferNewConfiguration() {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        Preferences preferences = new Preferences(RuntimeEnvironment.application.getApplicationContext());
         Calendar now = new GregorianCalendar();
         Time oldTo = new Time(now.get(Calendar.HOUR_OF_DAY) + 1, now.get(Calendar.MINUTE));
         preferences.saveCellularDataBlackout(new TimeRange(new Time(0,0), oldTo));
@@ -682,7 +681,7 @@ public class DispatcherTest {
     @Test
     public void whenOldConfigurationPresentAndNewNotPresentDontUseNewConfDefaultValue() {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        Preferences preferences = new Preferences(RuntimeEnvironment.application.getApplicationContext());
         Calendar now = new GregorianCalendar();
         Time oldTo = new Time(now.get(Calendar.HOUR_OF_DAY) + 1, now.get(Calendar.MINUTE));
         preferences.saveCellularDataBlackout(new TimeRange(new Time(0,0), oldTo));
@@ -693,7 +692,7 @@ public class DispatcherTest {
     @Test
     public void whenOldConfigurationIsFromZeroAndToZeroAllowSending() {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        Preferences preferences = new Preferences(RuntimeEnvironment.application.getApplicationContext());
         preferences.saveCellularDataBlackout(new TimeRange(new Time(0, 0), new Time(0, 0)));
 
         assertEquals(Result.OK, Dispatcher.canSend(context));
@@ -702,7 +701,7 @@ public class DispatcherTest {
     @Test
     public void whenCallingCanSendAndCurrentTimeIsBetweenNonRecurringWwanBlackoutStartTimeAndEndTimeShouldBlackout() {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        Preferences preferences = new Preferences(RuntimeEnvironment.application.getApplicationContext());
         preferences.saveNonRecurringWwanBlackoutStartTime(42L);
         preferences.saveNonRecurringWwanBlackoutEndTime(84L);
 
@@ -715,7 +714,7 @@ public class DispatcherTest {
     @Test
     public void whenCallingCanSendAndCurrentTimeIsBeforeNonRecurringWwanBlackoutStartTimeAndEndTimeShouldBeOk() {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        Preferences preferences = new Preferences(RuntimeEnvironment.application.getApplicationContext());
         preferences.saveNonRecurringWwanBlackoutStartTime(70L);
         preferences.saveNonRecurringWwanBlackoutEndTime(84L);
 
@@ -728,7 +727,7 @@ public class DispatcherTest {
     @Test
     public void whenCallingCanSendAndCurrentTimeIsAfterNonRecurringWwanBlackoutStartTimeAndEndTimeShouldBeOk() {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        Preferences preferences = new Preferences(RuntimeEnvironment.application.getApplicationContext());
         preferences.saveNonRecurringWwanBlackoutStartTime(70L);
         preferences.saveNonRecurringWwanBlackoutEndTime(84L);
 
@@ -741,7 +740,7 @@ public class DispatcherTest {
     @Test
     public void whenCallingCanSendAndNonRecurringWwanBlackoutStartTimeOrEndTimeIsNotSetShouldBeOk() {
         when(this.networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
-        Preferences preferences = new Preferences(Robolectric.getShadowApplication().getApplicationContext());
+        Preferences preferences = new Preferences(RuntimeEnvironment.application.getApplicationContext());
         preferences.resetNonRecurringWwanBlackout();
 
         GregorianCalendar now = mock(GregorianCalendar.class);

@@ -3,13 +3,13 @@ package com.b2msolutions.reyna.messageProvider;
 import android.app.AlarmManager;
 import android.content.Context;
 import com.b2msolutions.reyna.system.Preferences;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 
 import java.net.URI;
 
@@ -29,7 +29,7 @@ public class BatchConfigurationTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        this.context = Robolectric.getShadowApplication().getApplicationContext();
+        this.context = RuntimeEnvironment.application.getApplicationContext();
 
         this.batchConfiguration = new BatchConfiguration(this.context);
         this.batchConfiguration.preferences = this.preferences;

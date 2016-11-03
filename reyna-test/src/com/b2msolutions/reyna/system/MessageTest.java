@@ -1,7 +1,5 @@
 package com.b2msolutions.reyna.system;
 
-import com.b2msolutions.reyna.system.Header;
-import com.b2msolutions.reyna.system.Message;
 import org.junit.Test;
 
 import java.net.URI;
