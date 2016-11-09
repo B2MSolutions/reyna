@@ -17,14 +17,19 @@ import com.b2msolutions.reyna.system.Preferences;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.entity.AbstractHttpEntity;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.protocol.HTTP;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+import java.util.zip.GZIPOutputStream;
 
 public class Dispatcher {
 
@@ -229,8 +234,7 @@ public class Dispatcher {
         ArrayList<Header> filteredHeaders = new ArrayList<Header>();
 
         for (Header header : headers) {
-            if (header.getKey().equalsIgnoreCase("content-encoding")
-                    && header.getValue().equalsIgnoreCase("gzip")) {
+            if (header.getKey().equalsIgnoreCase("content-encoding")) {
                 continue;
             }
 
@@ -241,9 +245,44 @@ public class Dispatcher {
         return filteredHeaders.toArray(returnedHeaders);
     }
 
-    private static AbstractHttpEntity getCompressedEntity(String content, Context context) throws Exception {
-        byte[] data = content.getBytes();
-        return AndroidHttpClient.getCompressedEntity(data, context.getContentResolver());
+    private static AbstractHttpEntity getEntity(Message message, Context context) throws Exception {
+        String content = message.getBody();
+
+        byte[] data = content.getBytes("UTF-8");
+        if (data.length <= (AndroidHttpClient.getMinGzipSize(context.getContentResolver()) * 2)){
+            return new StringEntity(content, HTTP.UTF_8);
+        }
+        else {
+            return getCompressedEntity(data, context);
+        }
+    }
+
+    private static AbstractHttpEntity getCompressedEntity(byte[] data, Context context) throws Exception {
+        ByteArrayOutputStream arr = new ByteArrayOutputStream();
+        OutputStream zipper = new GZIPOutputStream(arr);
+        zipper.write(data);
+        zipper.close();
+
+        byte[] compressedData = arr.toByteArray();
+        int end = compressedData.length > 500 ? 500 : compressedData.length;
+
+        Boolean equal = true;
+        for (int i = 0; i < end; i++){
+            if (compressedData[i] != data[i]){
+                equal = false;
+                break;
+            }
+        }
+        AbstractHttpEntity entity;
+        if (!equal){
+            entity = new ByteArrayEntity(compressedData);
+            entity.setContentEncoding("gzip");
+        }
+        else {
+            entity = new ByteArrayEntity(data);
+            entity.setContentEncoding("");
+        }
+        return entity;
     }
 
     private static void setHeaders(HttpPost httpPost, Header[] headers) {
@@ -254,16 +293,7 @@ public class Dispatcher {
         }
     }
 
-    private static AbstractHttpEntity getEntity(Message message, Context context) throws Exception {
-        String content = message.getBody();
-        AbstractHttpEntity entity = new StringEntity(content, HTTP.UTF_8);
 
-        if (Dispatcher.shouldGzip(message.getHeaders())) {
-            entity = getCompressedEntity(content, context);
-        }
-
-        return entity;
-    }
 
     public static boolean isBatteryCharging(Context context) {
         Intent batteryStatus = context.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));

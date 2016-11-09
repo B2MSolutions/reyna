@@ -11,6 +11,7 @@ import com.b2msolutions.reyna.blackout.Time;
 import com.b2msolutions.reyna.blackout.TimeRange;
 import com.b2msolutions.reyna.http.HttpPost;
 import com.b2msolutions.reyna.shadows.ShadowAndroidHttpClient;
+import com.b2msolutions.reyna.system.Header;
 import com.b2msolutions.reyna.system.Message;
 import com.b2msolutions.reyna.system.Preferences;
 import com.xtremelabs.robolectric.Robolectric;
@@ -28,6 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -98,7 +100,7 @@ public class DispatcherTest {
 
     @Test
     public void sendMessageHappyPathWithChineseCharactersShouldSetExecuteCorrectHttpPostAndReturnOK() throws URISyntaxException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
-        Message message = RepositoryTest.getMessageWithHeaders("谷歌拼音输入法");
+        Message message = RepositoryTest.getMessageWithHeaders("谷歌拼音输入");
 
         StatusLine statusLine = mock(StatusLine.class);
         when(statusLine.getStatusCode()).thenReturn(200);
@@ -117,7 +119,7 @@ public class DispatcherTest {
         verify(httpPost).setEntity(stringEntityCaptor.capture());
         StringEntity stringEntity = stringEntityCaptor.getValue();
         assertEquals(stringEntity.getContentType().getValue(), "text/plain; charset=UTF-8");
-        assertEquals(EntityUtils.toString(stringEntity), "谷歌拼音输入法");
+        assertEquals(EntityUtils.toString(stringEntity), "谷歌拼音输入");
     }
 
     @Test
@@ -186,6 +188,7 @@ public class DispatcherTest {
     @Test
     public void sendMessageWithGzipAndContentIsLessThanMinGzipLengthShouldRemoveGzipHeaderAndSendMessageAsString() throws Exception {
         Message message = RepositoryTest.getMessageWithGzipHeaders("body");
+        message.addHeader(new Header("Content-Encoding", " gzip "));
 
         StatusLine statusLine = mock(StatusLine.class);
         when(statusLine.getStatusCode()).thenReturn(200);
@@ -201,9 +204,9 @@ public class DispatcherTest {
 
         this.verifyHttpPost(message, httpPost);
 
-        ArgumentCaptor<ByteArrayEntity> byteArrayEntityCaptor = ArgumentCaptor.forClass(ByteArrayEntity.class);
-        verify(httpPost).setEntity(byteArrayEntityCaptor.capture());
-        ByteArrayEntity entity = byteArrayEntityCaptor.getValue();
+        ArgumentCaptor<StringEntity> stringEntityArgumentCaptor = ArgumentCaptor.forClass(StringEntity.class);
+        verify(httpPost).setEntity(stringEntityArgumentCaptor.capture());
+        AbstractHttpEntity entity = stringEntityArgumentCaptor.getValue();
         assertNull(entity.getContentEncoding());
         assertEquals(EntityUtils.toString(entity, "utf-8"), "body");
     }
