@@ -3,10 +3,6 @@ package com.b2msolutions.reyna.shadows;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.http.AndroidHttpClient;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.internal.Implementation;
-import com.xtremelabs.robolectric.internal.Implements;
-import com.xtremelabs.robolectric.internal.RealObject;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -20,26 +16,32 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
+import org.robolectric.annotation.Implementation;
+import org.robolectric.annotation.Implements;
+import org.robolectric.annotation.RealObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.GZIPOutputStream;
 
+import static org.robolectric.internal.Shadow.newInstanceOf;
+
 @Implements(AndroidHttpClient.class)
 public class ShadowAndroidHttpClient {
-    @RealObject private AndroidHttpClient client;
+    @RealObject
+    private AndroidHttpClient client;
 
     private HttpClient httpClient = new DefaultHttpClient();
 
     @Implementation
     public static AndroidHttpClient newInstance(String userAgent) {
-        return Robolectric.newInstanceOf(AndroidHttpClient.class);
+        return newInstanceOf(AndroidHttpClient.class);
     }
 
     @Implementation
     public static AndroidHttpClient newInstance(String userAgent, Context context) {
-        return Robolectric.newInstanceOf(AndroidHttpClient.class);
+        return newInstanceOf(AndroidHttpClient.class);
     }
 
     @Implementation

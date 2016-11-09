@@ -3,14 +3,15 @@ package com.b2msolutions.reyna.receivers;
 import android.content.Context;
 import android.content.Intent;
 import com.b2msolutions.reyna.services.ForwardService;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricTestRunner.class)
 public class ForwardServiceReceiverTest {
@@ -29,9 +30,9 @@ public class ForwardServiceReceiverTest {
 
     @Test
     public void receiveShouldStartForwardService() {
-        Context context = Robolectric.application.getApplicationContext();
+        Context context = RuntimeEnvironment.application.getApplicationContext();
         this.receiver.onReceive(context, null);
-        Intent service = Robolectric.getShadowApplication().getNextStartedService();
+        Intent service = shadowOf(RuntimeEnvironment.application).getNextStartedService();
         assertNotNull(service);
         assertEquals(ForwardService.class.getName(), service.getComponent().getClassName());
     }

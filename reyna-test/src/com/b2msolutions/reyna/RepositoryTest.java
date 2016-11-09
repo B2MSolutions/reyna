@@ -9,8 +9,8 @@ import com.b2msolutions.reyna.system.Message;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import java.net.URI;
@@ -19,7 +19,7 @@ import java.net.URISyntaxException;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-@Config(emulateSdk = 18)
+@Config(sdk = 18)
 @RunWith(RobolectricTestRunner.class)
 public class RepositoryTest {
 
@@ -27,7 +27,7 @@ public class RepositoryTest {
 
     @Before
     public void setup() {
-        Context context = Robolectric.application.getApplicationContext();
+        Context context = RuntimeEnvironment.application.getApplicationContext();
         this.repository = new Repository(context);
     }
 

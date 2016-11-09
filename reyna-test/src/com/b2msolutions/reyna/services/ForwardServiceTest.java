@@ -1,6 +1,5 @@
 package com.b2msolutions.reyna.services;
 
-import android.app.AlarmManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -14,7 +13,6 @@ import com.b2msolutions.reyna.system.Thread;
 import com.b2msolutions.reyna.messageProvider.BatchProvider;
 import com.b2msolutions.reyna.messageProvider.IMessageProvider;
 import com.b2msolutions.reyna.messageProvider.MessageProvider;
-import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,20 +21,21 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowConnectivityManager;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
-import static test.Assert.assertServiceStartedOrgRobolectric;
+import static org.robolectric.Shadows.shadowOf;
+import static test.Assert.assertServiceStarted;
 
-@Config(emulateSdk = 18)
+@Config(sdk = 18)
 @RunWith(RobolectricTestRunner.class)
 public class ForwardServiceTest {
 
@@ -61,7 +60,7 @@ public class ForwardServiceTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
 
-        this.context = Robolectric.application.getApplicationContext();
+        this.context = RuntimeEnvironment.application.getApplicationContext();
         this.forwardService = Robolectric.setupService(ForwardService.class);
         this.forwardService.dispatcher = dispatcher;
         this.forwardService.repository = repository;
@@ -69,7 +68,7 @@ public class ForwardServiceTest {
         this.forwardService.periodicBackoutCheck = this.periodicBackoutCheck;
 
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        ShadowConnectivityManager shadowConnectivityManager = Robolectric.shadowOf_(connectivityManager);
+        ShadowConnectivityManager shadowConnectivityManager = shadowOf(connectivityManager);
         shadowConnectivityManager.setActiveNetworkInfo(networkInfo);
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_WIFI);
         when(networkInfo.isConnectedOrConnecting()).thenReturn(true);
@@ -80,7 +79,7 @@ public class ForwardServiceTest {
     @Test
     public void sleepTimeoutShouldBeCorrect() {
       assertEquals(1000, ForwardService.SLEEP_MILLISECONDS);
-    };
+    }
 
     @Test
     public void temporaryErrorTimeoutShouldBeCorrect() {
@@ -99,7 +98,6 @@ public class ForwardServiceTest {
     @Test
     public void whenBatchModeEnabledMessageProviderShouldBeBatchProvider() {
         new Preferences(this.forwardService).saveBatchUpload(true);
-        this.forwardService = new ForwardService();
         IMessageProvider messageProvider = this.forwardService.getMessageProvider();
 
         assertNotNull(messageProvider);
@@ -109,7 +107,6 @@ public class ForwardServiceTest {
     @Test
     public void whenBatchModeDisabledMessageProviderShouldBeMessageProvider() {
         new Preferences(this.forwardService).saveBatchUpload(false);
-        this.forwardService = new ForwardService();
         IMessageProvider messageProvider = this.forwardService.getMessageProvider();
 
         assertNotNull(messageProvider);
@@ -311,12 +308,11 @@ public class ForwardServiceTest {
     public void whenCallingStartShouldStartService() {
         ForwardService.start(this.context);
 
-        assertServiceStartedOrgRobolectric(ForwardService.class);
+        assertServiceStarted(ForwardService.class);
     }
 
     @Test
     public void whenMessageProviderCannotSendShouldDoNothing() throws URISyntaxException, InterruptedException {
-        long interval = (long)(AlarmManager.INTERVAL_DAY * 0.9);
         PeriodicBackoutCheck periodicBackoutCheck1 = new PeriodicBackoutCheck(this.context);
         periodicBackoutCheck1.record("BatchProvider");
         new Preferences(this.context).saveBatchUpload(true);
@@ -342,8 +338,8 @@ public class ForwardServiceTest {
 
     @Test
     public void whenCallingStartShouldAcquirePowerLock() {
-        ForwardService.start(Robolectric.application.getApplicationContext());
-        Intent intent = assertServiceStartedOrgRobolectric(ForwardService.class);
+        ForwardService.start(RuntimeEnvironment.application.getApplicationContext());
+        Intent intent = assertServiceStarted(ForwardService.class);
         int lockId = intent.getIntExtra("android.support.content.wakelockid", -1);
         assertTrue(lockId != -1);
     }
