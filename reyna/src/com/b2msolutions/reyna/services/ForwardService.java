@@ -6,6 +6,7 @@ import android.support.v4.content.WakefulBroadcastReceiver;
 import com.b2msolutions.reyna.*;
 import com.b2msolutions.reyna.Dispatcher.Result;
 import com.b2msolutions.reyna.blackout.Time;
+import com.b2msolutions.reyna.http.OutputStreamFactory;
 import com.b2msolutions.reyna.system.*;
 import com.b2msolutions.reyna.messageProvider.BatchProvider;
 import com.b2msolutions.reyna.messageProvider.IMessageProvider;
@@ -35,7 +36,7 @@ public class ForwardService extends WakefulService {
 
         Logger.v(TAG, "ForwardService()");
 
-        this.dispatcher = new Dispatcher();
+        this.dispatcher = new Dispatcher(new OutputStreamFactory());
         this.thread = new Thread();
         this.periodicBackoutCheck = new PeriodicBackoutCheck(this);
         this.repository = new Repository(this);
