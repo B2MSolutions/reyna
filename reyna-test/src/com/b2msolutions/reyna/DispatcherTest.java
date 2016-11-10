@@ -4,12 +4,14 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.icu.util.Output;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import com.b2msolutions.reyna.Dispatcher.Result;
 import com.b2msolutions.reyna.blackout.Time;
 import com.b2msolutions.reyna.blackout.TimeRange;
 import com.b2msolutions.reyna.http.HttpPost;
+import com.b2msolutions.reyna.http.OutputStreamFactory;
 import com.b2msolutions.reyna.shadows.ShadowAndroidHttpClient;
 import com.b2msolutions.reyna.system.Header;
 import com.b2msolutions.reyna.system.Clock;
@@ -29,6 +31,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
@@ -49,7 +53,9 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.zip.GZIPOutputStream;
 
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.robolectric.Shadows.shadowOf;
@@ -62,6 +68,7 @@ public class DispatcherTest {
     private Intent batteryStatus;
     @Mock NetworkInfo networkInfo;
     @Mock Date now;
+    @Mock OutputStreamFactory outputStreamFactory;
 
     @Before
     public void setup() {
@@ -89,7 +96,7 @@ public class DispatcherTest {
 
         Time time = mock(Time.class);
 
-        assertEquals(Result.OK, new Dispatcher().sendMessage(message, httpPost, httpClient, this.context));
+        assertEquals(Result.OK, new Dispatcher(this.outputStreamFactory).sendMessage(message, httpPost, httpClient, this.context));
 
         this.verifyHttpPost(message, httpPost);
 
@@ -102,7 +109,7 @@ public class DispatcherTest {
 
     @Test
     public void sendMessageHappyPathWithChineseCharactersShouldSetExecuteCorrectHttpPostAndReturnOK() throws URISyntaxException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
-        Message message = RepositoryTest.getMessageWithHeaders("谷歌拼音输入");
+        Message message = RepositoryTest.getMessageWithHeaders("谷歌拼音输入法");
 
         StatusLine statusLine = mock(StatusLine.class);
         when(statusLine.getStatusCode()).thenReturn(200);
@@ -114,7 +121,7 @@ public class DispatcherTest {
         when(httpClient.execute(httpPost)).thenReturn(httpResponse);
 
         Clock clock = mock(Clock.class);
-        Dispatcher dispatcher = new Dispatcher();
+        Dispatcher dispatcher = new Dispatcher(this.outputStreamFactory);
         dispatcher.clock = clock;
 
         assertEquals(Result.OK, dispatcher.sendMessage(message, httpPost, httpClient, this.context));
@@ -125,7 +132,7 @@ public class DispatcherTest {
         verify(httpPost).setEntity(stringEntityCaptor.capture());
         StringEntity stringEntity = stringEntityCaptor.getValue();
         assertEquals(stringEntity.getContentType().getValue(), "text/plain; charset=UTF-8");
-        assertEquals(EntityUtils.toString(stringEntity), "谷歌拼音输入");
+        assertEquals(EntityUtils.toString(stringEntity), "谷歌拼音输入法");
     }
 
     @Test
@@ -142,7 +149,7 @@ public class DispatcherTest {
         when(httpClient.execute(httpPost)).thenReturn(httpResponse);
 
         Clock clock = mock(Clock.class);
-        Dispatcher dispatcher = new Dispatcher();
+        Dispatcher dispatcher = new Dispatcher(this.outputStreamFactory);
         dispatcher.clock = clock;
 
         assertEquals(Result.OK, dispatcher.sendMessage(message, httpPost, httpClient, this.context));
@@ -164,7 +171,7 @@ public class DispatcherTest {
         new Preferences(this.context).saveCellularDataBlackout(range);
 
         Clock clock = mock(Clock.class);
-        Dispatcher dispatcher = new Dispatcher();
+        Dispatcher dispatcher = new Dispatcher(this.outputStreamFactory);
         dispatcher.clock = clock;
 
         assertEquals(Result.BLACKOUT, dispatcher.sendMessage(null, null, null, this.context));
@@ -175,7 +182,7 @@ public class DispatcherTest {
         when(this.networkInfo.isConnectedOrConnecting()).thenReturn(false);
 
         Clock clock = mock(Clock.class);
-        Dispatcher dispatcher = new Dispatcher();
+        Dispatcher dispatcher = new Dispatcher(this.outputStreamFactory);
         dispatcher.clock = clock;
 
         assertEquals(Result.NOTCONNECTED, dispatcher.sendMessage(null, null, null, this.context));
@@ -190,7 +197,7 @@ public class DispatcherTest {
         when(httpClient.execute(httpPost)).thenThrow(new RuntimeException(""));
 
         Clock clock = mock(Clock.class);
-        Dispatcher dispatcher = new Dispatcher();
+        Dispatcher dispatcher = new Dispatcher(this.outputStreamFactory);
         dispatcher.clock = clock;
 
         assertEquals(Result.TEMPORARY_ERROR, dispatcher.sendMessage(message, httpPost, httpClient, this.context));
@@ -224,7 +231,7 @@ public class DispatcherTest {
         when(httpClient.execute(httpPost)).thenReturn(httpResponse);
 
         Clock clock = mock(Clock.class);
-        Dispatcher dispatcher = new Dispatcher();
+        Dispatcher dispatcher = new Dispatcher(this.outputStreamFactory);
         dispatcher.clock = clock;
 
         assertEquals(Result.OK, dispatcher.sendMessage(message, httpPost, httpClient, this.context));
@@ -239,9 +246,9 @@ public class DispatcherTest {
     }
 
     @Test
-    public void sendMessageWithGzipHeaderShouldCompressContentAndReturnOK() throws URISyntaxException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
-        Message message = RepositoryTest.getMessageWithGzipHeaders("this any message body more than 10 bytes length");
-        byte[] data = "this any message body more than 10 bytes length".getBytes("utf-8");
+    public void sendMessageWithGzipHeaderAndMoreThan20BytesAndStreamCompressDataShouldSetCorrectContentEncoding() throws URISyntaxException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+        Message message = RepositoryTest.getMessageWithGzipHeaders("this any message body more than 20 bytes length");
+        byte[] data = "this any message body more than 20 bytes length".getBytes("utf-8");
 
         StatusLine statusLine = mock(StatusLine.class);
         when(statusLine.getStatusCode()).thenReturn(200);
@@ -252,8 +259,15 @@ public class DispatcherTest {
         HttpClient httpClient = mock(HttpClient.class);
         when(httpClient.execute(httpPost)).thenReturn(httpResponse);
 
+        ArgumentCaptor<OutputStream> outputStreamCaptor = ArgumentCaptor.forClass(OutputStream.class);
+        doAnswer(new Answer(){
+            public Object answer(InvocationOnMock invocation) throws IOException {
+                OutputStream os = (OutputStream)invocation.getArguments()[0];
+                return new GZIPOutputStream(os);
+            }}).when(this.outputStreamFactory).createGzipOutputStream(any(OutputStream.class));
+
         Clock clock = mock(Clock.class);
-        Dispatcher dispatcher = new Dispatcher();
+        Dispatcher dispatcher = new Dispatcher(this.outputStreamFactory);
         dispatcher.clock = clock;
 
         Result actual = dispatcher.sendMessage(message, httpPost, httpClient, this.context);
@@ -269,6 +283,76 @@ public class DispatcherTest {
 
         byte[] expected = gzip(data);
         assertArrayEquals(EntityUtils.toByteArray(byteArrayEntity), expected);
+    }
+
+    @Test
+    public void sendMessageWithGzipHeaderAndMoreThan20BytesAndStreamDoNotCompressDataShouldSetCorrectContentEncoding() throws URISyntaxException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 100; i++){
+            sb.append("This should be a big message body. ");
+        }
+
+        Message message = RepositoryTest.getMessageWithGzipHeaders(sb.toString());
+        byte[] data = sb.toString().getBytes("UTF-8");
+
+        StatusLine statusLine = mock(StatusLine.class);
+        when(statusLine.getStatusCode()).thenReturn(200);
+        HttpResponse httpResponse = mock(HttpResponse.class);
+        when(httpResponse.getStatusLine()).thenReturn(statusLine);
+
+        HttpPost httpPost = mock(HttpPost.class);
+        HttpClient httpClient = mock(HttpClient.class);
+        when(httpClient.execute(httpPost)).thenReturn(httpResponse);
+
+        when(this.outputStreamFactory.createGzipOutputStream(any(OutputStream.class))).thenReturn(new ByteArrayOutputStream());
+
+        Clock clock = mock(Clock.class);
+        Dispatcher dispatcher = new Dispatcher(this.outputStreamFactory);
+        dispatcher.clock = clock;
+
+        Result actual = dispatcher.sendMessage(message, httpPost, httpClient, this.context);
+
+        assertEquals(Result.OK, actual);
+
+        this.verifyHttpPost(message, httpPost);
+
+        ArgumentCaptor<ByteArrayEntity> entityCaptor = ArgumentCaptor.forClass(ByteArrayEntity.class);
+        verify(httpPost).setEntity(entityCaptor.capture());
+        AbstractHttpEntity byteArrayEntity = entityCaptor.getValue();
+        assertEquals(byteArrayEntity.getContentEncoding().getValue(), "");
+
+        assertArrayEquals(EntityUtils.toByteArray(byteArrayEntity), data);
+    }
+
+    @Test
+    public void sendMessageWithoutGzipHeaderAndBigContentShouldNotCompressAndReturnOk() throws URISyntaxException, IOException, KeyManagementException, UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+        Message message = RepositoryTest.getMessageWithHeaders("this any message body more than 20 bytes length. Really. Should be really bigger then 20.");
+
+        StatusLine statusLine = mock(StatusLine.class);
+        when(statusLine.getStatusCode()).thenReturn(200);
+        HttpResponse httpResponse = mock(HttpResponse.class);
+        when(httpResponse.getStatusLine()).thenReturn(statusLine);
+
+        HttpPost httpPost = mock(HttpPost.class);
+        HttpClient httpClient = mock(HttpClient.class);
+        when(httpClient.execute(httpPost)).thenReturn(httpResponse);
+
+        Clock clock = mock(Clock.class);
+        Dispatcher dispatcher = new Dispatcher(this.outputStreamFactory);
+        dispatcher.clock = clock;
+
+        Result actual = dispatcher.sendMessage(message, httpPost, httpClient, this.context);
+
+        assertEquals(Result.OK, actual);
+
+        this.verifyHttpPost(message, httpPost);
+
+        ArgumentCaptor<ByteArrayEntity> entityCaptor = ArgumentCaptor.forClass(ByteArrayEntity.class);
+        verify(httpPost).setEntity(entityCaptor.capture());
+        AbstractHttpEntity entity = entityCaptor.getValue();
+        assertNull(entity.getContentEncoding());
+        String data = EntityUtils.toString(entity);
+        assertEquals(message.getBody(), data);
     }
 
     @Test
@@ -798,7 +882,7 @@ public class DispatcherTest {
         when(httpClient.execute(httpPost)).thenReturn(httpResponse);
 
         Clock clock = mock(Clock.class);
-        Dispatcher dispatcher = new Dispatcher();
+        Dispatcher dispatcher = new Dispatcher(this.outputStreamFactory);
         when(clock.getCurrentTimeMillis()).thenReturn(42L);
         dispatcher.clock = clock;
 

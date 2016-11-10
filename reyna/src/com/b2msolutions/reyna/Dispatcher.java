@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import com.b2msolutions.reyna.blackout.TimeRange;
 import com.b2msolutions.reyna.http.HttpPost;
 import com.b2msolutions.reyna.blackout.BlackoutTime;
+import com.b2msolutions.reyna.http.OutputStreamFactory;
 import com.b2msolutions.reyna.system.*;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -32,10 +33,13 @@ public class Dispatcher {
 
     private static final String TAG = "com.b2msolutions.reyna.Dispatcher";
 
+    private OutputStreamFactory outputStreamFactory;
+
     protected Clock clock;
 
-    public Dispatcher() {
+    public Dispatcher(OutputStreamFactory outputStreamFactory) {
         this.clock = new Clock();
+        this.outputStreamFactory = outputStreamFactory;
     }
 
     public enum Result {
@@ -184,7 +188,7 @@ public class Dispatcher {
             URI uri = message.getURI();
             httpPost.setURI(uri);
 
-            AbstractHttpEntity entity = Dispatcher.getEntity(message, context);
+            AbstractHttpEntity entity = this.getEntity(message, context);
             httpPost.setEntity(entity);
 
             this.setHeaders(httpPost, message.getHeaders());
@@ -248,11 +252,11 @@ public class Dispatcher {
         return filteredHeaders.toArray(returnedHeaders);
     }
 
-    private static AbstractHttpEntity getEntity(Message message, Context context) throws Exception {
+    private AbstractHttpEntity getEntity(Message message, Context context) throws Exception {
         String content = message.getBody();
 
         byte[] data = content.getBytes("UTF-8");
-        if (data.length <= (AndroidHttpClient.getMinGzipSize(context.getContentResolver()) * 2)){
+        if (!shouldGzip(message.getHeaders()) || data.length <= (AndroidHttpClient.getMinGzipSize(context.getContentResolver()) * 2)){
             return new StringEntity(content, HTTP.UTF_8);
         }
         else {
@@ -260,9 +264,9 @@ public class Dispatcher {
         }
     }
 
-    private static AbstractHttpEntity getCompressedEntity(byte[] data, Context context) throws Exception {
+    private AbstractHttpEntity getCompressedEntity(byte[] data, Context context) throws Exception {
         ByteArrayOutputStream arr = new ByteArrayOutputStream();
-        OutputStream zipper = new GZIPOutputStream(arr);
+        OutputStream zipper = this.outputStreamFactory.createGzipOutputStream(arr);
         zipper.write(data);
         zipper.close();
 
